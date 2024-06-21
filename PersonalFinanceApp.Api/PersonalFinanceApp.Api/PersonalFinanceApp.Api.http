@@ -1,0 +1,36 @@
+@PersonalFinanceApp_Api_HostAddress = https://localhost:7236/api
+
+GET {{PersonalFinanceApp_Api_HostAddress}}/transactions/
+Accept: application/json
+
+###
+GET {{PersonalFinanceApp_Api_HostAddress}}/transactions/2
+Accept: application/json
+
+###
+POST {{PersonalFinanceApp_Api_HostAddress}}/transactions/
+Content-Type: application/json
+Accept: application/json
+{
+  "categoryId": 2,
+  "date": "2024-06-21",
+  "amount": 45,
+  "description": "string",
+  "location": "string"  
+}
+
+###
+PUT {{PersonalFinanceApp_Api_HostAddress}}/transactions/2
+Content-Type: application/json
+Accept: application/json
+{
+  "id":2,
+  "categoryId": 2,
+  "date": "2023-08-13",
+  "amount": 44,
+  "description": "Uber ride to Airbnb",
+  "location": "YYZ Toronto Airport"  
+}
+
+###
+DELETE {{PersonalFinanceApp_Api_HostAddress}}/transactions/6
