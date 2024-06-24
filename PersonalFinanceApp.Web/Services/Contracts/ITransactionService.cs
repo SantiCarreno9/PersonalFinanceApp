@@ -6,5 +6,6 @@ namespace PersonalFinanceApp.Web.Services.Contracts
     {
         Task<IEnumerable<TransactionDTO>?> GetTransactions();
         Task<TransactionDTO?> GetTransaction(long id);
+        Task<TransactionDTO?> CreateTransaction(TransactionDTO transactionDTO);
     }
 }

@@ -13,7 +13,8 @@ namespace BaseLibrary.Extensions
                 Date = transactionDTO.Date,
                 Amount = transactionDTO.Amount,
                 Description = transactionDTO.Description,
-                Location = transactionDTO.Location
+                Location = transactionDTO.Location,
+                TransactionType = transactionDTO.TransactionType
             };
         }
 
@@ -27,7 +28,8 @@ namespace BaseLibrary.Extensions
                 Amount = transaction.Amount,
                 Date = transaction.Date,
                 Description = transaction.Description,
-                Location = transaction.Location
+                Location = transaction.Location,
+                TransactionType = transaction.TransactionType
             };
         }
 

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Net.Http.Headers;
 using PersonalFinanceApp.Api.Data;
 using PersonalFinanceApp.Api.Middleware;
 using PersonalFinanceApp.Api.Repositories.Contracts;
@@ -20,6 +21,7 @@ builder.Services.AddDbContextPool<AppDbContext>(option =>
 );
 
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
@@ -32,6 +34,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors(policy =>
+    policy.WithOrigins("http://localhost:7184", "https://localhost:7184")
+    .AllowAnyMethod()
+    .WithHeaders(HeaderNames.ContentType)
+);
 
 using (var scope = app.Services.CreateScope())
 {

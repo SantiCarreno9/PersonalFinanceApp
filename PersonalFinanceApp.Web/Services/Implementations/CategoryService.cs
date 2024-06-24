@@ -1,20 +1,20 @@
-﻿using BaseLibrary.DTOs;
+﻿using BaseLibrary.Entities;
 using PersonalFinanceApp.Web.Services.Contracts;
 using System.Net.Http.Json;
 
 namespace PersonalFinanceApp.Web.Services.Implementations
 {
-    public class TransactionService : ITransactionService
+    public class CategoryService : ICategoryService
     {
         private readonly HttpClient _httpClient;
-        private const string ApiURI = "/api/transactions";
+        private const string ApiURI = "/api/categories";
 
-        public TransactionService(HttpClient httpClient)
+        public CategoryService(HttpClient httpClient)
         {
             this._httpClient = httpClient;
         }
 
-        public async Task<TransactionDTO?> GetTransaction(long id)
+        public async Task<Category?> GetCategory(int id)
         {
             try
             {
@@ -24,7 +24,7 @@ namespace PersonalFinanceApp.Web.Services.Implementations
                     if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
                         return null;
 
-                    return await response.Content.ReadFromJsonAsync<TransactionDTO>();
+                    return await response.Content.ReadFromJsonAsync<Category>();
                 }
                 else
                 {
@@ -39,7 +39,7 @@ namespace PersonalFinanceApp.Web.Services.Implementations
             }
         }
 
-        public async Task<IEnumerable<TransactionDTO>?> GetTransactions()
+        public async Task<IEnumerable<Category>?> GetCategories()
         {
             try
             {
@@ -48,32 +48,8 @@ namespace PersonalFinanceApp.Web.Services.Implementations
                 {
                     if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
                         return null;
-
-                    return await response.Content.ReadFromJsonAsync<IEnumerable<TransactionDTO>>();
-                }
-                else
-                {
-                    var message = await response.Content.ReadAsStringAsync();
-                    throw new Exception(message);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
-        }
-
-        public async Task<TransactionDTO?> CreateTransaction(TransactionDTO transactionDTO)
-        {
-            try
-            {
-                var response = await _httpClient.PostAsJsonAsync(ApiURI, transactionDTO);
-                if (response.IsSuccessStatusCode)
-                {
-                    if (response.StatusCode != System.Net.HttpStatusCode.Created)
-                        return null;
-                    return await response.Content.ReadFromJsonAsync<TransactionDTO>();
+                    
+                    return await response.Content.ReadFromJsonAsync<IEnumerable<Category>>();
                 }
                 else
                 {

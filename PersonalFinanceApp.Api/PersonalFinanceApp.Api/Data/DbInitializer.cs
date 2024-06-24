@@ -8,12 +8,9 @@ namespace PersonalFinanceApp.Api.Data
         {
             context.Database.EnsureCreated();
             //return;
-            if (context.Transactions.Any())
+            if (!context.Categories.Any())
             {
-                return;
-            }
-
-            var categories = new Category[]
+                var categories = new Category[]
             {
                 new Category
                 {
@@ -57,14 +54,15 @@ namespace PersonalFinanceApp.Api.Data
                 }
             };
 
-            foreach (var category in categories)
-            {
-                context.Add(category);
+                foreach (var category in categories)
+                    context.Add(category);
+
+                context.SaveChanges();
             }
 
-            context.SaveChanges();            
-
-            var transactions = new Transaction[]
+            if(!context.Transactions.Any())
+            {
+                var transactions = new Transaction[]
             {
                 new Transaction
                 {
@@ -72,7 +70,8 @@ namespace PersonalFinanceApp.Api.Data
                     Amount=10000,
                     Date= new DateTime(2023,11,15),
                     Description="Payment",
-                    Location="Centennial College"
+                    Location="Centennial College",
+                    TransactionType = TransactionType.Expense
                 },
                 new Transaction
                 {
@@ -80,7 +79,8 @@ namespace PersonalFinanceApp.Api.Data
                     Amount=68.08M,
                     Date= new DateTime(2023,08,13),
                     Description="Uber ride to Airbnb",
-                    Location="Toronto Airport"
+                    Location="Toronto Airport",
+                    TransactionType = TransactionType.Expense
                 },
                 new Transaction
                 {
@@ -88,16 +88,27 @@ namespace PersonalFinanceApp.Api.Data
                     Amount=3200,
                     Date= new DateTime(2023,08,23),
                     Description="First and Last month",
-                    Location="775 Midland Avenue"
+                    Location="775 Midland Avenue",
+                    TransactionType = TransactionType.Expense
+                },
+                new Transaction
+                {
+                    CategoryId = context.Categories.Single(c=>c.Name.Equals("Rent")).Id,
+                    Amount=1067.97M,
+                    Date= new DateTime(2024,01,05),
+                    Description="Payment",
+                    Location="Mad Mexican",
+                    TransactionType = TransactionType.Income
                 }
             };
 
-            foreach (var transaction in transactions)
-            {
-                context.Add(transaction);
-            }            
+                foreach (var transaction in transactions)
+                {
+                    context.Add(transaction);
+                }
 
-            context.SaveChanges();
+                context.SaveChanges();
+            }            
         }
     }
 }

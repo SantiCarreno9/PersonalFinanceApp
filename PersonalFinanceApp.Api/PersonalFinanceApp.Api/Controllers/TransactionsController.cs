@@ -1,7 +1,6 @@
 ﻿using BaseLibrary.DTOs;
 using BaseLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using PersonalFinanceApp.Api.Repositories.Contracts;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -33,7 +32,7 @@ namespace PersonalFinanceApp.Api.Controllers
 
         // GET api/transactions/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TransactionDTO>> GetTransaction(int id)
+        public async Task<ActionResult<TransactionDTO>> GetTransaction(long id)
         {
             var transaction = await _transactionRepository.GetTransaction(id);
             if (transaction == null)

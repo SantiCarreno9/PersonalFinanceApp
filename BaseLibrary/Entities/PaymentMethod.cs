@@ -2,10 +2,10 @@
 
 namespace BaseLibrary.Entities
 {
-    public class Category
+    public class PaymentMethod
     {
         public int Id { get; set; }
-        [Column(TypeName ="nvarchar(50)")]
-        public string Name { get; set; }                
+        [Column(TypeName = "nvarchar(20)")]
+        public string Name { get; set; }
     }
 }

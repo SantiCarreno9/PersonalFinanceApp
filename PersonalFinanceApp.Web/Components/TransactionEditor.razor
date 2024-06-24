@@ -1,0 +1,51 @@
+﻿@using Syncfusion.Blazor.Buttons
+
+<h3>Transaction</h3>
+
+<EditForm Model="Transaction" OnValidSubmit="Submit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label>
+            Description:
+            <InputText @bind-Value="Transaction!.Description" />
+        </label>
+    </div>
+    <div>
+        <label>
+            Location:
+            <InputText @bind-Value="Transaction!.Location" />
+        </label>
+    </div>
+    <div>
+        <label>
+            Date:
+            <InputDate @bind-Value="Transaction!.Date" />
+        </label>
+    </div>
+    <div>
+        <label>
+            Amount:
+            <InputNumber @bind-Value="Transaction!.Amount" />
+        </label>
+    </div>
+    @if (Categories != null)
+    {
+        <div>
+            <label>
+                Category:
+                <InputSelect @bind-Value="Transaction!.CategoryId">
+                    @foreach (var category in Categories)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                </InputSelect>
+            </label>
+        </div>
+    }
+    <SfButton HtmlAttributes='new Dictionary<string, object>{{"type","submit"}}'>Submit</SfButton>
+</EditForm>
+
+@code {
+
+}

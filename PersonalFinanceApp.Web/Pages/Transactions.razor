@@ -1,10 +1,78 @@
 ﻿@page "/transactions"
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Navigations
+
+@using PersonalFinanceApp.Web.Components
 
 <h3>Transactions</h3>
 
-<QuickGrid></QuickGrid>
+<SfTab CssClass="default-tab">
+    <TabAnimationSettings>
+        <TabAnimationPrevious Effect=AnimationEffect.None></TabAnimationPrevious>
+        <TabAnimationNext Effect=AnimationEffect.None></TabAnimationNext>
+    </TabAnimationSettings>
+    <TabEvents Selected="OnTabSelected"></TabEvents>
+    <TabItems>
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Expenses"></TabHeader>
+            </ChildContent>
+        </TabItem>
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Income"></TabHeader>
+            </ChildContent>
+        </TabItem>
 
-@code {
-
+    </TabItems>
+</SfTab>
+@* <SfButton IsToggle>Expenses</SfButton> *@
+@if (visibleTransactions == null)
+{
+    <p>Loading...</p>
 }
+else
+{
+    <div style="width:100%">
+        <QuickGrid style="width:100%" Virtualize Items="@visibleTransactions">
+            <PropertyColumn Property="@(p => p.Description)" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Location)" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Date)" Format="yyyy-MM-dd" Sortable="true" />
+            <PropertyColumn Property="@(p => p.CategoryName)" Sortable="true" Title="Category" />
+            <PropertyColumn Property="@(p => p.Amount)" Sortable="true" />
+        </QuickGrid>
+    </div>
+}
+
+<SfButton OnClick="()=>{shouldShowDialog=true;}">Add Transaction</SfButton>
+@* @if (transactions == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div style="width:100%">
+        <QuickGrid style="width:100%" Virtualize Items="@transactions">
+            <PropertyColumn Property="@(p => p.Description)" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Location)" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Date)" Format="yyyy-MM-dd" Sortable="true" />
+            <PropertyColumn Property="@(p => p.CategoryName)" Sortable="true" Title="Category" />
+            <PropertyColumn Property="@(p => p.Amount)" Sortable="true" />
+        </QuickGrid>
+    </div>
+} *@
+<SfDialog Width="500px" ShowCloseIcon="true" IsModal @bind-Visible=shouldShowDialog>
+    <DialogTemplates>
+        <Header>
+            Add Expense
+        </Header>
+        <Content>
+            <TransactionEditor OnSuccessfullySubmitted="OnTransactionAdded"></TransactionEditor>
+        </Content>
+    </DialogTemplates>
+    <DialogEvents OnClose="HideDialog"></DialogEvents>
+</SfDialog>

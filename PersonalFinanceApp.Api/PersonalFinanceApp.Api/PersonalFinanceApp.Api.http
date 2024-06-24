@@ -1,5 +1,6 @@
 @PersonalFinanceApp_Api_HostAddress = https://localhost:7236/api
 
+//TRANSACTIONS
 GET {{PersonalFinanceApp_Api_HostAddress}}/transactions/
 Accept: application/json
 
@@ -34,3 +35,12 @@ Accept: application/json
 
 ###
 DELETE {{PersonalFinanceApp_Api_HostAddress}}/transactions/6
+
+###
+//CATEGORIES
+GET {{PersonalFinanceApp_Api_HostAddress}}/categories
+Accept: application/json
+
+###
+GET {{PersonalFinanceApp_Api_HostAddress}}/categories/1
+Accept: application/json

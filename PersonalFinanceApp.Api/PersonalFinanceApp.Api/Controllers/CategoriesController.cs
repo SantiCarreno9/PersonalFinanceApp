@@ -1,8 +1,7 @@
-﻿using BaseLibrary.Entities;
+﻿using BaseLibrary.DTOs;
+using BaseLibrary.Entities;
 using Microsoft.AspNetCore.Mvc;
-using PersonalFinanceApp.Api.Data;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using PersonalFinanceApp.Api.Repositories.Contracts;
 
 namespace PersonalFinanceApp.Api.Controllers
 {
@@ -10,42 +9,72 @@ namespace PersonalFinanceApp.Api.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public CategoriesController(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly ICategoryRepository _categoryRepository;
 
-        // GET: api/<CategoriesController>
+        public CategoriesController(ICategoryRepository transactionRepository)
+        {
+            _categoryRepository = transactionRepository;
+        }
+        // GET: api/transactions
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
-            return new string[] { "value1", "value2" };
+            var categories = await _categoryRepository.GetCategories();
+
+            if (categories == null)
+                return NoContent();
+            
+            return Ok(categories);
         }
 
-        // GET api/<CategoriesController>/5
+        // GET api/transactions/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<ActionResult<Category>> GetCategory(int id)
         {
-            return "value";
+            var category = await _categoryRepository.GetCategory(id);
+            if (category == null)
+                return NotFound();
+            
+            return Ok(category);
         }
 
-        // POST api/<CategoriesController>
+        // POST api/transactions
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<ActionResult<Category>> CreateCategory([FromBody] Category categoryToAdd)
         {
+            if (categoryToAdd == null)
+                throw new BadHttpRequestException(new ArgumentNullException().Message);
+            var category = await _categoryRepository.AddCategory(categoryToAdd);
+            return CreatedAtAction(
+                nameof(GetCategory),
+                new { id = category.Id },
+                category);
         }
 
-        // PUT api/<CategoriesController>/5
+        // PUT api/transactions/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<ActionResult<TransactionDTO>> UpdateCategory(int id, [FromBody] Category categoryToUpdate)
         {
+            if (categoryToUpdate == null)
+                throw new BadHttpRequestException(new ArgumentNullException().Message);
+            if (id != categoryToUpdate.Id)
+                return BadRequest();
+
+            var category = await _categoryRepository.UpdateCategory(id, categoryToUpdate);
+            if (category == null)
+                return NotFound();
+
+            return Ok(category);
         }
 
-        // DELETE api/<CategoriesController>/5
+        // DELETE api/transactions/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<ActionResult> DeleteCategory(int id)
         {
+            var category = await _categoryRepository.DeleteCategory(id);
+            if (category == null)
+                return NotFound();
+            return NoContent();
         }
     }
 }
