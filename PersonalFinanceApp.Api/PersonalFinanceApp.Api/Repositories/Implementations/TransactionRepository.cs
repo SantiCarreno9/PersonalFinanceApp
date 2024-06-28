@@ -14,20 +14,20 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
             _context = context;
         }
 
-        public async Task<Transaction?> GetTransaction(long id)
+        public async Task<Transaction?> GetTransaction(string userId, long id)
         {
             var transaction = await _context.Transactions
-                .Include(x => x.Category)
+                .Include(t => t.TransactionDetails)!
                 .AsNoTracking()
-                .SingleOrDefaultAsync(t => t.Id == id);
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.Id == id);
             return transaction;
         }
 
-        public async Task<IEnumerable<Transaction>?> GetTransactions()
+        public async Task<IEnumerable<Transaction>?> GetTransactions(string userId)
         {
             var transactions = await _context.Transactions
-                .Include(x => x.Category)
                 .AsNoTracking()
+                .Where(t => t.UserId == userId)
                 .ToListAsync();
             return transactions;
         }
@@ -36,7 +36,6 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
         {
             var result = await _context.Transactions.AddAsync(transaction);
             await _context.SaveChangesAsync();
-            result.Entity.Category = await GetCategory(result.Entity.CategoryId); ;
             return result.Entity;
         }
 
@@ -56,19 +55,59 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
 
         public async Task<Transaction?> UpdateTransaction(long id, Transaction transaction)
         {
-            var transactionToUpdate = await _context.Transactions.FindAsync(id);
+            var transactionToUpdate = await _context.Transactions
+                .Include(t => t.TransactionDetails)
+                .FirstOrDefaultAsync(t => t.Id == id);
             if (transactionToUpdate == null)
                 return null;
 
-            transactionToUpdate.Description = transaction.Description;
+            //Transaction
             transactionToUpdate.Date = transaction.Date;
-            transactionToUpdate.CategoryId = transaction.CategoryId;
-            transactionToUpdate.Amount = transaction.Amount;
+            transactionToUpdate.PaymentMethodId = transaction.PaymentMethodId;
+            transactionToUpdate.TransactionTypeId = transaction.TransactionTypeId;
+            transactionToUpdate.TotalAmount = transaction.TotalAmount;
             transactionToUpdate.Location = transaction.Location;
 
+            //Transaction Details
+            var existingDetails = transactionToUpdate.TransactionDetails;
+            var newTransactionDetails = transaction.TransactionDetails;
+            int countDifference = existingDetails.Count() - newTransactionDetails.Count();
+            if (countDifference < 0)
+            {
+                for (int i = 0; i < Math.Abs(countDifference); i++)
+                {
+                    var newDetail = await _context.TransactionDetails.AddAsync(new TransactionDetail() { TransactionId = id });
+                    existingDetails.Add(newDetail.Entity);
+                }
+            }
+            else if (countDifference > 0)
+            {
+                for (int i = 0; i < Math.Abs(countDifference); i++)
+                {
+                    var deletedDetail = _context.TransactionDetails.Remove(existingDetails.ElementAt(existingDetails.Count - 1));
+                    existingDetails.Remove(deletedDetail.Entity);
+                }
+            }
+
+            for (int i = 0; i < existingDetails.Count; i++)
+            {
+                existingDetails.ElementAt(i).CategoryId = newTransactionDetails.ElementAt(i).CategoryId;
+                existingDetails.ElementAt(i).Description = newTransactionDetails.ElementAt(i).Description;
+                existingDetails.ElementAt(i).Amount = newTransactionDetails.ElementAt(i).Amount;
+            }
+
             await _context.SaveChangesAsync();
-            transactionToUpdate.Category = await GetCategory(transaction.CategoryId);
             return transactionToUpdate;
+        }        
+
+        public async Task<bool> UserOwnsTransaction(string userId, long transactionId)
+        {
+            var transaction = await _context.Transactions.AsNoTracking().FirstOrDefaultAsync(t => t.Id == transactionId);
+            if (transaction == null)
+                return false;
+            if (transaction.UserId.Equals(userId, StringComparison.Ordinal))
+                return true;
+            return false;
         }
 
         private async Task<Category?> GetCategory(int id)
@@ -76,6 +115,11 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
             return await _context.Categories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task<IEnumerable<TransactionType>> GetTransactionTypes()
+        {
+            return await _context.TransactionTypes.ToListAsync();
         }
     }
 }

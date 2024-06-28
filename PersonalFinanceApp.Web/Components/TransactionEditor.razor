@@ -8,7 +8,7 @@
     <div>
         <label>
             Description:
-            <InputText @bind-Value="Transaction!.Description" />
+            @* <InputText @bind-Value="Transaction!.Description" /> *@
         </label>
     </div>
     <div>
@@ -26,7 +26,7 @@
     <div>
         <label>
             Amount:
-            <InputNumber @bind-Value="Transaction!.Amount" />
+            <InputNumber @bind-Value="Transaction!.TotalAmount" />
         </label>
     </div>
     @if (Categories != null)
@@ -34,12 +34,12 @@
         <div>
             <label>
                 Category:
-                <InputSelect @bind-Value="Transaction!.CategoryId">
+                @* <InputSelect @bind-Value="Transaction!.CategoryId">
                     @foreach (var category in Categories)
                     {
                         <option value="@category.Id">@category.Name</option>
                     }
-                </InputSelect>
+                </InputSelect> *@
             </label>
         </div>
     }

@@ -37,6 +37,11 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
             return categories;
         }
 
+        public async Task<IEnumerable<Category>?> GetCategoriesByTransactionType(int id)
+        {
+            return await _context.Categories.Where(c=>c.TransactionTypeId == id).ToListAsync();
+        }
+
         public async Task<Category?> GetCategory(int id)
         {
             var category = await _context.Categories.SingleOrDefaultAsync(c => c.Id == id);

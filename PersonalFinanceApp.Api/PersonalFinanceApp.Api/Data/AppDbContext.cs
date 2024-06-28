@@ -1,9 +1,11 @@
 ﻿using BaseLibrary.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace PersonalFinanceApp.Api.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<IdentityUser>
     {
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<TransactionDetail> TransactionDetails { get; set; }
@@ -18,27 +20,30 @@ namespace PersonalFinanceApp.Api.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
-            //modelBuilder.Entity<Transaction>()
-            //.HasOne(t => t.TransactionType)                        
 
-            //modelBuilder.Entity<Transaction>()
-            //    .HasOne(t => t.TransactionType)
-            //    .WithMany(tt => tt.Transactions)
-            //    .HasForeignKey(t => t.TransactionTypeId);
+            modelBuilder.Entity<IdentityUser>()
+                .HasMany<Transaction>()
+                .WithOne()
+                .HasForeignKey(t=>t.UserId)
+                .IsRequired();            
 
-            //modelBuilder.Entity<Transaction>()
-            //    .HasOne(t => t.PaymentMethod)
-            //    .WithMany(pm => pm.Transactions)
-            //    .HasForeignKey(t => t.PaymentMethodId);
+            modelBuilder.Entity<TransactionDetail>()
+                .HasOne(td => td.Transaction)
+                .WithMany(t => t.TransactionDetails)
+                .HasForeignKey(td => td.TransactionId)                
+                .OnDelete(DeleteBehavior.Cascade);
 
-            //modelBuilder.Entity<TransactionDetail>()
-            //    .HasKey(td => new { td.TransactionId, td.LineNumber });
+            modelBuilder.Entity<Category>()
+                .Property(c => c.Id)
+                .ValueGeneratedNever();
 
-            //modelBuilder.Entity<TransactionDetail>()
-            //    .HasOne(td => td.Transaction)
-            //    .WithMany(t => t.)
-            //    .HasForeignKey(td => td.TransactionId);
+            modelBuilder.Entity<PaymentMethod>()
+                .Property(c => c.Id)
+                .ValueGeneratedNever();
+
+            modelBuilder.Entity<TransactionType>()
+                .Property(c => c.Id)
+                .ValueGeneratedNever();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BaseLibrary.DTOs;
+using BaseLibrary.Entities;
 
 namespace PersonalFinanceApp.Web.Services.Contracts
 {
@@ -7,5 +8,7 @@ namespace PersonalFinanceApp.Web.Services.Contracts
         Task<IEnumerable<TransactionDTO>?> GetTransactions();
         Task<TransactionDTO?> GetTransaction(long id);
         Task<TransactionDTO?> CreateTransaction(TransactionDTO transactionDTO);
+
+        Task<IEnumerable<TransactionType>?> GetTransactionTypes();
     }
 }

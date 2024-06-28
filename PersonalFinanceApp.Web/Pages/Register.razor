@@ -1,0 +1,60 @@
+﻿@page "/register"
+@using Syncfusion.Blazor.Buttons
+
+<PageTitle>Register</PageTitle>
+
+<h1>Register</h1>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="alert alert-success">You're already logged in as @context.User.Identity?.Name.</div>
+    </Authorized>
+    <NotAuthorized>
+        @if (success)
+        {
+            <div class="alert alert-success">You successfully registered. Now you can <a href="login">login</a>.</div>
+        }
+        else
+        {
+            if (errors)
+            {
+                foreach (var error in errorList)
+                {
+                    <div class="alert alert-danger">@error</div>
+                }
+            }
+            <EditForm Context="formContext" Model="RegisterModel" OnValidSubmit="Submit">
+                <DataAnnotationsValidator />
+                <div>
+                    <label>
+                        Username:
+                        <InputText id="" @bind-Value="RegisterModel!.UserName" />
+                        <ValidationMessage For="()=>RegisterModel!.UserName" />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        Email:
+                        <InputText @bind-Value="RegisterModel!.EmailAddress" />
+                        <ValidationMessage For="()=>RegisterModel!.EmailAddress" />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        Password:
+                        <InputText AdditionalAttributes='new Dictionary<string,object>{{"type","password"}}' @bind-Value="RegisterModel!.Password" />
+                        <ValidationMessage For="()=>RegisterModel!.Password" />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        Confirm Password:
+                        <InputText AdditionalAttributes='new Dictionary<string,object>{{"type","password"}}' @bind-Value="RegisterModel!.ConfirmPassword" />
+                        <ValidationMessage For="()=>RegisterModel!.ConfirmPassword" />
+                    </label>
+                </div>
+                <SfButton HtmlAttributes='new Dictionary<string, object>{{"type","submit"}}'>Register</SfButton>
+            </EditForm>
+        }
+    </NotAuthorized>
+</AuthorizeView>

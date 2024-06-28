@@ -37,10 +37,18 @@ Accept: application/json
 DELETE {{PersonalFinanceApp_Api_HostAddress}}/transactions/6
 
 ###
+GET {{PersonalFinanceApp_Api_HostAddress}}/transactions/types
+Accept: application/json
+
+###
 //CATEGORIES
 GET {{PersonalFinanceApp_Api_HostAddress}}/categories
 Accept: application/json
 
 ###
 GET {{PersonalFinanceApp_Api_HostAddress}}/categories/1
+Accept: application/json
+
+###
+GET {{PersonalFinanceApp_Api_HostAddress}}/categories?transactionType=1
 Accept: application/json

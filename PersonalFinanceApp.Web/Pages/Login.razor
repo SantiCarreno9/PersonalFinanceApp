@@ -1,0 +1,46 @@
+﻿@page "/login"
+@using Syncfusion.Blazor.Buttons
+
+<PageTitle>Login</PageTitle>
+
+<h1>Login</h1>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="alert alert-success">You're already logged in as @context.User.Identity?.Name.</div>
+    </Authorized>
+    <NotAuthorized>
+        @if (success)
+        {
+            <div class="alert alert-success">You successfully registered. Now you can <a href="login">login</a>.</div>
+        }
+        else
+        {
+            if (errors)
+            {
+                foreach (var error in errorList)
+                {
+                    <div class="alert alert-danger">@error</div>
+                }
+            }
+            <EditForm Context="formContext" Model="LoginModel" OnValidSubmit="Submit">
+                <DataAnnotationsValidator />                
+                <div>
+                    <label>
+                        Email:
+                        <InputText @bind-Value="LoginModel!.EmailAddress" />
+                        <ValidationMessage For="()=>LoginModel!.EmailAddress" />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        Password:
+                        <InputText AdditionalAttributes='new Dictionary<string,object>{{"type","password"}}' @bind-Value="LoginModel!.Password" />
+                        <ValidationMessage For="()=>LoginModel!.Password" />
+                    </label>
+                </div>                
+                <SfButton HtmlAttributes='new Dictionary<string, object>{{"type","submit"}}'>Login</SfButton>
+            </EditForm>
+        }
+    </NotAuthorized>
+</AuthorizeView>

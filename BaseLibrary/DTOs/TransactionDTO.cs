@@ -1,20 +1,21 @@
-﻿using BaseLibrary.Entities;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BaseLibrary.DTOs
 {
     public class TransactionDTO
     {
         public long Id { get; set; }
-        public int CategoryId { get; set; }
         [Required]
         [DataType(DataType.Date)]
         public DateTime Date { get; set; } = DateTime.Now;
         [Required]
-        public decimal Amount { get; set; }
-        public string? Description { get; set; }
+        public decimal TotalAmount { get; set; }
+        public int CategoryId { get; set; }
         public string? Location { get; set; }
-        public string? CategoryName { get; set; }
-        public TransactionType TransactionType { get; set; }
+
+        public int TransactionTypeId { get; set; }
+        public int PaymentMethodId { get; set; }
+
+        public ICollection<TransactionDetailDTO> TransactionDetails { get; set; }
     }
 }

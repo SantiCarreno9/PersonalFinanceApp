@@ -10,34 +10,47 @@ namespace PersonalFinanceApp.Web.Pages
     {
         [Inject]
         public required ITransactionService TransactionService { get; set; }
+        [Inject]
+        public required ICategoryService CategoryService { get; set; }
+
         private IQueryable<TransactionDTO>? transactions;
         private IQueryable<TransactionDTO>? visibleTransactions;
+        private IEnumerable<TransactionType>? transactionTypes;
         private bool shouldShowDialog = false;
+
+        private Dictionary<int, string> categories = new Dictionary<int, string>();
+
+        private byte currentTransactionType = 1;
 
         protected override async Task OnInitializedAsync()
         {
+            transactionTypes = await TransactionService.GetTransactionTypes();
+            if (transactionTypes == null)
+                return;
+
+            var categories = await CategoryService.GetCategories();
+            if (categories == null)
+                return;
+
+            foreach (var category in categories)
+            {
+                this.categories.Add(category.Id, category.Name);
+            }
+
             var simpleTransactions = await TransactionService.GetTransactions();
             transactions = simpleTransactions?.AsQueryable();
-
-            visibleTransactions = transactions?.Where(t => t.TransactionType == TransactionType.Expense);
-            //expenses = transactions?.Where(t => t.TransactionType == TransactionType.Expense);
-            //income = transactions?.Where(t => t.TransactionType == TransactionType.Income);
+            OnTabSelected(currentTransactionType);
         }
 
-        private void OnTabSelected(SelectEventArgs eventArgs)
+        private void DisplayTransaction(long id)
         {
-            switch (eventArgs.SelectedIndex)
-            {
-                case 0:
-                    visibleTransactions = transactions?.Where(t => t.TransactionType == TransactionType.Expense);
-                    break;
-                case 1:
-                    visibleTransactions = transactions?.Where(t => t.TransactionType == TransactionType.Income);
-                    break;
-                default:
-                    break;
-            }
-            StateHasChanged();
+
+        }
+
+        private void OnTabSelected(int selectedType)
+        {
+            currentTransactionType = (byte)selectedType;
+            visibleTransactions = transactions?.Where(t => t.TransactionTypeId == currentTransactionType);
         }
 
         private void OnTransactionAdded(TransactionDTO transactionDTO)

@@ -8,29 +8,30 @@
 
 @using PersonalFinanceApp.Web.Components
 
-<h3>Transactions</h3>
-
-<SfTab CssClass="default-tab">
-    <TabAnimationSettings>
-        <TabAnimationPrevious Effect=AnimationEffect.None></TabAnimationPrevious>
-        <TabAnimationNext Effect=AnimationEffect.None></TabAnimationNext>
-    </TabAnimationSettings>
-    <TabEvents Selected="OnTabSelected"></TabEvents>
-    <TabItems>
-        <TabItem>
-            <ChildContent>
-                <TabHeader Text="Expenses"></TabHeader>
-            </ChildContent>
-        </TabItem>
-        <TabItem>
-            <ChildContent>
-                <TabHeader Text="Income"></TabHeader>
-            </ChildContent>
-        </TabItem>
-
-    </TabItems>
-</SfTab>
-@* <SfButton IsToggle>Expenses</SfButton> *@
+<div style="flex-direction:column">
+    <h3>Transactions</h3>
+    <button class="btn btn-primary" @onclick="()=>{shouldShowDialog=true;}"> Add Transaction </button>
+</div>
+<br />
+@if (transactionTypes == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <ul class="nav nav-tabs">
+        @foreach (var item in transactionTypes)
+        {
+            <li class="nav-item">
+                <a class="nav-link @(currentTransactionType==item.Id?"active":"")" aria-current="page" href="#"
+                @onclick:preventDefault @onclick="()=>OnTabSelected(item.Id)">@item.Name</a>
+            </li>
+        }
+        @*<li class="nav-item">
+    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+    </li> *@
+    </ul>
+}
 @if (visibleTransactions == null)
 {
     <p>Loading...</p>
@@ -39,32 +40,17 @@ else
 {
     <div style="width:100%">
         <QuickGrid style="width:100%" Virtualize Items="@visibleTransactions">
-            <PropertyColumn Property="@(p => p.Description)" Sortable="true" />
             <PropertyColumn Property="@(p => p.Location)" Sortable="true" />
-            <PropertyColumn Property="@(p => p.Date)" Format="yyyy-MM-dd" Sortable="true" />
-            <PropertyColumn Property="@(p => p.CategoryName)" Sortable="true" Title="Category" />
-            <PropertyColumn Property="@(p => p.Amount)" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Date)" Format="MMMM dd, yyyy" Sortable="true" />
+            <PropertyColumn Property="@(p => categories[p.CategoryId])" Sortable="true" Title="Category"/>
+            <PropertyColumn Property="@(p => p.TotalAmount)" Sortable="true" />
+            <TemplateColumn Context="transaction">
+                <SfIcon Name="IconName.Eye"></SfIcon>
+                <SfIcon Name="IconName.Trash"></SfIcon>
+            </TemplateColumn>
         </QuickGrid>
     </div>
 }
-
-<SfButton OnClick="()=>{shouldShowDialog=true;}">Add Transaction</SfButton>
-@* @if (transactions == null)
-{
-    <p>Loading...</p>
-}
-else
-{
-    <div style="width:100%">
-        <QuickGrid style="width:100%" Virtualize Items="@transactions">
-            <PropertyColumn Property="@(p => p.Description)" Sortable="true" />
-            <PropertyColumn Property="@(p => p.Location)" Sortable="true" />
-            <PropertyColumn Property="@(p => p.Date)" Format="yyyy-MM-dd" Sortable="true" />
-            <PropertyColumn Property="@(p => p.CategoryName)" Sortable="true" Title="Category" />
-            <PropertyColumn Property="@(p => p.Amount)" Sortable="true" />
-        </QuickGrid>
-    </div>
-} *@
 <SfDialog Width="500px" ShowCloseIcon="true" IsModal @bind-Visible=shouldShowDialog>
     <DialogTemplates>
         <Header>
