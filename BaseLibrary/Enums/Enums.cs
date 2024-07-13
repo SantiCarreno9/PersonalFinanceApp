@@ -39,6 +39,7 @@ public enum ExpenseCategories
     Savings,
     Investment,
     DebtPayment,
+    Gifts,
     Miscellaneous = 99
 }
 

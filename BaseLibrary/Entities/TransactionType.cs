@@ -6,7 +6,7 @@ namespace BaseLibrary.Entities
     public class TransactionType
     {
         [Key]
-        public int Id { get; set; }
+        public byte Id { get; set; }
         [Column(TypeName = "nvarchar(50)")]
         public string Name { get; set; }        
         public ICollection<Category> Categories { get; set; }

@@ -1,0 +1,51 @@
+﻿
+
+nav {
+    background-color: red;
+    opacity: 0;
+}
+
+::deep .quickgrid {
+    /*font-family: 'Comic Sans MS', 'Times New Roman', serif;*/
+    padding: 0;
+}
+
+    ::deep .quickgrid .transaction-hover {
+        background-color: red;
+    }
+
+    ::deep .quickgrid th {
+        gap: 0.4rem; /* Separate the sort indicator from title text */
+        font-weight: bold;
+        background-color: lightgray;
+        margin: 0;
+        border-color: black;
+        border-width: thin;        
+        /*text-transform: uppercase;*/
+    }
+
+    ::deep .quickgrid .col-header-content{
+        padding-right:0;
+    }
+
+    ::deep .quickgrid tr {
+        cursor: pointer;
+        border-width: 1px;
+        text-overflow: ellipsis;        
+    }
+
+        ::deep .quickgrid tr:hover {
+            background-color: lightgray;
+        }
+
+    ::deep .quickgrid[theme=corporate] .sort-indicator {
+        color: blue;
+    }
+
+    ::deep .quickgrid[theme=corporate] button.col-title:hover, ::deep .quickgrid[theme=corporate] .col-options-button:hover {
+        background-color: hotpink;
+    }
+
+    ::deep .quickgrid[theme=corporate] button.col-title:active, ::deep .quickgrid[theme=corporate] .col-options-button:active {
+        background-color: yellow;
+    }

@@ -1,51 +1,152 @@
-﻿@using Syncfusion.Blazor.Buttons
+﻿@inherits TransactionEditorBase
+@using BaseLibrary.DTOs
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Navigations
 
-<h3>Transaction</h3>
-
-<EditForm Model="Transaction" OnValidSubmit="Submit">
+<EditForm Model="TransactionForm" OnValidSubmit="Submit">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <div>
-        <label>
-            Description:
-            @* <InputText @bind-Value="Transaction!.Description" /> *@
-        </label>
-    </div>
-    <div>
-        <label>
-            Location:
-            <InputText @bind-Value="Transaction!.Location" />
-        </label>
-    </div>
-    <div>
-        <label>
-            Date:
-            <InputDate @bind-Value="Transaction!.Date" />
-        </label>
-    </div>
-    <div>
-        <label>
-            Amount:
-            <InputNumber @bind-Value="Transaction!.TotalAmount" />
-        </label>
-    </div>
-    @if (Categories != null)
-    {
-        <div>
-            <label>
-                Category:
-                @* <InputSelect @bind-Value="Transaction!.CategoryId">
-                    @foreach (var category in Categories)
-                    {
-                        <option value="@category.Id">@category.Name</option>
-                    }
-                </InputSelect> *@
-            </label>
+    <div class="container">
+        <div class="mb-2">
+            <InputRadioGroup class="form-check" Value="@TransactionForm!.TransactionTypeId"
+                             ValueChanged="@((byte tt)=>OnTransactionTypeChanged(tt))" ValueExpression="()=>TransactionForm!.TransactionTypeId">
+                <div>
+                    <InputRadio class="form-check-input" Value="@((byte)TransactionTypes.Expense)" /> Expense
+                    @* </div> *@
+                    @* <div> *@
+                    <InputRadio class="form-check-input" Value="@((byte)TransactionTypes.Income)" /> Income
+                </div>
+            </InputRadioGroup>
         </div>
-    }
-    <SfButton HtmlAttributes='new Dictionary<string, object>{{"type","submit"}}'>Submit</SfButton>
+        <div class="row">
+            <div class="col-md">
+                <div class="form-floating mb-2">
+                    <InputDate class="form-control" id="dateInput" @bind-Value="TransactionForm!.Date" @bind-Value:format="dd/MM/yyyy" />
+                    <label for="dateInput">Date</label>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="form-floating mb-2">
+                    <InputSelect class="form-select" id="paymentMethodInput" DisplayName="Payment Method" @bind-Value="@TransactionForm!.PaymentMethodId">
+                        @if (PaymentMethods != null)
+                        {
+                            @foreach (var item in PaymentMethods.Keys)
+                            {
+                                <option value="@item">@GetPaymentMethod(item)</option>
+                            }
+                        }
+                    </InputSelect>
+                    <label for="paymentMethodInput">Payment Method</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-floating mb-2">
+            <SfAutoComplete CssClass="form-control" Placeholder="e.g. Dollarama" DataSource="@locations" @bind-Value="TransactionForm!.Location">
+                <AutoCompleteFieldSettings Value="Text"></AutoCompleteFieldSettings>
+            </SfAutoComplete>
+            <label for="locationInput">Location</label>
+        </div>
+
+        <div class="details-container">
+            <div class="accordion" style="width:100%;" id="detailsAccordion">
+                @if (TransactionForm.TransactionDetails != null)
+                {
+                    int index = 0;
+                    @foreach (var item in TransactionForm.TransactionDetails)
+                    {
+                        index++;
+                        <div class="accordion-item">
+                            <div class="accordion-header">
+                                <button class="accordion-button" style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;"
+                                @onclick:preventDefault data-bs-toggle="collapse" data-bs-target="@($"#collapse{index}")" aria-expanded="false" aria-controls="@($"collapse{index}")">
+                                    Item @($"{index} ${item.Amount}")
+                                    <div style="flex:1;align-content:end;">
+                                        @if (index == TransactionForm.TransactionDetails.Count)
+                                        {
+                                            <button type="button" class="btn-close plus mr-2"
+                                                    @onclick="()=>{TransactionForm.TransactionDetails.Add(new TransactionDetailDTO());}" @onclick:preventDefault @onclick:stopPropagation></button>
+                                        }
+                                        @if (index != 1)
+                                        {
+                                            <button type="button" class="btn-close" @onclick="()=>{TransactionForm.TransactionDetails.Remove(item);}" @onclick:preventDefault
+                                            @onclick:stopPropagation aria-label="Close"></button>
+                                        }
+                                    </div>
+                                </button>
+                            </div>
+                            <div id="@($"collapse{index}")" class="accordion-collapse collapse show" data-bs-parent="#detailsAccordion">
+                                <div class="accordion-body">
+                                    <div class="form-floating mb-1">
+                                        <InputTextArea placeholder="e.g. Milk" class="form-control" id="@($"descriptionInput-{index}")" @bind-Value="@item.Description" />
+                                        <label for="@($"descriptionInput-{index}")">Description</label>
+                                    </div>
+                                    <div class="form-floating mb-1">
+                                        <InputSelect class="form-select" id="@($"categoryInput-{index}")" @bind-Value="@item.CategoryId">
+                                            @if (categoriesByTransactionType != null)
+                                            {
+                                                <option value="0">Multiple</option>
+                                                @foreach (var category in categoriesByTransactionType)
+                                                {
+                                                    <option value="@category.Id">@category.Name</option>
+                                                }
+                                            }
+                                        </InputSelect>
+                                        <label for="@($"categoryInput-{index}")">Category</label>
+                                    </div>
+                                    <div class="input-group mb-2">
+                                        <span class="input-group-text">$</span>
+                                        <div class="form-floating">
+                                            <InputNumber class="form-control" id="@($"amountInput-{index}")" Value="@item.Amount"
+                                                         ValueChanged="@((decimal value)=>OnDetailAmountChanged(item,value))" ValueExpression="()=>item.Amount" />
+                                            <label for="@($"amountInput-{index}")">Amount</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+        <div class="my-2 w-50">
+            <div class="input-group mb-2">
+                <span class="input-group-text">$</span>
+                <div class="form-floating">
+                    <InputNumber class="form-control" id="amountInput" @bind-Value="TransactionForm!.TotalAmount" />
+                    <label for="amountInput">Total</label>
+                </div>
+            </div>
+        </div>
+        <div>
+            <input type="submit" class="btn btn-primary" value="@(isEditingExistingTransaction?"Save":"Create")" />
+            <button @onclick="Cancel" @onclick:preventDefault class="btn btn-secondary ml-1">Cancel</button>
+        </div>
+    </div>
 </EditForm>
 
+<style>
+    .container {
+        width: 100%;
+        height: 100%;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+    }
+
+    .details-container {
+        background-color: white;
+        width: 100%;
+        max-height: 335px;
+        overflow-y: auto;
+    }
+
+    table {
+        width: 100%;
+    }
+
+</style>
 @code {
 
 }

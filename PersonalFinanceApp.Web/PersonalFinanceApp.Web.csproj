@@ -7,8 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\bootstrap-5.3.3-dist\**" />
+    <Content Remove="wwwroot\bootstrap-5.3.3-dist\**" />
+    <EmbeddedResource Remove="wwwroot\bootstrap-5.3.3-dist\**" />
+    <None Remove="wwwroot\bootstrap-5.3.3-dist\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="Components\Login.razor" />
-    <Content Remove="Components\TransactionView.razor" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,16 +41,10 @@
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Components\Login.razor" />
-    <_ContentIncludedByDefault Remove="Components\TransactionView.razor" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Components\TransactionView.razor" />
     <None Include="Pages\Login.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <UpToDateCheckInput Remove="Components\TransactionView.razor" />
   </ItemGroup>
 
 </Project>

@@ -1,9 +1,13 @@
-﻿namespace BaseLibrary.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BaseLibrary.DTOs
 {
     public class TransactionDetailDTO
     {
-        public int CategoryId { get; set; }
+        [Required]
+        public byte CategoryId { get; set; }
         public string? Description { get; set; }
+        [Required]
         public decimal Amount { get; set; }
     }
 }

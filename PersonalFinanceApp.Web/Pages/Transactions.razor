@@ -1,64 +1,91 @@
 ﻿@page "/transactions"
+@inherits TransactionsBase
+@using BaseLibrary.DTOs
 @using Microsoft.AspNetCore.Components.QuickGrid
-@using Syncfusion.Blazor
-@using Syncfusion.Blazor.Calendars
-@using Syncfusion.Blazor.Buttons
 @using Syncfusion.Blazor.Popups
-@using Syncfusion.Blazor.Navigations
-
 @using PersonalFinanceApp.Web.Components
 
-<div style="flex-direction:column">
-    <h3>Transactions</h3>
-    <button class="btn btn-primary" @onclick="()=>{shouldShowDialog=true;}"> Add Transaction </button>
+<div style="display:flex;flex-direction:row;">
+    <p style="font-size:1.5rem; margin:0;">Transactions</p>
+    <div style="flex:1; text-align:end; font-size:1.5rem;">
+        <button class="btn btn-success" style="margin-left:1rem;" @onclick="AddTransactionBtn_Clicked">New Transaction </button>
+        <button class="icon-btn" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+            <i class="fa-solid fa-sliders"></i>
+        </button>
+    </div>
+</div>
+<div class="collapse" id="collapseFilter">
+    <br>
+    <TransactionsFilters Type="currentTransactionType" RequestHelper="RequestHelper" Categories="Categories" PaymentMethods="PaymentMethods" OnSearch="async()=>{await TransactionGrid?.RefreshDataAsync();}"></TransactionsFilters>
 </div>
 <br />
-@if (transactionTypes == null)
-{
-    <p>Loading...</p>
-}
-else
-{
-    <ul class="nav nav-tabs">
-        @foreach (var item in transactionTypes)
-        {
-            <li class="nav-item">
-                <a class="nav-link @(currentTransactionType==item.Id?"active":"")" aria-current="page" href="#"
-                @onclick:preventDefault @onclick="()=>OnTabSelected(item.Id)">@item.Name</a>
-            </li>
-        }
-        @*<li class="nav-item">
-    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-    </li> *@
-    </ul>
-}
-@if (visibleTransactions == null)
-{
-    <p>Loading...</p>
-}
-else
-{
-    <div style="width:100%">
-        <QuickGrid style="width:100%" Virtualize Items="@visibleTransactions">
-            <PropertyColumn Property="@(p => p.Location)" Sortable="true" />
-            <PropertyColumn Property="@(p => p.Date)" Format="MMMM dd, yyyy" Sortable="true" />
-            <PropertyColumn Property="@(p => categories[p.CategoryId])" Sortable="true" Title="Category"/>
-            <PropertyColumn Property="@(p => p.TotalAmount)" Sortable="true" />
-            <TemplateColumn Context="transaction">
-                <SfIcon Name="IconName.Eye"></SfIcon>
-                <SfIcon Name="IconName.Trash"></SfIcon>
-            </TemplateColumn>
-        </QuickGrid>
-    </div>
-}
-<SfDialog Width="500px" ShowCloseIcon="true" IsModal @bind-Visible=shouldShowDialog>
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link @(currentTransactionType==TransactionTypes.Expense?"active":"")" aria-current="page" href="#"
+        @onclick:preventDefault @onclick="async()=>await OnTabSelected(TransactionTypes.Expense)">Expenses</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentTransactionType==TransactionTypes.Income?"active":"")" aria-current="page" href="#"
+        @onclick:preventDefault @onclick="async()=>await OnTabSelected(TransactionTypes.Income)">Income</a>
+    </li>
+</ul>
+
+<div style="width:100%; overflow-x:scroll; padding-top:1rem;">
+    <QuickGrid style="width:100%;" ItemsProvider="@TransactionItemsProvider" Pagination="state" @ref=TransactionGrid>
+        <TemplateColumn Title="Location" Sortable="true">
+            <ChildContent>
+                <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
+                    @context.Location
+                </div>
+            </ChildContent>
+        </TemplateColumn>
+        <TemplateColumn Title="Date" Sortable="true">
+            <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
+                @context.Date.ToString("MMM dd, yyyy")
+            </div>
+        </TemplateColumn>
+        <TemplateColumn Title="Payment Method" Sortable="true">
+            <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
+                @GetPaymentMethod(@context.PaymentMethodId)
+            </div>
+        </TemplateColumn>
+        <TemplateColumn Title="Category" Sortable="true">
+            <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
+                @GetCategoryName(@context.CategoryId)
+            </div>
+        </TemplateColumn>
+        <TemplateColumn Title="Amount" Sortable="true">
+            <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
+                @context.TotalAmount.ToString("C")
+            </div>
+        </TemplateColumn>
+        <TemplateColumn>
+            <button @onclick="async()=>{await DeleteTransaction(context.Id);}" style="background-color:red; color:white; z-index:12;" class="icon-btn">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </TemplateColumn>
+    </QuickGrid>    
+    @if (!anyResultsFound)
+    {
+        <h2 strong style="text-align:center">NO ITEMS FOUND</h2>
+    }
+</div>
+
+<SfDialog Width="500px" EnableResize="false" ShowCloseIcon="true" IsModal @bind-Visible=shouldShowDialog>
     <DialogTemplates>
         <Header>
-            Add Expense
+            @(CurrentTransaction == null ? "Add Transaction" : "Edit Transaction")
         </Header>
         <Content>
-            <TransactionEditor OnSuccessfullySubmitted="OnTransactionAdded"></TransactionEditor>
+            <TransactionEditor Transaction="@CurrentTransaction" OnSuccessfullySubmitted="OnTransactionAdded"
+                               OnCancel="HideDialog"></TransactionEditor>
         </Content>
     </DialogTemplates>
     <DialogEvents OnClose="HideDialog"></DialogEvents>
 </SfDialog>
+
+<Paginator State="state"></Paginator>
+
+@code {
+    // private RenderFragment<TransactionDTO> ClickableRow => (context) =>@<div style="position:absolute; width:100%; height:100%;" @onclick="()=>{Print(context.Location);}"></div>;
+}

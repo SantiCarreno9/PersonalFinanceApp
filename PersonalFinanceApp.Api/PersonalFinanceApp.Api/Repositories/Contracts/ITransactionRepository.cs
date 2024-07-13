@@ -1,12 +1,15 @@
 ﻿using BaseLibrary.Entities;
+using BaseLibrary.Helper;
+using BaseLibrary.Helper.GET;
 
 namespace PersonalFinanceApp.Api.Repositories.Contracts
 {
     public interface ITransactionRepository
     {
         //GET
-        Task<IEnumerable<Transaction>?> GetTransactions(string userId);
-        Task<Transaction?> GetTransaction(string userId, long id);        
+        Task<PagedList<Transaction>?> GetTransactions(string userId, GetTransactionsRequestHelper request);
+        Task<Transaction?> GetTransaction(string userId, long id);
+        Task<IEnumerable<string>?> GetLocations(string userId);
         //POST
         Task<Transaction?> AddTransaction(Transaction transaction);
         //PUT
@@ -16,5 +19,7 @@ namespace PersonalFinanceApp.Api.Repositories.Contracts
         Task<bool> UserOwnsTransaction(string userId, long transactionId);
 
         Task<IEnumerable<TransactionType>> GetTransactionTypes();
+        Task<decimal?> GetTotalAmountByProperty(string userId, GetTotalByProperty request);
+        Task<IEnumerable<Summary>?> GetSummaryByProperty(string userId, GetSummaryByProperty request);
     }
 }

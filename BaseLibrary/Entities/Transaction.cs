@@ -6,6 +6,20 @@ namespace BaseLibrary.Entities
 {
     public class Transaction
     {
+        public Transaction()
+        {
+            
+        }
+        public Transaction(long id, DateTime date, string? location, decimal totalAmount, byte categoryId, byte paymentMethodId)
+        {
+            Id = id;
+            Date = date;
+            Location = location;
+            TotalAmount = totalAmount;
+            CategoryId = categoryId;
+            PaymentMethodId = paymentMethodId;
+        }
+
         [Key]
         public long Id { get; set; }
         [Column(TypeName = "nvarchar(450)")]
@@ -16,11 +30,11 @@ namespace BaseLibrary.Entities
         [DataType(DataType.Currency)]
         public decimal TotalAmount { get; set; }
         [Column(TypeName = "nvarchar(100)")]
-        public string? Location { get; set; }
-        public int CategoryId { get; set; }
+        public string Location { get; set; }
+        public byte CategoryId { get; set; }
 
-        public int TransactionTypeId { get; set; }
-        public int PaymentMethodId { get; set; }
+        public byte TransactionTypeId { get; set; }
+        public byte PaymentMethodId { get; set; }
 
         public ICollection<TransactionDetail> TransactionDetails { get; set; }
         [JsonIgnore]
@@ -44,7 +58,7 @@ namespace BaseLibrary.Entities
                     else if (categoryId != detail.CategoryId)
                         hasManyCategories = true;
                 }
-                CategoryId = hasManyCategories ? 1/*Multiple*/ : categoryId;
+                CategoryId = hasManyCategories ? (byte)0/*Multiple*/ : (byte)categoryId;
             }
         }
     }

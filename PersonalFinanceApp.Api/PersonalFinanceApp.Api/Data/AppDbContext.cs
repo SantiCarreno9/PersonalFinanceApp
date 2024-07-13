@@ -44,6 +44,14 @@ namespace PersonalFinanceApp.Api.Data
             modelBuilder.Entity<TransactionType>()
                 .Property(c => c.Id)
                 .ValueGeneratedNever();
+
+            modelBuilder.Entity<Transaction>()
+                .Property(c => c.Location)
+                .HasDefaultValue("Unknown");
+
+            modelBuilder.Entity<Transaction>()
+                .Property(t => t.TransactionTypeId)
+                .HasDefaultValue(1/*Expense*/);
         }
     }
 }

@@ -10,11 +10,11 @@ namespace BaseLibrary.DTOs
         public DateTime Date { get; set; } = DateTime.Now;
         [Required]
         public decimal TotalAmount { get; set; }
-        public int CategoryId { get; set; }
+        public byte CategoryId { get; set; }
         public string? Location { get; set; }
 
-        public int TransactionTypeId { get; set; }
-        public int PaymentMethodId { get; set; }
+        public byte TransactionTypeId { get; set; } = 1;
+        public byte PaymentMethodId { get; set; } = 1;
 
         public ICollection<TransactionDetailDTO> TransactionDetails { get; set; }
     }

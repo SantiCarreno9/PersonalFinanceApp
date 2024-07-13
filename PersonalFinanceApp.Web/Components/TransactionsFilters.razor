@@ -1,0 +1,91 @@
+﻿@using BaseLibrary.Entities
+@using Syncfusion.Blazor.DropDowns
+<EditForm Model="RequestHelper">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="card custom-container">
+        <div class="row">
+            <div class="col-md">
+                <div class="form-floating mb-2">
+                    <InputText class="form-control" id="descriptionFilter" placeholder="e.g. Shoes"
+                               @bind-Value="RequestHelper.Description" />
+                    <label for="descriptionFilter">Description</label>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="form-floating mb-2">
+                    <InputText class="form-control" id="locationFilter" placeholder="e.g. Dollarama"
+                               @bind-Value="RequestHelper.Location" />
+                    <label for="locationFilter">Location</label>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="form-floating mb-2">
+                    <InputDate class="form-control" id="startDateFilter" @bind-Value="RequestHelper.StartDate" @bind-Value:format="dd/MM/yyyy" />
+                    <label for="startDateFilter">Start Date</label>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="form-floating mb-2">
+                    <InputDate class="form-control" id="endDateFilter" @bind-Value="RequestHelper.EndDate" @bind-Value:format="dd/MM/yyyy" />
+                    <label for="endDateFilter">End Date</label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md">
+                <div class="form-floating mb-2">
+                    <SfMultiSelect TValue="int[]" AllowCustomValue="true" TItem="Category" AllowFiltering="true" Placeholder="e.g. Housing" Mode="@VisualMode.CheckBox"
+                                   DataSource="@categoriesByTransactionType" ShowSelectAll="true" FilterBarPlaceholder="Search categories" PopupHeight="350px"
+                                   CssClass="form-control" ID="categoriesFilter" @ref="categoriesSelect">
+                        <MultiSelectFieldSettings Text="Name" Value="Id"></MultiSelectFieldSettings>
+                    </SfMultiSelect>
+                    <label for="categoriesFilter">Categories</label>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="form-floating mb-2">
+                    <SfMultiSelect TValue="int[]" TItem="PaymentMethod" AllowFiltering="true" Placeholder="e.g. Cash" Mode="@VisualMode.CheckBox"
+                                   DataSource="@PaymentMethods.Values" ShowSelectAll="true" FilterBarPlaceholder="Search payment method" PopupHeight="350px"
+                                   CssClass="form-control" ID="paymentFilter" @ref="paymentMethodsSelect">
+                        <MultiSelectFieldSettings Text="Name" Value="Id"></MultiSelectFieldSettings>
+                    </SfMultiSelect>
+                    <label for="paymentFilter">Payment Methods</label>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <div class="form-floating">
+                        <InputNumber class="form-control" id="minAmountFilter" @bind-Value="RequestHelper.MinAmount" />
+                        <label for="minAmountFilter">Min</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <div class="form-floating">
+                        <InputNumber class="form-control" id="maxAmountFilter" @bind-Value="RequestHelper.MaxAmount" />
+                        <label for="maxAmountFilter">Max</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="width:100%;justify-items:end;">
+            <button class="btn btn-primary" @onclick="Search" @onclick:preventDefault>Search</button>
+            <button class="btn btn-secondary" @onclick="Reset" @onclick:preventDefault>Reset</button>
+        </div>
+    </div>
+</EditForm>
+
+<style>
+    .custom-container {
+        background-color: whitesmoke;
+        padding: 1rem;
+    }
+</style>
+
+@code {
+
+}

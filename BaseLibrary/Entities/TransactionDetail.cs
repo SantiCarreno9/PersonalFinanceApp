@@ -7,9 +7,9 @@ namespace BaseLibrary.Entities
     public class TransactionDetail
     {
         [Key]
-        public int Id { get; set; }        
+        public long Id { get; set; }        
         public long TransactionId { get; set; }        
-        public int CategoryId { get; set; }
+        public byte CategoryId { get; set; }
         [Column(TypeName = "nvarchar(400)")]
         public string? Description { get; set; }
         [DataType(DataType.Currency)]

@@ -1,11 +1,12 @@
 ﻿using BaseLibrary.DTOs;
 using BaseLibrary.Entities;
 using BaseLibrary.Extensions;
+using BaseLibrary.Helper;
+using BaseLibrary.Helper.GET;
+using BaseLibrary.Helper.GET.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PersonalFinanceApp.Api.Repositories.Contracts;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace PersonalFinanceApp.Api.Controllers
 {
@@ -25,15 +26,31 @@ namespace PersonalFinanceApp.Api.Controllers
 
         // GET: api/transactions
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TransactionDTO>>> GetTransactions()
+        public async Task<ActionResult<PagedList<TransactionDTO>>> GetTransactions([FromQuery] GetTransactionsRequestHelper request)
         {
-            var transactions = await _transactionRepository.GetTransactions(User.GetUserId());
+            var transactions = await _transactionRepository.GetTransactions(User.GetUserId(), request);
 
             if (transactions == null)
                 return NoContent();
 
-            var transactionsDTOs = transactions.ConvertToDTO();
-            return Ok(transactionsDTOs);
+            var response = new PagedList<TransactionDTO>(
+                transactions.Items.ConvertToDTO().ToList(),
+                transactions.Page,
+                transactions.PageSize,
+                transactions.TotalCount);
+
+            return Ok(response);
+        }
+
+        [HttpGet("locations")]
+        public async Task<ActionResult<IEnumerable<string>>> GetExistingLocations()
+        {
+            var locations = await _transactionRepository.GetLocations(User.GetUserId());
+
+            if (locations == null)
+                return NoContent();
+
+            return Ok(locations);
         }
 
         // GET api/transactions/5
@@ -69,7 +86,7 @@ namespace PersonalFinanceApp.Api.Controllers
         public async Task<ActionResult<TransactionDTO>> UpdateTransaction(long id, [FromBody] TransactionDTO transaction)
         {
             if (transaction == null)
-                throw new BadHttpRequestException(new ArgumentNullException().Message);            
+                throw new BadHttpRequestException(new ArgumentNullException().Message);
 
             if (id != transaction.Id)
                 return BadRequest();
@@ -109,18 +126,44 @@ namespace PersonalFinanceApp.Api.Controllers
         #region api/transactions/[misc]
 
 
-        // GET: api/transactions
-        [AllowAnonymous]
-        [HttpGet("types")]
-        public async Task<ActionResult<IEnumerable<TransactionType>>> GetTransactionTypes()
+        // GET: api/transactions        
+        [HttpGet("total")]
+        public async Task<ActionResult<TotalByPropertyResponse>> GetTotalByProperty([FromQuery] GetTotalByProperty request)
         {
-            var types = await _transactionRepository.GetTransactionTypes();
+            var amount = await _transactionRepository.GetTotalAmountByProperty(User.GetUserId(), request);
 
-            if (types == null)
-                return NoContent();
-            
-            return Ok(types);
-        }       
+            if (amount == null)
+                return BadRequest();
+
+            var response = new TotalByPropertyResponse
+            {
+                PropertyName = request.PropertyName,
+                Id = request.Id,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+                TotalAmount = amount.Value
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("summary")]
+        public async Task<ActionResult<SummaryByPropertyResponse>> GetSummaryByProperty([FromQuery] GetSummaryByProperty request)
+        {
+            var summary = await _transactionRepository.GetSummaryByProperty(User.GetUserId(), request);
+
+            if (summary == null)
+                return BadRequest();
+
+            var response = new SummaryByPropertyResponse
+            {
+                TransactionType = request.TransactionType,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+                PropertyName = request.PropertyName,
+                Summaries = summary
+            };
+            return Ok(response);
+        }
 
         #endregion
     }
