@@ -13,8 +13,6 @@
                              ValueChanged="@((byte tt)=>OnTransactionTypeChanged(tt))" ValueExpression="()=>TransactionForm!.TransactionTypeId">
                 <div>
                     <InputRadio class="form-check-input" Value="@((byte)TransactionTypes.Expense)" /> Expense
-                    @* </div> *@
-                    @* <div> *@
                     <InputRadio class="form-check-input" Value="@((byte)TransactionTypes.Income)" /> Income
                 </div>
             </InputRadioGroup>
@@ -22,7 +20,7 @@
         <div class="row">
             <div class="col-md">
                 <div class="form-floating mb-2">
-                    <InputDate class="form-control" id="dateInput" @bind-Value="TransactionForm!.Date" @bind-Value:format="dd/MM/yyyy" />
+                    <InputDate class="form-control" id="dateInput" @bind-Value="TransactionForm!.Date" @bind-Value:format="yyyy/MM/dd" />
                     <label for="dateInput">Date</label>
                 </div>
             </div>

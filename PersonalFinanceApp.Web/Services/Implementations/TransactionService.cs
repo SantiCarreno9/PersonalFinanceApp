@@ -1,189 +1,130 @@
 ﻿using BaseLibrary.DTOs;
-using BaseLibrary.Entities;
 using BaseLibrary.Helper;
 using BaseLibrary.Helper.GET;
+using BaseLibrary.Helper.GET.Response;
 using Microsoft.Extensions.Caching.Memory;
 using PersonalFinanceApp.Web.Services.Contracts;
-using System.Net.Http.Json;
+using System.Net;
 
 namespace PersonalFinanceApp.Web.Services.Implementations
 {
-    public class TransactionService : ITransactionService
+    public class TransactionService : BaseService, ITransactionService
     {
-        private readonly HttpClient _httpClient;
         private const string ApiURI = "/api/transactions";
         private readonly IMemoryCache _cache;
 
-        public TransactionService(HttpClient httpClient, IMemoryCache cache)
+        public TransactionService(HttpClient httpClient, IMemoryCache cache) : base(httpClient)
         {
-            this._httpClient = httpClient;
             this._cache = cache;
         }
 
         public async Task<TransactionDTO?> GetTransaction(long id)
         {
-            try
-            {
-                var response = await _httpClient.GetAsync($"{ApiURI}/{id}");
-                if (response.IsSuccessStatusCode)
-                {
-                    if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
-                        return null;
+            return await Get<TransactionDTO?>($"{ApiURI}/{id}");
+        }
 
-                    return await response.Content.ReadFromJsonAsync<TransactionDTO>();
-                }
-                else
-                {
-                    var message = await response.Content.ReadAsStringAsync();
-                    throw new Exception(message);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
+        private string AddFiltersToQuery(TransactionsFiltersDTO filters, string query)
+        {
+            if (filters.TransactionTypeId != null) query += $"&transactionTypeId={filters.TransactionTypeId}";
+            if (filters.StartDate != null) query += $"&startDate={filters.StartDate}";
+            if (filters.EndDate != null) query += $"&endDate={filters.EndDate}";
+            if (filters.Description != null) query += $"&description={filters.Description}";
+            if (filters.Location != null) query += $"&location={filters.Location}";
+            if (filters.MinAmount != null) query += $"&minAmount={filters.MinAmount}";
+            if (filters.MaxAmount != null) query += $"&maxAmount={filters.MaxAmount}";
+            if (filters.CategoriesIds != null)
+                for (int i = 0; i < filters.CategoriesIds.Length; i++)
+                    query += "&categoriesIds=" + filters.CategoriesIds[i];
+            if (filters.PaymentMethodsIds != null)
+                for (int i = 0; i < filters.PaymentMethodsIds.Length; i++)
+                    query += "&paymentMethodsIds=" + filters.PaymentMethodsIds[i];
+
+            return query;
         }
 
         public async Task<PagedList<TransactionDTO>?> GetTransactions(GetTransactionsRequestHelper request)
         {
-            try
-            {
-                string query = ApiURI + "?";
-                query += $"page={request.Page}";
-                query += $"&pageSize={request.PageSize}";
-                if (request.Type != null) query += $"&type={request.Type}";
-                if (request.SortColumn != null) query += $"&sortColumn={request.SortColumn}";
-                if (request.SortOrder != null) query += $"&sortOrder={request.SortOrder}";                
-                if (request.StartDate != null) query += $"&startDate={request.StartDate}";
-                if (request.EndDate != null) query += $"&endDate={request.EndDate}";
-                if (request.Description != null) query += $"&description={request.Description}";
-                if (request.Location != null) query += $"&location={request.Location}";
-                if (request.MinAmount != null) query += $"&minAmount={request.MinAmount}";
-                if (request.MaxAmount != null) query += $"&maxAmount={request.MaxAmount}";                
-                if (request.Categories != null)                
-                    for (int i = 0; i < request.Categories.Length; i++)
-                        query += "&categories=" + request.Categories[i];                
-                if (request.PaymentMethods != null)                
-                    for (int i = 0; i < request.PaymentMethods.Length; i++)
-                        query += "&paymentMethods=" + request.PaymentMethods[i];                
+            string query = ApiURI + "?";
+            query += $"page={request.Page}";
+            query += $"&pageSize={request.PageSize}";
+            if (request.SortColumn != null) query += $"&sortColumn={request.SortColumn}";
+            if (request.SortOrder != null) query += $"&sortOrder={request.SortOrder}";
+            query = AddFiltersToQuery(request, query);
 
-                var response = await _httpClient.GetAsync(query);
-                if (response.IsSuccessStatusCode)
-                {
-                    if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
-                        return null;
-
-                    return await response.Content.ReadFromJsonAsync<PagedList<TransactionDTO>>();
-                }
-                else
-                {
-                    var message = await response.Content.ReadAsStringAsync();
-                    throw new Exception(message);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
+            return await Get<PagedList<TransactionDTO>?>(query);
         }
 
         public async Task<TransactionDTO?> CreateTransaction(TransactionDTO transactionDTO)
         {
-            try
-            {
-                var response = await _httpClient.PostAsJsonAsync(ApiURI, transactionDTO);
-                if (response.IsSuccessStatusCode)
-                {
-                    if (response.StatusCode != System.Net.HttpStatusCode.Created)
-                        return null;
-                    return await response.Content.ReadFromJsonAsync<TransactionDTO>();
-                }
-                else
-                {
-                    var message = await response.Content.ReadAsStringAsync();
-                    throw new Exception(message);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
-        }
-
-        public async Task<IEnumerable<string>?> GetLocations()
-        {
-            try
-            {
-                var response = await _httpClient.GetAsync(ApiURI + "/locations");
-                if (response.IsSuccessStatusCode)
-                {
-                    if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
-                        return null;
-
-                    return await response.Content.ReadFromJsonAsync<IEnumerable<string>>();
-                }
-                else
-                {
-                    var message = await response.Content.ReadAsStringAsync();
-                    throw new Exception(message);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
+            return await Post<TransactionDTO?>(ApiURI, transactionDTO);
         }
 
         public async Task<TransactionDTO?> UpdateTransaction(TransactionDTO transactionDTO)
         {
-            try
-            {
-                var response = await _httpClient.PutAsJsonAsync($"{ApiURI}/{transactionDTO.Id}", transactionDTO);
-                if (response.IsSuccessStatusCode)
-                {
-                    if (response.StatusCode != System.Net.HttpStatusCode.OK)
-                        return null;
-                    return await response.Content.ReadFromJsonAsync<TransactionDTO>();
-                }
-                else
-                {
-                    var message = await response.Content.ReadAsStringAsync();
-                    throw new Exception(message);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
+            return await Put<TransactionDTO?>($"{ApiURI}/{transactionDTO.Id}", transactionDTO);
         }
 
-        public async Task<bool> DeleteTransaction(long id)
+        public async Task<bool> DeleteTransactions(IEnumerable<long> ids)
         {
-            try
+            string query = $"{ApiURI}?";
+            foreach (long id in ids)
+                query += $"id={id}&";
+
+            var response = await BaseRequest(_httpClient.DeleteAsync(query));
+            return response?.StatusCode == HttpStatusCode.NoContent;
+        }
+
+        public async Task<IEnumerable<string>?> GetLocations()
+        {
+            var cacheKey = "locations";
+            if (!_cache.TryGetValue(cacheKey, out IEnumerable<string>? locations))
             {
-                var response = await _httpClient.DeleteAsync($"{ApiURI}/{id}");
-                if (response.IsSuccessStatusCode)
-                {
-                    if (response.StatusCode != System.Net.HttpStatusCode.NoContent)
-                        return false;
-                    return true;
-                }
-                else
-                {
-                    var message = await response.Content.ReadAsStringAsync();
-                    throw new Exception(message);
-                }
+                locations = await Get<IEnumerable<string>?>(ApiURI + "/locations/");
+                _cache.Set(cacheKey, locations);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
+            return locations;            
+        }
+
+        public async Task<PagedList<Summary>?> GetSummaryByProperty(GetSummaryByProperty request)
+        {
+            string query = ApiURI + "/summary?";
+            query += $"page={request.Page}";
+            query += $"&pageSize={request.PageSize}";
+            query += $"&startDate={request.StartDate}";
+            query += $"&endDate={request.EndDate}";
+            query += $"&transactionTypeId={request.TransactionTypeId}";
+            query += $"&property={request.Property}";
+            if (request.SortProperty != null) query += $"&sortProperty={request.SortProperty}";
+            if (request.SortOrder != null) query += $"&sortOrder={request.SortOrder}";
+
+            return await Get<PagedList<Summary>?>(query);
+        }
+
+        public async Task<decimal?> GetTotal(TransactionsFiltersDTO request)
+        {
+            string query = ApiURI + "/total?";
+            query = AddFiltersToQuery(request, query);
+
+            return await Get<decimal?>(query);
+        }
+
+        public async Task<decimal?> GetBalance(TransactionsFiltersDTO request)
+        {
+            string query = ApiURI + "/balance?";
+            query = AddFiltersToQuery(request, query);
+
+            return await Get<decimal?>(query);
+        }
+
+        public async Task<BoundTransactionResponse?> GetBoundTransactionByProperty(GetBoundTransaction request)
+        {
+            string query = ApiURI + "/bound?";
+            query += $"property={request.Property}";
+            query += $"&position={request.Position}";
+            if (request.Value != null) query += $"&value={request.Value}";
+            if (request.Id != null) query += $"&id={request.Id}";
+
+            return await Get<BoundTransactionResponse?>(query);
         }
     }
 }

@@ -14,8 +14,9 @@ public enum PaymentMethods
 }
 
 public enum TransactionTypes
-{
-    Expense = 1,
+{    
+    All=0,
+    Expense,
     Income,
 }
 
@@ -40,6 +41,7 @@ public enum ExpenseCategories
     Investment,
     DebtPayment,
     Gifts,
+    Taxes,
     Miscellaneous = 99
 }
 

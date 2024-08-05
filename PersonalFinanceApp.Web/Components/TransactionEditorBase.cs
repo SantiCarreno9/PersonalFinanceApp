@@ -58,6 +58,7 @@ namespace PersonalFinanceApp.Web.Components
                 TransactionForm.TransactionDetails = [new TransactionDetailDTO()];
                 isEditingExistingTransaction = false;                
             }
+            OnTransactionTypeChanged(TransactionForm.TransactionTypeId);
             return base.OnParametersSetAsync();
         }
 

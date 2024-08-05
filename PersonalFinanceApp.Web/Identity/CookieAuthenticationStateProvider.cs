@@ -1,11 +1,9 @@
+using BlazorWasmAuth.Identity.Models;
+using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Json;
 using System.Security.Claims;
-using System.Text.Json;
-using Microsoft.AspNetCore.Components.Authorization;
-using BlazorWasmAuth.Identity.Models;
 using System.Text;
-using System.Net.Http;
-using PersonalFinanceApp.Web.Models;
+using System.Text.Json;
 
 namespace BlazorWasmAuth.Identity
 {
@@ -109,7 +107,7 @@ namespace BlazorWasmAuth.Identity
                 Succeeded = false,
                 ErrorList = defaultDetail
             };
-        }        
+        }
 
         /// <summary>
         /// User login.

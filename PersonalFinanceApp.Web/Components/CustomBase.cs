@@ -15,18 +15,18 @@ namespace PersonalFinanceApp.Web.Components
         protected override async Task OnInitializedAsync()
         {
             var categories = await MetadataService.GetCategories();
-            if (categories == null)
-                return;
-
-            foreach (var category in categories)
-                Categories.Add(category.Id, category);
+            if (categories != null)
+            {
+                foreach (var category in categories)
+                    Categories.Add(category.Id, category);
+            }
 
             var paymentMethods = await MetadataService.GetPaymentMethods();
-            if (paymentMethods == null)
-                return;
-
-            foreach (var paymentMethod in paymentMethods)
-                PaymentMethods.Add(paymentMethod.Id, paymentMethod);
+            if (paymentMethods != null)
+            {
+                foreach (var paymentMethod in paymentMethods)
+                    PaymentMethods.Add(paymentMethod.Id, paymentMethod);
+            }
         }
 
         protected string? GetCategoryName(byte id) => Categories[id]?.Name;

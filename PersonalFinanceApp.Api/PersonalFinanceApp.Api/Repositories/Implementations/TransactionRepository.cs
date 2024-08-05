@@ -1,4 +1,5 @@
-﻿using BaseLibrary.Entities;
+﻿using Azure.Core;
+using BaseLibrary.Entities;
 using BaseLibrary.Helper;
 using BaseLibrary.Helper.GET;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,8 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
         {
             _context = context;
         }
+
+        #region GET
 
         public async Task<Transaction?> GetTransaction(string userId, long id)
         {
@@ -38,56 +41,57 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
             return locations;
         }
 
-        public async Task<PagedList<Transaction>?> GetTransactions(string userId, GetTransactionsRequestHelper request)
+        private IQueryable<Transaction> FilterTransactions(string userId, TransactionsFiltersDTO filters)
         {
             IQueryable<Transaction> transactionsQuery = _context.Transactions
                 .AsNoTracking()
                 .Where(t => t.UserId == userId);
 
-            if (request.Type != null)
-            {
-                if (request.Type.ToLower().Equals("expense"))
-                    transactionsQuery = transactionsQuery.Where(t => t.TransactionTypeId == (int)TransactionTypes.Expense);
-                else if (request.Type.ToLower().Equals("income"))
-                    transactionsQuery = transactionsQuery.Where(t => t.TransactionTypeId == (int)TransactionTypes.Income);
-            }
+            if (filters.TransactionTypeId != null)
+                transactionsQuery = transactionsQuery.Where(t => t.TransactionTypeId == filters.TransactionTypeId);
 
+            if (filters.StartDate.HasValue)
+                transactionsQuery = transactionsQuery.Where(t => t.Date.CompareTo(filters.StartDate.Value) >= 0);
 
-            if (request.StartDate.HasValue)
-                transactionsQuery = transactionsQuery.Where(t => t.Date.CompareTo(request.StartDate.Value) >= 0);
+            if (filters.EndDate.HasValue)
+                transactionsQuery = transactionsQuery.Where(t => t.Date.CompareTo(filters.EndDate.Value) <= 0);
 
-            if (request.EndDate.HasValue)
-                transactionsQuery = transactionsQuery.Where(t => t.Date.CompareTo(request.EndDate.Value) <= 0);
+            if (filters.MinAmount != null)
+                transactionsQuery = transactionsQuery.Where(t => t.TotalAmount >= filters.MinAmount);
 
-            if (request.MinAmount != null)
-                transactionsQuery = transactionsQuery.Where(t => t.TotalAmount >= request.MinAmount);
+            if (filters.MaxAmount != null)
+                transactionsQuery = transactionsQuery.Where(t => t.TotalAmount <= filters.MaxAmount);
 
-            if (request.MaxAmount != null)
-                transactionsQuery = transactionsQuery.Where(t => t.TotalAmount <= request.MaxAmount);
+            if (!string.IsNullOrWhiteSpace(filters.Location))
+                transactionsQuery = transactionsQuery.Where(t => t.Location.Contains(filters.Location));
 
-            if (!string.IsNullOrWhiteSpace(request.Location))
-                transactionsQuery = transactionsQuery.Where(t => t.Location.Contains(request.Location));
+            if (filters.PaymentMethodsIds != null)
+                transactionsQuery = transactionsQuery.Where(t => filters.PaymentMethodsIds.Contains(t.PaymentMethodId));
 
-            if (request.PaymentMethods != null)
-                transactionsQuery = transactionsQuery.Where(t => request.PaymentMethods.Contains(t.PaymentMethodId));
-
-            if (request.Categories != null)
+            if (filters.CategoriesIds != null)
             {
                 transactionsQuery = transactionsQuery
                     .AsNoTracking()
                     .Include(t => t.TransactionDetails);
-                transactionsQuery = transactionsQuery.Where(t => request.Categories.Contains(t.CategoryId)
-                || (t.CategoryId == 0/*Multiple*/&& t.TransactionDetails.FirstOrDefault(td => request.Categories.Contains(td.CategoryId)) != null));
+                transactionsQuery = transactionsQuery.Where(t => filters.CategoriesIds.Contains(t.CategoryId)
+                || (t.CategoryId == 0/*Multiple*/&& t.TransactionDetails.FirstOrDefault(td => filters.CategoriesIds.Contains(td.CategoryId)) != null));
             }
 
-            if (!string.IsNullOrWhiteSpace(request.Description))
+            if (!string.IsNullOrWhiteSpace(filters.Description))
             {
                 transactionsQuery = transactionsQuery
                     .AsNoTracking()
                     .Include(t => t.TransactionDetails);
                 transactionsQuery = transactionsQuery.Where(t => t.TransactionDetails.FirstOrDefault(td => td.Description != null &&
-                                    td.Description.Contains(request.Description)) != null);
+                                    td.Description.Contains(filters.Description)) != null);
             }
+
+            return transactionsQuery;
+        }
+
+        public async Task<PagedList<Transaction>?> GetTransactions(string userId, GetTransactionsRequestHelper request)
+        {
+            var transactionsQuery = FilterTransactions(userId, request);
 
             Expression<Func<Transaction, object>> keySelector = request.SortColumn?.ToLower() switch
             {
@@ -106,6 +110,7 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
                 .Select(t => new Transaction
                 (
                     t.Id,
+                    t.TransactionTypeId,
                     t.Date,
                     t.Location,
                     t.TotalAmount,
@@ -116,6 +121,177 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
             return await PagedList<Transaction>.CreateAsync(transactionsQuery, request.Page, request.PageSize);
         }
 
+        public async Task<IEnumerable<TransactionType>> GetTransactionTypes()
+        {
+            return await _context.TransactionTypes.ToListAsync();
+        }
+
+        public async Task<decimal?> GetTotalAmount(string userId, TransactionsFiltersDTO request)
+        {
+            var transactionsQuery = FilterTransactions(userId, request);
+            decimal total = 0;
+            if (request.CategoriesIds != null)
+            {
+                total = await transactionsQuery
+                    .SelectMany(t => t.TransactionDetails)
+                    .SumAsync(td => td.Amount);
+            }
+            else
+            {
+                total = await transactionsQuery
+                    .SumAsync(t => t.TotalAmount);
+            }
+            return total;
+        }
+
+        public async Task<decimal?> GetBalance(string userId, TransactionsFiltersDTO request)
+        {
+            request.TransactionTypeId = (int)TransactionTypes.Expense;
+            var expense = await GetTotalAmount(userId, request);
+            request.TransactionTypeId = (int)TransactionTypes.Income;
+            var income = await GetTotalAmount(userId, request);
+
+
+            decimal balance = 0;
+            balance += income ?? 0;
+            balance -= expense ?? 0;
+            return balance;
+        }
+
+        public async Task<PagedList<Summary>?> GetSummaryByProperty(string userId, GetSummaryByProperty request)
+        {
+            IQueryable<Transaction> transactionsQuery = _context.Transactions
+                .AsNoTracking()
+                .Where(t => t.TransactionTypeId == request.TransactionTypeId && t.UserId.Equals(userId));
+
+            transactionsQuery = transactionsQuery.
+                Where(t => t.Date.CompareTo(request.StartDate) >= 0 && t.Date.CompareTo(request.EndDate) <= 0);
+
+            HashSet<Summary> summaries = new HashSet<Summary>();
+            switch (request.Property.ToLower())
+            {
+                case "paymentmethods":
+                case "paymentmethod":
+                    var paymentMethods = transactionsQuery
+                        .Include(t => t.PaymentMethod)
+                        .AsNoTracking()
+                        .GroupBy(t => t.PaymentMethodId);
+                    foreach (var group in paymentMethods)
+                    {
+                        var total = group.Sum(t => t.TotalAmount);
+                        if (total == 0)
+                            continue;
+                        summaries.Add(new Summary
+                        {
+                            Id = group.Key,
+                            Name = group.First().PaymentMethod.Name,
+                            TotalAmount = total
+                        });
+                    }
+                    break;
+                case "location":
+                case "locations":
+                    var locations = transactionsQuery
+                        .AsNoTracking()
+                        .GroupBy(t => t.Location);
+
+                    foreach (var group in locations)
+                    {
+                        var total = group.Sum(t => t.TotalAmount);
+                        if (total == 0)
+                            continue;
+                        summaries.Add(new Summary
+                        {
+                            Name = group.First().Location,
+                            TotalAmount = total
+                        });
+                    }
+                    break;
+                default:
+                    transactionsQuery = transactionsQuery
+                        .AsNoTracking()
+                        .Include(t => t.TransactionDetails)
+                        .ThenInclude(td => td.Category);
+                    var categories = transactionsQuery.SelectMany(td => td.TransactionDetails)
+                        .GroupBy(td => td.CategoryId);
+                    foreach (var group in categories)
+                    {
+                        var total = group.Sum(t => t.Amount);
+                        if (total == 0)
+                            continue;
+                        summaries.Add(new Summary
+                        {
+                            Id = group.Key,
+                            Name = group.First().Category.Name,
+                            TotalAmount = total
+                        });
+                    }
+                    break;
+            }
+
+            var summariesQueryable = summaries.AsQueryable();
+            Expression<Func<Summary, object>> keySelector = request.SortProperty?.ToLower() switch
+            {
+                "name" => t => t.Name!,
+                _ => t => t.TotalAmount,
+            };
+
+            if (request.SortOrder != null && request.SortOrder.ToLower().Equals("asc"))
+                summariesQueryable = summariesQueryable.OrderBy(keySelector);
+            else summariesQueryable = summariesQueryable.OrderByDescending(keySelector);
+
+            return PagedList<Summary>.Create(summariesQueryable, request.Page, request.PageSize);
+        }
+
+        public async Task<Transaction?> GetBoundTransaction(string userId, GetBoundTransaction request)
+        {
+            IQueryable<Transaction> transactionsQuery = _context.Transactions
+                .AsNoTracking()
+                .Where(t => t.UserId == userId);
+
+            switch (request.Property.ToLower())
+            {
+                case "amount":
+                    transactionsQuery = transactionsQuery.OrderByDescending(t => t.TotalAmount);
+                    break;
+                case "category":
+                    if (request.Id == null)
+                        return null;
+                    transactionsQuery = transactionsQuery
+                        .Where(t => t.CategoryId == request.Id)
+                        .OrderByDescending(t => t.TotalAmount);
+                    break;
+                case "paymentmethod":
+                    if (request.Id == null)
+                        return null;
+                    transactionsQuery = transactionsQuery
+                        .Where(t => t.PaymentMethodId == request.Id)
+                        .OrderByDescending(t => t.TotalAmount);
+                    break;
+                case "location":
+                    if (request.Value == null)
+                        return null;
+                    transactionsQuery = transactionsQuery
+                        .Where(t => t.Location.ToLower().Equals(request.Value.ToLower()))
+                        .OrderByDescending(t => t.TotalAmount);
+                    break;
+                default:
+                    transactionsQuery = transactionsQuery.OrderBy(t => t.Date);
+                    break;
+            }
+            switch (request.Position.ToLower())
+            {
+                case "last":
+                    return await transactionsQuery.LastOrDefaultAsync();
+                default:
+                    return await transactionsQuery.FirstOrDefaultAsync();
+            }
+        }
+
+        #endregion
+
+        #region POST
+
         public async Task<Transaction?> AddTransaction(Transaction transaction)
         {
             var result = await _context.Transactions.AddAsync(transaction);
@@ -123,19 +299,23 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
             return result.Entity;
         }
 
-        //DELETE
-        public async Task<Transaction?> DeleteTransaction(long id)
-        {
-            var transaction = await _context.Transactions.FindAsync(id);
-            if (transaction == null)
-                return null;
+        #endregion
 
-            var result = _context.Transactions.Remove(transaction);
-            await _context.SaveChangesAsync();
-            return result.Entity;
+        #region DELETE
+
+        public async Task<bool> DeleteTransactions(string userId, long[] ids)
+        {
+            int numberOfRows = 0;
+            for (int i = 0; i < ids.Length; i++)
+                numberOfRows += await _context.Transactions.Where(t => t.UserId.Equals(userId) && t.Id == ids[i]).ExecuteDeleteAsync();
+
+            return numberOfRows > 0;
         }
 
-        //PUT
+        #endregion
+
+        #region PUT
+
         public async Task<Transaction?> UpdateTransaction(long id, Transaction transaction)
         {
             var transactionToUpdate = await _context.Transactions
@@ -150,6 +330,7 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
             transactionToUpdate.TransactionTypeId = transaction.TransactionTypeId;
             transactionToUpdate.TotalAmount = transaction.TotalAmount;
             transactionToUpdate.Location = transaction.Location;
+            transactionToUpdate.CategoryId = transaction.CategoryId;
 
             //Transaction Details
             var existingDetails = transactionToUpdate.TransactionDetails;
@@ -183,6 +364,8 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
             return transactionToUpdate;
         }
 
+        #endregion
+
         public async Task<bool> UserOwnsTransaction(string userId, long transactionId)
         {
             var transaction = await _context.Transactions.AsNoTracking().FirstOrDefaultAsync(t => t.Id == transactionId);
@@ -191,118 +374,6 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
             if (transaction.UserId.Equals(userId, StringComparison.Ordinal))
                 return true;
             return false;
-        }
-
-        private async Task<Category?> GetCategory(int id)
-        {
-            return await _context.Categories
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == id);
-        }
-
-        public async Task<IEnumerable<TransactionType>> GetTransactionTypes()
-        {
-            return await _context.TransactionTypes.ToListAsync();
-        }
-
-        public async Task<decimal?> GetTotalAmountByProperty(string userId, GetTotalByProperty request)
-        {
-            IQueryable<Transaction> transactionsQuery = _context.Transactions
-                .AsNoTracking()
-                .Where(t => t.UserId.Equals(userId));
-            transactionsQuery = transactionsQuery.
-                Where(t => t.Date.CompareTo(request.StartDate) >= 0 && t.Date.CompareTo(request.EndDate) <= 0);
-            switch (request.PropertyName.ToLower())
-            {
-                case "transactiontype":
-                    transactionsQuery = transactionsQuery.Where(t => t.TransactionTypeId == request.Id);
-                    break;
-                case "category":
-                    transactionsQuery = transactionsQuery
-                        .AsNoTracking()
-                        .Include(t => t.TransactionDetails);
-                    var total = await transactionsQuery.Where(t => t.CategoryId == request.Id).SumAsync(t => t.TotalAmount);
-                    await transactionsQuery.Where(t => t.CategoryId == 0)
-                        .Select(td => td.TransactionDetails)
-                        .ForEachAsync(td =>
-                        {
-                            total += (td.FirstOrDefault(tdd => tdd.CategoryId == request.Id)?.Amount ?? 0);
-                            Console.WriteLine(total);
-                        });
-                    return total;
-                case "paymentmethod":
-                    transactionsQuery = transactionsQuery.Where(t => t.PaymentMethodId == request.Id);
-                    break;
-                default:
-                    return null;
-            }
-            return await transactionsQuery.SumAsync(t => t.TotalAmount);
-        }
-
-        public async Task<IEnumerable<Summary>?> GetSummaryByProperty(string userId, GetSummaryByProperty request)
-        {
-            int transactionTypeId = -1;
-            if (request.TransactionType.ToLower().Equals("expense"))
-                transactionTypeId = 1;
-            else if (request.TransactionType.ToLower().Equals("income"))
-                transactionTypeId = 2;
-
-            if (transactionTypeId == -1)
-                return null;
-
-            IQueryable<Transaction> transactionsQuery = _context.Transactions
-                .AsNoTracking()
-                .Where(t => t.TransactionTypeId == transactionTypeId && t.UserId.Equals(userId));
-            transactionsQuery = transactionsQuery.
-                Where(t => t.Date.CompareTo(request.StartDate) >= 0 && t.Date.CompareTo(request.EndDate) <= 0);
-
-            List<Summary> summaries = new List<Summary>();
-            switch (request.PropertyName.ToLower())
-            {
-                case "categories":
-                    transactionsQuery = transactionsQuery
-                        .AsNoTracking()
-                        .Include(t => t.TransactionDetails)
-                        .ThenInclude(td => td.Category);
-                    List<TransactionDetail> transactionDetails = new();
-                    await transactionsQuery.Select(td => td.TransactionDetails)
-                        .ForEachAsync(transactionDetails.AddRange);
-                    var categories = transactionDetails.GroupBy(td => td.CategoryId);
-                    foreach (var group in categories)
-                    {
-                        var total = group.Sum(t => t.Amount);
-                        if (total == 0)
-                            continue;
-                        summaries.Add(new Summary
-                        {
-                            Id = group.Key,
-                            Name = group.First().Category.Name,
-                            TotalAmount = total
-                        });
-                    }
-                    break;
-                case "paymentmethods":
-                    var groups = transactionsQuery
-                        .Include(t => t.PaymentMethod)
-                        .AsNoTracking()
-                        .GroupBy(t => t.PaymentMethodId);
-                    foreach (var group in groups)
-                    {
-                        var total = group.Sum(t => t.TotalAmount);
-                        if (total == 0)
-                            continue;
-                        summaries.Add(new Summary
-                        {
-                            Id = group.Key,
-                            Name = group.First().PaymentMethod.Name,
-                            TotalAmount = total
-                        });
-                    }
-                    break;
-                default:
-                    return null;
-            }
-            return summaries;
         }
     }
 }

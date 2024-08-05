@@ -17,10 +17,10 @@ nav {
     ::deep .quickgrid th {
         gap: 0.4rem; /* Separate the sort indicator from title text */
         font-weight: bold;
-        background-color: lightgray;
+        background-color: var(--bs-secondary-bg);
         margin: 0;
         border-color: black;
-        border-width: thin;        
+        border-width: thin;
         /*text-transform: uppercase;*/
     }
 
@@ -35,7 +35,7 @@ nav {
     }
 
         ::deep .quickgrid tr:hover {
-            background-color: lightgray;
+            background-color: var(--bs-secondary-bg);
         }
 
     ::deep .quickgrid[theme=corporate] .sort-indicator {

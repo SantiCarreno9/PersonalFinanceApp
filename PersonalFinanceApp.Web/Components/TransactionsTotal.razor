@@ -1,0 +1,46 @@
+﻿@using BaseLibrary.Helper.GET
+@using PersonalFinanceApp.Web.Services.Contracts
+
+@(total.ToString("C"))
+
+@code {
+    [Parameter]
+    public TransactionsFiltersDTO? Filters { get; set; }
+    [Parameter]
+    public required ITransactionService TransactionService { get; set; }
+
+    private decimal total = 0;
+    public decimal Total => total;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        if (Filters != null)
+            await Update();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+    }
+
+    public async Task<decimal> Update()
+    {
+        if (Filters == null)
+            Filters = new();
+        return await Update(Filters);
+    }
+
+    public async Task<decimal> Update(TransactionsFiltersDTO filter)
+    {
+        decimal? total;
+        if (filter.TransactionTypeId != null)
+            total = await TransactionService.GetTotal(filter);
+        else total = await TransactionService.GetBalance(filter);
+        if (total.HasValue)
+            this.total = total.Value;        
+        return total.Value;
+    }
+
+    public void TriggerChange() => StateHasChanged();
+}

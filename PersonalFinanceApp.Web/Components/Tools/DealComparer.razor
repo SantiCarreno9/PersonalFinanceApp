@@ -1,0 +1,22 @@
+﻿<h3>Deal Comparer</h3>
+
+@* <EditForm Model="itemsToCompare">
+    <DataAnnotationsValidator />
+    <ValidationSummary />    
+    @foreach (var item in itemsToCompare)
+    {
+        <div class="form-floating mb-1">
+        <InputNumber placeholder="e.g. Milk" class="form-control" id="@($"descriptionInput-{index}")" @bind-Value="item.Amount />
+            <label for="@($"descriptionInput-{index}")">Description</label>
+        </div>        
+    }
+</EditForm>
+
+@code {
+    private List<Item> itemsToCompare;
+    class Item
+    {
+        public double Amount;
+        public decimal Price;
+    }
+} *@

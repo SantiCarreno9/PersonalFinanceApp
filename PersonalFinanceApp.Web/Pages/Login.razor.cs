@@ -1,5 +1,6 @@
 ﻿using BlazorWasmAuth.Identity;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using PersonalFinanceApp.Web.Models;
 
 namespace PersonalFinanceApp.Web.Pages
@@ -17,10 +18,15 @@ namespace PersonalFinanceApp.Web.Pages
         private string[] errorList = [];
         private bool success, errors;
 
-        protected override void OnInitialized()
+        protected override async Task OnInitializedAsync()
         {
             base.OnInitialized();
             LoginModel ??= new();
+
+            if (await AccountManagement.CheckAuthenticatedAsync())
+            {                
+                NavigationManager.NavigateTo("dashboard");
+            }
         }
 
         private async Task Submit()
@@ -30,12 +36,12 @@ namespace PersonalFinanceApp.Web.Pages
             success = errors = false;
             errorList = [];
 
-            var result = await AccountManagement.LoginAsync(LoginModel!.EmailAddress, LoginModel!.Password);
+            var result = await AccountManagement.LoginAsync(LoginModel!.EmailAddress, LoginModel!.Password);            
 
             if (result.Succeeded)
             {
                 success = true;                
-                NavigationManager.NavigateTo("transactions");
+                NavigationManager.NavigateTo("dashboard");
             }
             else
             {

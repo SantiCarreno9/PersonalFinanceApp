@@ -10,9 +10,10 @@ namespace BaseLibrary.Entities
         {
             
         }
-        public Transaction(long id, DateTime date, string? location, decimal totalAmount, byte categoryId, byte paymentMethodId)
+        public Transaction(long id, byte transactionTypeId, DateTime date, string? location, decimal totalAmount, byte categoryId, byte paymentMethodId)
         {
             Id = id;
+            TransactionTypeId = transactionTypeId;
             Date = date;
             Location = location;
             TotalAmount = totalAmount;

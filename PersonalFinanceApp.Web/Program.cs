@@ -7,14 +7,10 @@ using PersonalFinanceApp.Web.Services.Contracts;
 using PersonalFinanceApp.Web.Services.Implementations;
 using Syncfusion.Blazor;
 
-//IMPORTANT: CHECK ENV VARIABLES
-Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NCaF5cXmZCeEx0TXxbf1x0ZFZMZVVbRHZPIiBoS35RckVlW35fdXFcRmBZVEZz");
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7236/") });
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IMetadataService, MetadataService>();
 builder.Services.AddSyncfusionBlazor();
@@ -32,10 +28,6 @@ builder.Services.AddScoped<AuthenticationStateProvider, CookieAuthenticationStat
 // register the account management interface
 builder.Services.AddScoped(
     sp => (IAccountManagement)sp.GetRequiredService<AuthenticationStateProvider>());
-
-// set base address for default host
-//builder.Services.AddScoped(sp =>
-//    new HttpClient { BaseAddress = new Uri(builder.Configuration["FrontendUrl"] ?? "https://localhost:5002") });
 
 // configure client for auth interactions
 builder.Services.AddHttpClient(

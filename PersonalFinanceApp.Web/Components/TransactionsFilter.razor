@@ -3,7 +3,7 @@
 <EditForm Model="RequestHelper">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <div class="card custom-container">
+    <div class="card custom-container" style="background-color:transparent">
         <div class="row">
             <div class="col-md">
                 <div class="form-floating mb-2">
@@ -21,13 +21,14 @@
             </div>
             <div class="col-md">
                 <div class="form-floating mb-2">
-                    <InputDate class="form-control" id="startDateFilter" @bind-Value="RequestHelper.StartDate" @bind-Value:format="dd/MM/yyyy" />
+                    <InputDate class="form-control" id="startDateFilter" @bind-Value="RequestHelper.StartDate" min="@(oldestTransactionDate.ToString("yyyy-MM-dd"))" />
                     <label for="startDateFilter">Start Date</label>
                 </div>
             </div>
             <div class="col-md">
                 <div class="form-floating mb-2">
-                    <InputDate class="form-control" id="endDateFilter" @bind-Value="RequestHelper.EndDate" @bind-Value:format="dd/MM/yyyy" />
+                    <InputDate class="form-control" id="endDateFilter" @bind-Value="RequestHelper.EndDate"
+                               min="@((RequestHelper.StartDate!=null ?RequestHelper.StartDate.Value.ToString("yyyy-MM-dd"):DateTime.Today.ToString("yyyy-MM-dd")))" />
                     <label for="endDateFilter">End Date</label>
                 </div>
             </div>
@@ -72,9 +73,9 @@
                 </div>
             </div>
         </div>
-        <div style="width:100%;justify-items:end;">
-            <button class="btn btn-primary" @onclick="Search" @onclick:preventDefault>Search</button>
-            <button class="btn btn-secondary" @onclick="Reset" @onclick:preventDefault>Reset</button>
+        <div class="d-flex justify-content-end">
+            <button class="btn btn-outline-primary m-2" @onclick="Search" @onclick:preventDefault>Search</button>
+            <button class="btn btn-outline-secondary m-2" @onclick="Reset" @onclick:preventDefault>Reset</button>
         </div>
     </div>
 </EditForm>

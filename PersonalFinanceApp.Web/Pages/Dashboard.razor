@@ -1,0 +1,73 @@
+﻿@page "/dashboard"
+@using PersonalFinanceApp.Web.Components
+@using PersonalFinanceApp.Web.Models
+
+<PageTitle>Dashboard</PageTitle>
+<AuthorizeView Context="authorized">
+    <Authorized>
+        <EditForm Model="EditableDateRange" OnValidSubmit="async(context)=>await UpdateData((DateRange)context.Model)">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <InputRadioGroup class="form-check" Value="@periodOption"
+                             ValueChanged="@((PeriodOption po)=>ChangePeriodOption(po))" ValueExpression="()=>periodOption">
+                <div class="d-flex flex-row">
+                    <div class="m-1">
+                        <InputRadio class="form-check-input m-1" Value="@PeriodOption.AllTime" />
+                        All Time
+                    </div>
+                    <div class="m-1">
+                        <InputRadio class="form-check-input" Value="@PeriodOption.Monthly" />
+                        By Month
+                    </div>
+                    <div class="m-1">
+                        <InputRadio class="form-check-input" Value="@PeriodOption.Custom" />
+                        Custom
+                    </div>
+                </div>
+                @if (periodOption == PeriodOption.Monthly)
+                {
+                    <input class="form-control"
+                           type="month" value="@(DateRange.EndDate.ToString("yyyy-MM"))" min="@(oldestTransactionDate.ToString("yyyy-MM"))" max="@(DateTime.Today.ToString("yyyy-MM"))" @onchange="SelectMonth"></input>
+                }
+                <div class="flex-row" style="display:@(periodOption == PeriodOption.Custom?"flex":"none");">
+                    <InputDate class="form-control" @bind-Value="EditableDateRange.StartDate" placeholder="yyyy-MM-dd" min="@(GetFormattedDate(oldestTransactionDate))" max="@GetFormattedDate(DateTime.Today)" />
+                    <InputDate class="form-control" @bind-Value="EditableDateRange.EndDate" placeholder="yyyy-MM-dd" min="@GetFormattedDate(EditableDateRange.StartDate)" max="@GetFormattedDate(DateTime.Today)" />
+                    <button class="btn btn-outline-primary mx-1" type="submit">Update</button>
+                </div>
+            </InputRadioGroup>
+        </EditForm>
+
+        <div class="container mt-2">
+            <div class="row px-2">
+                <div class="card col border-2 text-center p-2 m-2">
+                    <h2>Balance</h2>
+                    <h2 style="color:blue">@(balance.ToString("C"))</h2>
+                </div>
+                <div class="card col border-2 text-center p-2 m-2">
+                    <h2>Expenses</h2>
+                    <h2 style="color:red">
+                        <TransactionsTotal TransactionService="TransactionService" @ref="expenseTotal"></TransactionsTotal>
+                    </h2>
+                </div>
+                <div class="card col border-2 text-center p-2 m-2">
+                    <h2>Income</h2>
+                    <h2 style="color:green">
+                        <TransactionsTotal TransactionService="TransactionService" @ref="incomeTotal"></TransactionsTotal>
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-2 m-2 p-2">
+            <div class="card-title">
+                <h4 class="text-center">Summary</h4>
+            </div>
+            <div class="card-body">
+                <SummaryChart TransactionService="TransactionService" @ref="summaryChart"></SummaryChart>
+            </div>
+        </div>
+    </Authorized>
+</AuthorizeView>
+@code {
+
+}

@@ -1,5 +1,4 @@
 ﻿using BaseLibrary.DTOs;
-using BaseLibrary.Entities;
 using BaseLibrary.Extensions;
 using BaseLibrary.Helper;
 using BaseLibrary.Helper.GET;
@@ -40,18 +39,7 @@ namespace PersonalFinanceApp.Api.Controllers
                 transactions.TotalCount);
 
             return Ok(response);
-        }
-
-        [HttpGet("locations")]
-        public async Task<ActionResult<IEnumerable<string>>> GetExistingLocations()
-        {
-            var locations = await _transactionRepository.GetLocations(User.GetUserId());
-
-            if (locations == null)
-                return NoContent();
-
-            return Ok(locations);
-        }
+        }        
 
         // GET api/transactions/5
         [HttpGet("{id}")]
@@ -70,11 +58,13 @@ namespace PersonalFinanceApp.Api.Controllers
         public async Task<ActionResult<TransactionDTO>> CreateTransaction([FromBody] TransactionDTO transactionToAdd)
         {
             if (transactionToAdd == null)
-                throw new BadHttpRequestException(new ArgumentNullException().Message);
+                return BadRequest();
+
             var transactionEntity = transactionToAdd.ConvertToEntity();
             transactionEntity.UserId = User.GetUserId();
             transactionEntity.Update();
             var transaction = await _transactionRepository.AddTransaction(transactionEntity);
+
             return CreatedAtAction(
                 nameof(GetTransaction),
                 new { id = transaction.Id },
@@ -107,17 +97,12 @@ namespace PersonalFinanceApp.Api.Controllers
         }
 
         // DELETE api/transactions/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteTransaction(long id)
+        [HttpDelete()]
+        public async Task<ActionResult> DeleteTransaction([FromQuery] long[] id)
         {
-            bool ownsTransaction = await _transactionRepository.UserOwnsTransaction(User.GetUserId(), id);
-
-            if (!ownsTransaction)
+            bool couldDelete = await _transactionRepository.DeleteTransactions(User.GetUserId(), id);
+            if (!couldDelete)
                 return BadRequest();
-
-            var transaction = await _transactionRepository.DeleteTransaction(id);
-            if (transaction == null)
-                return NotFound();
             return NoContent();
         }
 
@@ -126,44 +111,72 @@ namespace PersonalFinanceApp.Api.Controllers
         #region api/transactions/[misc]
 
 
-        // GET: api/transactions        
-        [HttpGet("total")]
-        public async Task<ActionResult<TotalByPropertyResponse>> GetTotalByProperty([FromQuery] GetTotalByProperty request)
+        // GET: api/transactions/locations
+        [HttpGet("locations")]
+        public async Task<ActionResult<IEnumerable<string>>> GetExistingLocations()
         {
-            var amount = await _transactionRepository.GetTotalAmountByProperty(User.GetUserId(), request);
+            var locations = await _transactionRepository.GetLocations(User.GetUserId());
 
-            if (amount == null)
-                return BadRequest();
+            if (locations == null)
+                return NoContent();
 
-            var response = new TotalByPropertyResponse
-            {
-                PropertyName = request.PropertyName,
-                Id = request.Id,
-                StartDate = request.StartDate,
-                EndDate = request.EndDate,
-                TotalAmount = amount.Value
-            };
-            return Ok(response);
+            return Ok(locations);
         }
 
+        // GET api/transactions/total?property=transactiontype&id=1&startdate=...&enddate=...
+        [HttpGet("total")]
+        public async Task<ActionResult<decimal>> GetTotal([FromQuery] TransactionsFiltersDTO request)
+        {
+            var amount = await _transactionRepository.GetTotalAmount(User.GetUserId(), request);
+
+            if (amount == null)
+                return NoContent();
+
+            return Ok(amount);
+        }
+
+        [HttpGet("balance")]
+        public async Task<ActionResult<decimal>> GetBalance([FromQuery] TransactionsFiltersDTO request)
+        {
+            var amount = await _transactionRepository.GetBalance(User.GetUserId(), request);
+
+            if (amount == null)
+                return NoContent();
+
+            return Ok(amount);
+        }
+
+        // GET api/transactions/summary?transactiontypeid=1&property=categories&&startdate=...&enddate=...
         [HttpGet("summary")]
-        public async Task<ActionResult<SummaryByPropertyResponse>> GetSummaryByProperty([FromQuery] GetSummaryByProperty request)
+        public async Task<ActionResult<PagedList<Summary>>> GetSummaryByProperty([FromQuery] GetSummaryByProperty request)
         {
             var summary = await _transactionRepository.GetSummaryByProperty(User.GetUserId(), request);
 
             if (summary == null)
-                return BadRequest();
+                return NoContent();
 
-            var response = new SummaryByPropertyResponse
-            {
-                TransactionType = request.TransactionType,
-                StartDate = request.StartDate,
-                EndDate = request.EndDate,
-                PropertyName = request.PropertyName,
-                Summaries = summary
-            };
-            return Ok(response);
+            return Ok(summary);
         }
+
+        // GET api/transactions/bound?property=date&position=first
+        // GET api/transactions/bound?property=location&value=dollarama&position=first
+        // GET api/transactions/bound?property=paymentmethod&id=1&position=first
+        [HttpGet("bound")]
+        public async Task<ActionResult<TransactionDTO>> GetBoundTransactionByProperty([FromQuery] GetBoundTransaction request)
+        {
+            var transaction = await _transactionRepository.GetBoundTransaction(User.GetUserId(), request);
+            if (transaction == null)
+                return NoContent();
+
+            var transactionDTO = transaction.ConvertToDTO();
+
+            return Ok(new BoundTransactionResponse
+            {
+                Property = request.Property,
+                Position = request.Position,
+                Transaction = transactionDTO
+            });
+        }        
 
         #endregion
     }

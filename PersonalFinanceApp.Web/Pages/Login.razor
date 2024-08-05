@@ -1,5 +1,5 @@
-﻿@page "/login"
-@using Syncfusion.Blazor.Buttons
+﻿@page "/"
+@page "/login"
 
 <PageTitle>Login</PageTitle>
 
@@ -10,37 +10,40 @@
         <div class="alert alert-success">You're already logged in as @context.User.Identity?.Name.</div>
     </Authorized>
     <NotAuthorized>
-        @if (success)
-        {
-            <div class="alert alert-success">You successfully registered. Now you can <a href="login">login</a>.</div>
-        }
-        else
-        {
-            if (errors)
+        <div class="container mt-2">
+            @if (success)
             {
-                foreach (var error in errorList)
-                {
-                    <div class="alert alert-danger">@error</div>
-                }
+                <div class="alert alert-success">You successfully registered. Now you can <a href="login">login</a>.</div>
             }
-            <EditForm Context="formContext" Model="LoginModel" OnValidSubmit="Submit">
-                <DataAnnotationsValidator />                
-                <div>
-                    <label>
-                        Email:
-                        <InputText @bind-Value="LoginModel!.EmailAddress" />
-                        <ValidationMessage For="()=>LoginModel!.EmailAddress" />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        Password:
-                        <InputText AdditionalAttributes='new Dictionary<string,object>{{"type","password"}}' @bind-Value="LoginModel!.Password" />
-                        <ValidationMessage For="()=>LoginModel!.Password" />
-                    </label>
-                </div>                
-                <SfButton HtmlAttributes='new Dictionary<string, object>{{"type","submit"}}'>Login</SfButton>
-            </EditForm>
-        }
+            else
+            {
+                if (errors)
+                {
+                    foreach (var error in errorList)
+                    {
+                        <div class="alert alert-danger">@error</div>
+                    }
+                }
+                <EditForm Context="formContext" Model="LoginModel" OnValidSubmit="Submit">
+                    <DataAnnotationsValidator />
+                    <div class="w-50">
+                        <div class="form-floating mb-2">
+                            <InputText id="emailField" class="form-control" @bind-Value="LoginModel!.EmailAddress" />
+                            <ValidationMessage For="()=>LoginModel!.EmailAddress" />
+                            <label for="emailField">Email</label>
+                        </div>
+                        <div class="form-floating mb-2">
+                            <InputText type="password" id="passwordField" class="form-control" @bind-Value="LoginModel!.Password" />
+                            <ValidationMessage For="()=>LoginModel!.Password" />
+                            <label for="passwordField">Password</label>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary mb-3" type="submit">Login</button>                    
+                </EditForm>
+            }
+            <div>
+                Don't have an account? <a href="register">Register</a>
+            </div>
+        </div>
     </NotAuthorized>
 </AuthorizeView>

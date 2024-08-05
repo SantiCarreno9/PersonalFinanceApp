@@ -5,87 +5,126 @@
 @using Syncfusion.Blazor.Popups
 @using PersonalFinanceApp.Web.Components
 
-<div style="display:flex;flex-direction:row;">
-    <p style="font-size:1.5rem; margin:0;">Transactions</p>
-    <div style="flex:1; text-align:end; font-size:1.5rem;">
-        <button class="btn btn-success" style="margin-left:1rem;" @onclick="AddTransactionBtn_Clicked">New Transaction </button>
-        <button class="icon-btn" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
-            <i class="fa-solid fa-sliders"></i>
-        </button>
-    </div>
-</div>
-<div class="collapse" id="collapseFilter">
-    <br>
-    <TransactionsFilters Type="currentTransactionType" RequestHelper="RequestHelper" Categories="Categories" PaymentMethods="PaymentMethods" OnSearch="async()=>{await TransactionGrid?.RefreshDataAsync();}"></TransactionsFilters>
-</div>
-<br />
-<ul class="nav nav-tabs">
-    <li class="nav-item">
-        <a class="nav-link @(currentTransactionType==TransactionTypes.Expense?"active":"")" aria-current="page" href="#"
-        @onclick:preventDefault @onclick="async()=>await OnTabSelected(TransactionTypes.Expense)">Expenses</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link @(currentTransactionType==TransactionTypes.Income?"active":"")" aria-current="page" href="#"
-        @onclick:preventDefault @onclick="async()=>await OnTabSelected(TransactionTypes.Income)">Income</a>
-    </li>
-</ul>
+<PageTitle>Transactions</PageTitle>
 
-<div style="width:100%; overflow-x:scroll; padding-top:1rem;">
-    <QuickGrid style="width:100%;" ItemsProvider="@TransactionItemsProvider" Pagination="state" @ref=TransactionGrid>
-        <TemplateColumn Title="Location" Sortable="true">
-            <ChildContent>
-                <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
-                    @context.Location
+<AuthorizeView Context="authorized">
+    <Authorized>
+        <div style="display:flex;flex-direction:row;">
+            <p style="font-size:1.5rem; margin:0;">Transactions</p>
+            <div style="flex:1; text-align:end; font-size:1.5rem;">
+                <button class="btn btn-outline-success" style="margin-left:1rem;" @onclick="AddTransactionBtn_Clicked">New Transaction </button>
+                <button class="btn btn-outline-light" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+                    <i class="fa-solid fa-sliders"></i>
+                </button>
+            </div>
+        </div>
+        <div class="collapse" id="collapseFilter">
+            <br>
+            <TransactionsFilter Type="currentTransactionType" RequestHelper="RequestHelper" Categories="Categories" PaymentMethods="PaymentMethods" TransactionService="TransactionService" OnSearch="async()=>{await OnFiltersUpdated();}"></TransactionsFilter>
+        </div>
+        <br />
+        <ul class="nav nav-tabs">            
+            <li class="nav-item">
+                <a class="nav-link @(currentTransactionType==TransactionTypes.Expense?"active":"")" aria-current="page" href="#"
+                @onclick:preventDefault @onclick="async()=>await OnTabSelected(TransactionTypes.Expense)">Expenses</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(currentTransactionType==TransactionTypes.Income?"active":"")" aria-current="page" href="#"
+                @onclick:preventDefault @onclick="async()=>await OnTabSelected(TransactionTypes.Income)">Income</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(currentTransactionType==TransactionTypes.All?"active":"")" aria-current="page" href="#"
+                @onclick:preventDefault @onclick="async()=>await OnTabSelected(TransactionTypes.All)">All</a>
+            </li>
+        </ul>
+
+        <div class="w-100 pt-1" style="overflow-x:scroll;">
+            <div class="d-flex justify-content-between" style="background-color:var(--bs-tertiary-bg)">
+                <div class="d-flex flex-row p-1">
+                    <h5 class="m-0 p-0">
+                        Total
+                        <TransactionsTotal Filters="RequestHelper" TransactionService="TransactionService" @ref="transactionsTotal"></TransactionsTotal>
+                    </h5>
                 </div>
-            </ChildContent>
-        </TemplateColumn>
-        <TemplateColumn Title="Date" Sortable="true">
-            <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
-                @context.Date.ToString("MMM dd, yyyy")
+                <button id="deleteButton" @onclick="DeleteTransactions" class="btn btn-outline-light" disabled="@(!isAnyItemSelected)">                
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
             </div>
-        </TemplateColumn>
-        <TemplateColumn Title="Payment Method" Sortable="true">
-            <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
-                @GetPaymentMethod(@context.PaymentMethodId)
-            </div>
-        </TemplateColumn>
-        <TemplateColumn Title="Category" Sortable="true">
-            <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
-                @GetCategoryName(@context.CategoryId)
-            </div>
-        </TemplateColumn>
-        <TemplateColumn Title="Amount" Sortable="true">
-            <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
-                @context.TotalAmount.ToString("C")
-            </div>
-        </TemplateColumn>
-        <TemplateColumn>
-            <button @onclick="async()=>{await DeleteTransaction(context.Id);}" style="background-color:red; color:white; z-index:12;" class="icon-btn">
-                <i class="fa-solid fa-trash"></i>
-            </button>
-        </TemplateColumn>
-    </QuickGrid>    
-    @if (!anyResultsFound)
-    {
-        <h2 strong style="text-align:center">NO ITEMS FOUND</h2>
+            <QuickGrid Class="w-100" ItemsProvider="@TransactionItemsProvider" Pagination="state" @ref=TransactionGrid>
+                <TemplateColumn Class="p-0 m-0">
+                    <HeaderTemplate>
+                        <div class="d-flex w-100 justify-content-center py-0">
+                            <input class="form-check-input" type="checkbox" id="allCheckbox" @bind-value="@areAllItemsSelected" />
+                        </div>
+                    </HeaderTemplate>
+                    <ChildContent>
+                        <div class="d-flex w-100 justify-content-center my-2 px-1">                            
+                            <input class="form-check-input items-toggle" type="checkbox" @onchange="(value)=>OnTransactionSelected(context.Id,(bool)value.Value!)" />
+                        </div>
+                    </ChildContent>
+                </TemplateColumn>
+                <TemplateColumn Title="Location" Sortable="true">
+                    <ChildContent>
+                        <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
+                            @context.Location
+                        </div>
+                    </ChildContent>
+                </TemplateColumn>
+                <TemplateColumn Title="Date" Sortable="true">
+                    <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
+                        @context.Date.ToString("MMM dd, yyyy")
+                    </div>
+                </TemplateColumn>
+                <TemplateColumn Title="Payment Method" Sortable="true">
+                    <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
+                        @GetPaymentMethod(@context.PaymentMethodId)
+                    </div>
+                </TemplateColumn>
+                <TemplateColumn Title="Category" Sortable="true">
+                    <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
+                        @GetCategoryName(@context.CategoryId)
+                    </div>
+                </TemplateColumn>
+                @if (currentTransactionType == TransactionTypes.All)
+                {
+                    <TemplateColumn Title="Type">
+                        <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
+                            @(context.TransactionTypeId == (byte)TransactionTypes.Expense ? "Expense" : "Income")
+                        </div>
+                    </TemplateColumn>
+                }
+                <TemplateColumn Title="Amount" Sortable="true">
+                    <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
+                        @context.TotalAmount.ToString("C")
+                    </div>
+                </TemplateColumn>
+            </QuickGrid>
+            @if (!anyResultsFound)
+            {
+                <h2 strong style="text-align:center">NO ITEMS FOUND</h2>
+            }
+        </div>
+
+        <SfDialog Width="500px" EnableResize="false" ShowCloseIcon="true" IsModal @bind-Visible=shouldShowDialog>
+            <DialogTemplates>
+                <Header>
+                    @(CurrentTransaction == null ? "Add Transaction" : "Edit Transaction")
+                </Header>
+                <Content>
+                    <TransactionEditor Transaction="@CurrentTransaction" OnSuccessfullySubmitted="OnTransactionAdded"
+                                       OnCancel="HideDialog"></TransactionEditor>
+                </Content>
+            </DialogTemplates>
+            <DialogEvents OnClose="HideDialog"></DialogEvents>
+        </SfDialog>
+
+        <Paginator State="state"></Paginator>
+    </Authorized>
+</AuthorizeView>
+<style>
+    .items-toggle {
     }
-</div>
+</style>
 
-<SfDialog Width="500px" EnableResize="false" ShowCloseIcon="true" IsModal @bind-Visible=shouldShowDialog>
-    <DialogTemplates>
-        <Header>
-            @(CurrentTransaction == null ? "Add Transaction" : "Edit Transaction")
-        </Header>
-        <Content>
-            <TransactionEditor Transaction="@CurrentTransaction" OnSuccessfullySubmitted="OnTransactionAdded"
-                               OnCancel="HideDialog"></TransactionEditor>
-        </Content>
-    </DialogTemplates>
-    <DialogEvents OnClose="HideDialog"></DialogEvents>
-</SfDialog>
+<script src="/Pages/Transactions.razor.js"></script>
 
-<Paginator State="state"></Paginator>
-
-@code {
-    // private RenderFragment<TransactionDTO> ClickableRow => (context) =>@<div style="position:absolute; width:100%; height:100%;" @onclick="()=>{Print(context.Location);}"></div>;
-}

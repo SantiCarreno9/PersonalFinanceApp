@@ -1,0 +1,94 @@
+﻿@using Syncfusion.Blazor.Charts
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+@if (propertySummary == null)
+{
+    <div style="height:400px">
+        <p>Loading...</p>
+    </div>
+}
+else
+{
+    <div class="d-flex flex-row align-content-center justify-content-center">
+        <div class="dropdown">
+            <button class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="true">
+                @propertyTitle
+            </button>
+            <div class="dropdown-menu p-2">
+                <InputRadioGroup class="form-check" Value="@transactionType"
+                                 ValueChanged="@(async(TransactionTypes tt)=>await ChangeTransactionType(tt))" ValueExpression="()=>transactionType">
+                    <div class="form-check">
+                        <InputRadio class="form-check-input" id="expenseCheck" Value="@(TransactionTypes.Expense)" />
+                        <label class="form-check-label" for="expenseCheck">Expense</label>
+                    </div>
+                    <div class="form-check">
+                        <InputRadio class="form-check-input" id="incomeCheck" Value="@(TransactionTypes.Income)" />
+                        <label class="form-check-label" for="incomeCheck">Income</label>
+                    </div>
+                </InputRadioGroup>
+                <hr class="dropdown-divider">
+                <InputRadioGroup class="form-check" Value="@property"
+                                 ValueChanged="@(async(string prop)=>await ChangeProperty(prop))" ValueExpression="()=>property">
+                    <div class="form-check">
+                        <InputRadio class="form-check-input" id="categoriesCheck" Value="@("Categories")" />
+                        <label class="form-check-label" for="categoriesCheck">Categories</label>
+                    </div>
+                    <div class="form-check">
+                        <InputRadio class="form-check-input" id="locationsCheck" Value="@("Locations")" />
+                        <label class="form-check-label" for="locationsCheck">Locations</label>
+                    </div>
+                    <div class="form-check">
+                        <InputRadio class="form-check-input" id="paymentMethods" Value="@("PaymentMethods")" />
+                        <label class="form-check-label" for="paymentMethods">Payment Methods</label>
+                    </div>
+                </InputRadioGroup>
+            </div>
+        </div>
+    </div>
+    <SfAccumulationChart Height="400px" EnableAnimation="false" EnableSmartLabels="true" Theme="Theme">
+        <AccumulationChartLegendSettings Visible="false"></AccumulationChartLegendSettings>
+        <AccumulationChartTooltipSettings Header="" Enable="true" Format="<b>${point.x}: $${point.y}</b>">
+        </AccumulationChartTooltipSettings>
+        <AccumulationChartSeriesCollection>
+            <AccumulationChartSeries DataSource="@propertySummary.Items" XName="Name" YName="TotalAmount" StartAngle="0" EndAngle="360" InnerRadius="50%" LegendShape="LegendShape.Circle">
+                <AccumulationDataLabelSettings Visible="true" Position="AccumulationLabelPosition.Outside" Name="Name">
+                    <AccumulationChartConnector Type="ConnectorType.Curve"></AccumulationChartConnector>
+                    <AccumulationChartDataLabelFont Color="white"></AccumulationChartDataLabelFont>
+                </AccumulationDataLabelSettings>
+                <AccumulationChartEvents OnLegendClick="OnLegendClicked"></AccumulationChartEvents>
+            </AccumulationChartSeries>
+        </AccumulationChartSeriesCollection>
+        <AccumulationChartLegendSettings Visible="true"></AccumulationChartLegendSettings>
+        <AccumulationChartAnnotations>
+            <AccumulationChartAnnotation Region="Regions.Series" X="50%" Y="50%">
+                <ContentTemplate>
+                    <div style="font-size:17px;font-weight:600;text-align:center">
+                        Total:<br> @((totalAmount - amountToSubtract).ToString("C"))
+                    </div>
+                </ContentTemplate>
+            </AccumulationChartAnnotation>
+        </AccumulationChartAnnotations>
+    </SfAccumulationChart>
+
+    @if (propertySummary.HasNextPage || propertySummary.HasPreviousPage)
+    {
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(propertySummary.HasPreviousPage?"":"disabled")">
+                    <a class="page-link" href="#" aria-label="Previous" @onclick="PreviousPage" @onclick:preventDefault>
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                @foreach (var item in Enumerable.Range(1, propertySummary.TotalNumberOfPages))
+                {
+                    <li class="page-item @(page==item?"active":"")"><a class="page-link" href="#" @onclick="()=>GoToPage(item)" @onclick:preventDefault>@item</a></li>
+                }
+                <li class="page-item">
+                    <a class="page-link @(propertySummary.HasNextPage?"":"disabled")" href="#" @onclick="NextPage" @onclick:preventDefault aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    }
+}
