@@ -46,20 +46,23 @@ builder.Services.AddSwaggerGen(options =>
 
 //DI
 
-if(builder.Environment.IsDevelopment())
-{
-    builder.Services.AddDbContextPool<AppDbContext>(option =>
-        option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ??
-            throw new InvalidOperationException("Connection string not found"))
-    );
-}
-else
-{
-    builder.Services.AddDbContextPool<AppDbContext>(option =>
+builder.Services.AddDbContextPool<AppDbContext>(option =>
     option.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection") ??
-        throw new InvalidOperationException("Connection string not found"))
-);
-}
+        throw new InvalidOperationException("Connection string not found")));
+//if(builder.Environment.IsDevelopment())
+//{
+//    builder.Services.AddDbContextPool<AppDbContext>(option =>
+//        option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ??
+//            throw new InvalidOperationException("Connection string not found"))
+//    );
+//}
+//else
+//{
+//    builder.Services.AddDbContextPool<AppDbContext>(option =>
+//    option.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection") ??
+//        throw new InvalidOperationException("Connection string not found"))
+//);
+//}
 
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IMetadataRepository, MetadataRepository>();

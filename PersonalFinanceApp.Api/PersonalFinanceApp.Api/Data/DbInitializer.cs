@@ -6,7 +6,7 @@ namespace PersonalFinanceApp.Api.Data
     {
         public static void Initialize(AppDbContext context)
         {
-            context.Database.EnsureCreated();
+            //context.Database.EnsureCreated();
             //return;            
 
             if (!context.PaymentMethods.Any())
@@ -299,7 +299,7 @@ namespace PersonalFinanceApp.Api.Data
                 context.SaveChanges();
             }
 
-            const string userId = "3a4c388b-f02b-419a-892f-641cf8aa79d4";
+            const string userId = "9eec4ece-f10f-43e2-a7ca-4b1d1dfa5657";
 
             if (!context.Transactions.Any())
             {
