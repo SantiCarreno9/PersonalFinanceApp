@@ -129,19 +129,19 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
         public async Task<decimal?> GetTotalAmount(string userId, TransactionsFiltersDTO request)
         {
             var transactionsQuery = FilterTransactions(userId, request);
-            decimal total = 0;
+            double total = 0;            
             if (request.CategoriesIds != null)
             {
                 total = await transactionsQuery
                     .SelectMany(t => t.TransactionDetails)
-                    .SumAsync(td => td.Amount);
+                    .SumAsync(td => (double)td.Amount);                
             }
             else
             {
                 total = await transactionsQuery
-                    .SumAsync(t => t.TotalAmount);
+                    .SumAsync(t => (double)t.TotalAmount);
             }
-            return total;
+            return (decimal)total;
         }
 
         public async Task<decimal?> GetBalance(string userId, TransactionsFiltersDTO request)
@@ -178,14 +178,14 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
                         .GroupBy(t => t.PaymentMethodId);
                     foreach (var group in paymentMethods)
                     {
-                        var total = group.Sum(t => t.TotalAmount);
+                        var total = group.Sum(t => (double)t.TotalAmount);
                         if (total == 0)
                             continue;
                         summaries.Add(new Summary
                         {
                             Id = group.Key,
                             Name = group.First().PaymentMethod.Name,
-                            TotalAmount = total
+                            TotalAmount = (decimal)total
                         });
                     }
                     break;
@@ -197,13 +197,13 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
 
                     foreach (var group in locations)
                     {
-                        var total = group.Sum(t => t.TotalAmount);
+                        var total = group.Sum(t => (double)t.TotalAmount);
                         if (total == 0)
                             continue;
                         summaries.Add(new Summary
                         {
                             Name = group.First().Location,
-                            TotalAmount = total
+                            TotalAmount = (decimal)total
                         });
                     }
                     break;
@@ -216,14 +216,14 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
                         .GroupBy(td => td.CategoryId);
                     foreach (var group in categories)
                     {
-                        var total = group.Sum(t => t.Amount);
+                        var total = group.Sum(t => (double)t.Amount);
                         if (total == 0)
                             continue;
                         summaries.Add(new Summary
                         {
                             Id = group.Key,
                             Name = group.First().Category.Name,
-                            TotalAmount = total
+                            TotalAmount = (decimal)total
                         });
                     }
                     break;

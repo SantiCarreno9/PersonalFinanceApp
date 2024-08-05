@@ -7,6 +7,8 @@ using PersonalFinanceApp.Web.Services.Contracts;
 using PersonalFinanceApp.Web.Services.Implementations;
 using Syncfusion.Blazor;
 
+//IMPORTANT: CHECK ENV VARIABLES
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzM4NDk4M0AzMjM2MmUzMDJlMzBkTVBDdFFZeUQxdjZwaUVjbDREVTRNUThnOU9JMTc2ZlloOStuQ016RlhZPQ==");
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
