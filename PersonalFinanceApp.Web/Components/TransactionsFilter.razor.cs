@@ -41,7 +41,7 @@ namespace PersonalFinanceApp.Web.Components
                 });
             if (oldestTransaction != null)
             {
-                oldestTransactionDate = oldestTransaction.Transaction.Date;
+                oldestTransactionDate = oldestTransaction.Date;
                 RequestHelper.StartDate = oldestTransactionDate;
             }
             RequestHelper.EndDate = DateTime.Today;

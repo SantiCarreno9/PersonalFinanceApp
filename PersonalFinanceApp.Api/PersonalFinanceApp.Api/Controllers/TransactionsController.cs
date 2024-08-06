@@ -170,12 +170,7 @@ namespace PersonalFinanceApp.Api.Controllers
 
             var transactionDTO = transaction.ConvertToDTO();
 
-            return Ok(new BoundTransactionResponse
-            {
-                Property = request.Property,
-                Position = request.Position,
-                Transaction = transactionDTO
-            });
+            return Ok(transactionDTO);
         }        
 
         #endregion
