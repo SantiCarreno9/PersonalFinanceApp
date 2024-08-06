@@ -39,7 +39,7 @@ namespace PersonalFinanceApp.Web.Pages
                     Position = "First"
                 });
             if (oldestTransaction != null)
-                oldestTransactionDate = oldestTransaction.Transaction.Date;
+                oldestTransactionDate = oldestTransaction.Date;
 
             await ChangePeriodOption(PeriodOption.AllTime);
 

@@ -13,7 +13,7 @@ namespace PersonalFinanceApp.Web.Services.Contracts
         Task<PagedList<Summary>?> GetSummaryByProperty(GetSummaryByProperty request);
         Task<decimal?> GetTotal(TransactionsFiltersDTO request);
         Task<decimal?> GetBalance(TransactionsFiltersDTO request);
-        Task<BoundTransactionResponse?> GetBoundTransactionByProperty(GetBoundTransaction request);
+        Task<TransactionDTO?> GetBoundTransactionByProperty(GetBoundTransaction request);
 
         Task<TransactionDTO?> CreateTransaction(TransactionDTO transactionDTO);
         Task<TransactionDTO?> UpdateTransaction(TransactionDTO transactionDTO);        

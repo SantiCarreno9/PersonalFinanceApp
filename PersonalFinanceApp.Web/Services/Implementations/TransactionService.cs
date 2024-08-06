@@ -16,6 +16,7 @@ namespace PersonalFinanceApp.Web.Services.Implementations
         public TransactionService(HttpClient httpClient, IMemoryCache cache) : base(httpClient)
         {
             this._cache = cache;
+            //_httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "CfDJ8PNQSzE1fyBMqIu-TxkRXjGKKk874Oi2JsqpKS8ut0-LxCv8YaGiZar2UXTRbYDa8H-41rJcxXRnNZCw72JuTIRXlAJfbebIY_naXCxeltlUZV9b2q5ZfVrNamiXRpfVnoUIF1Qt7T0RoxoQXTNy7hczHSqYUDUxwLNMpM0Cz-RMsQL8pzXZWrgGm_L1npaujoLLWjmQhqvkxOKHfbrfQU_AXv35a0aGjlFWvaeDLMMrlcUr-Yi2WzlC9UzJGJ1_ECQzCDGOTrSG0Qs6YBIlfrm-8wqf_pbVHSOpLiSBotXBi488taBQ0o-Fz-zo9R59Gv8qd7UT7gCpx7_DyoAXIEvU3m9v75nM3rai4YTWuG-Lvaifee4XifTFcH8QzDv4X7eIgMnOIF9sojJ5fmCW6UZxW1jRtoA2y_ggObpdbjf7Kyhnfc54ZtDyXd3IjRoQWhxNJUF3GZ7MszZAVV3W3P2X5kFewi0TRnlYJyoWTxjKp0SPQPzmawdNQUcQw697JkQvIr1AWweglC4WPTvB5XzrmGGuSjplok4OIe0WqwIVvkHobFhoHnUyYgtDDMfmp2FLFI8YeOzWUzGXUFiRSqOCKQYJ1RZwTBFkYaLThpDjmnWwhBb9_ycJuRmwY-T12_QCBtqVZkI6lfFQsQYBia444bJrdSrVZhuPZJbiHspt1FCfYaK8XaR7eNSxX0iXOCi5-8SuixK3pEbikwq27-XG2B_04foABZ3e5gfSfOh8");
         }
 
         public async Task<TransactionDTO?> GetTransaction(long id)
@@ -116,15 +117,15 @@ namespace PersonalFinanceApp.Web.Services.Implementations
             return await Get<decimal?>(query);
         }
 
-        public async Task<BoundTransactionResponse?> GetBoundTransactionByProperty(GetBoundTransaction request)
+        public async Task<TransactionDTO?> GetBoundTransactionByProperty(GetBoundTransaction request)
         {
             string query = ApiURI + "/bound?";
             query += $"property={request.Property}";
             query += $"&position={request.Position}";
             if (request.Value != null) query += $"&value={request.Value}";
             if (request.Id != null) query += $"&id={request.Id}";
-
-            return await Get<BoundTransactionResponse?>(query);
+                       
+            return await Get<TransactionDTO?>(query);
         }
     }
 }
