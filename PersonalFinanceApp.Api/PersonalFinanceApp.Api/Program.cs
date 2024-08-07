@@ -79,6 +79,7 @@ builder.Services.AddCors(
             .AllowAnyHeader()
             .AllowCredentials()));
 
+builder.Services.ConfigureApplicationCookie(options => options.Cookie.SameSite = SameSiteMode.None);
 builder.Services.AddAuthorization();
 
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
