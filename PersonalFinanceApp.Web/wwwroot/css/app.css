@@ -114,3 +114,9 @@ code {
 .btn-close.plus{
     transform:rotate(45deg);
 }
+
+@media (max-width: 641px) {
+    h2{
+        font-size:0.9rem;
+    }
+}
