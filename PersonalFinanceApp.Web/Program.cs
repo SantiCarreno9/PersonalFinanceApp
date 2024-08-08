@@ -9,7 +9,7 @@ using Syncfusion.Blazor;
 
 //IMPORTANT: CHECK ENV VARIABLES
 
-Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(Environment.GetEnvironmentVariable("SyncfusionAPIKey"));
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("SYNCFUSION_API_KEY");
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");

@@ -65,6 +65,10 @@
     color: white;
 }
 
+.nav-link{
+    overflow-x:hidden;
+}
+
 @media (min-width: 641px) {
     .navbar-toggler {
         display: none;
