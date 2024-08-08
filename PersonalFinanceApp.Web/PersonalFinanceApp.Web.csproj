@@ -44,6 +44,7 @@
 		<_ContentIncludedByDefault Remove="Components\Login.razor" />
 		<_ContentIncludedByDefault Remove="Pages\Dashboard.razor" />
 		<_ContentIncludedByDefault Remove="Pages\Logout.razor" />
+		<_ContentIncludedByDefault Remove="staticwebapp.config.json" />
 	</ItemGroup>
 
 	<ItemGroup>
