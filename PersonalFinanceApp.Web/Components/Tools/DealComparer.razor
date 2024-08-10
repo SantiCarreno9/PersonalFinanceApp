@@ -1,22 +1,196 @@
-﻿<h3>Deal Comparer</h3>
+﻿@page "/tools/dealcomparer"
 
-@* <EditForm Model="itemsToCompare">
-    <DataAnnotationsValidator />
-    <ValidationSummary />    
-    @foreach (var item in itemsToCompare)
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Charts
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Deal Comparer</PageTitle>
+<div class="container">
+    <div class="d-flex">
+        <h2>Deal Comparer</h2>
+        <div style="flex:1;text-align:end;">
+            <a class="btn btn-secondary" href="/tools">Back</a>
+        </div>
+    </div>
+    <div style="display:@(shouldShowChart?"none":"block")">
+        <EditForm Model="model" OnValidSubmit="Compare">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="row">
+                <div class="col-md">
+                    <div class="form-floating mb-2">
+                        <InputText class="form-control" id="itemNameInput" @bind-Value="@model!.ItemName"></InputText>
+                        <label for="itemNameInput">Item</label>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div class="form-floating mb-2">
+                        <InputSelect class="form-select" id="unitInput" DisplayName="Unit" @bind-Value="@model!.Unit">
+                            <option value="unit">Units</option>
+                            <option value="g">Grams</option>
+                            <option value="kg">Kilograms</option>
+                            <option value="mL">Milliliters</option>
+                            <option value="L">Liters</option>
+                            <option value="oz">Oz</option>
+                        </InputSelect>
+                        <label for="unitInput">Unit</label>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header d-flex justify-content-end">
+                    <button type="button" class="btn-close plus mr-2"
+                            @onclick="()=>{model.Deals.Add(new());}" @onclick:preventDefault @onclick:stopPropagation></button>
+                    @if (model.Deals.Count > 2)
+                    {
+                        <button type="button" class="btn-close" @onclick="()=>{model.Deals.RemoveAt(model.Deals.Count-1);}" @onclick:preventDefault
+                        @onclick:stopPropagation aria-label="Close"></button>
+                    }
+                </div>
+                <div class="card-body">
+                    @foreach (int index in Enumerable.Range(0, model.Deals.Count))
+                    {
+                        <div class="row">
+                            <div class="col-md">
+                                <div class="input-group mb-2">
+                                    <div class="form-floating">
+                                        <InputNumber class="form-control" id="@($"amountInput-{index}")" @bind-Value="model.Deals[index].Amount" />
+                                        <label for="@($"amountInput-{index}")">Amount</label>
+                                    </div>
+                                    <span class="input-group-text">@model.Unit</span>
+                                </div>
+                            </div>
+                            <div class="col-md">
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text">$</span>
+                                    <div class="form-floating">
+                                        <InputNumber class="form-control" id="@($"priceInput-{index}")" @bind-Value="model.Deals[index].Price" />
+                                        <label for="@($"priceInput-{index}")">Price</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md">
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text">$</span>
+                                    <div class="form-floating">
+                                        <InputText class="form-control" id="@($"descriptionInput-{index}")" @bind-Value="model.Deals[index].Description" />
+                                        <label for="@($"descriptionInput-{index}")">Description</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <br>
+            <button class="btn btn-outline-primary" type="submit">Compare</button>
+            <button class="btn btn-outline-secondary" type="button" @onclick:preventDefault @onclick="Reset">Reset</button>
+        </EditForm>
+    </div>
+    @if (shouldShowChart)
     {
-        <div class="form-floating mb-1">
-        <InputNumber placeholder="e.g. Milk" class="form-control" id="@($"descriptionInput-{index}")" @bind-Value="item.Amount />
-            <label for="@($"descriptionInput-{index}")">Description</label>
-        </div>        
+        <div class="row g-3 align-items-center">
+            <div class="col-auto">
+                <label for="multiplierInput" class="col-form-label">Per</label>
+            </div>
+            <div class="col-md-2">
+                <InputNumber class="form-control" id="multiplierInput" @bind-Value="multiplier" aria-describedby="multiplierHelper"></InputNumber>
+            </div>
+            <div class="col-auto">
+                <span id="multiplierHelper" class="form-text">
+                    @model.Unit
+                </span>
+            </div>
+        </div>
+        <SfChart Title="@(model.ItemName)" Width="80%" Theme="@Theme">
+            <ChartArea><ChartAreaBorder Width="0"></ChartAreaBorder></ChartArea>
+            <ChartSorting PropertyName="Ratio" Direction="Syncfusion.Blazor.Data.ListSortDirection.Ascending"></ChartSorting>
+            <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category">
+                <ChartAxisMajorGridLines Width="0"></ChartAxisMajorGridLines>
+                <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
+            </ChartPrimaryXAxis>
+            <ChartPrimaryYAxis Title="@($"Ratio  ($ / {model.Unit})")">
+                <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
+                <ChartAxisLineStyle Width="0"></ChartAxisLineStyle>
+            </ChartPrimaryYAxis>
+            <ChartSeriesCollection>
+                <ChartSeries DataSource="@model.Deals" XName="Legend" YName="Ratio" Width="2" ColumnSpacing="0.1" Type="ChartSeriesType.Column">
+                    <ChartMarker>
+                        <ChartDataLabel Visible="true" Format="C3" Position="LabelPosition.Outer">
+                            <ChartDataLabelFont FontWeight="600" Color="#ffffff"></ChartDataLabelFont>
+                        </ChartDataLabel>
+                    </ChartMarker>
+                </ChartSeries>
+            </ChartSeriesCollection>
+            <ChartLegendSettings Visible="true" EnableHighlight="true"></ChartLegendSettings>
+            <ChartTooltipSettings Enable="true">
+                <Template>
+                    @{
+                        var data = context as ChartTooltipInfo;
+                    }
+                    <div class="btn btn-secondary">
+                        You're paying @(((Double.Parse(data.Y.ToString())) * multiplier).ToString("C"))
+                    </div>
+                </Template>
+            </ChartTooltipSettings>
+        </SfChart>
     }
-</EditForm>
+</div>
 
 @code {
-    private List<Item> itemsToCompare;
-    class Item
+    [SupplyParameterFromForm]
+    private DealsComparerModel model { get; set; }
+    private Theme Theme = Theme.Bootstrap5Dark;
+
+    private double multiplier = 1;
+
+    private bool shouldShowChart = false;
+
+    protected override void OnInitialized()
     {
-        public double Amount;
-        public decimal Price;
+        base.OnInitialized();
+        model = new();
     }
-} *@
+
+    private void Compare(EditContext context)
+    {
+        for (int i = 0; i < model.Deals.Count; i++)
+        {
+            if (!model.Deals[i].IsValid())
+                return;
+            if (multiplier < model.Deals[i].Amount)
+                multiplier = model.Deals[i].Amount;
+        }
+        shouldShowChart = true;
+    }
+
+    private void Reset()
+    {
+        model = new();
+    }
+
+    class DealsComparerModel
+    {
+        public string? ItemName;
+        public string Unit = "unit";
+        public List<Deal> Deals;
+
+        public DealsComparerModel()
+        {
+            Deals = new() { new Deal(), new Deal() };
+        }
+    }
+
+    class Deal
+    {
+        public string? Description { get; set; }
+        public string Legend => $"{Description ?? ""}\n\n ${Price} / {Amount}";
+        [Range(0, double.MaxValue, ErrorMessage = "Value must be greater than 0", MinimumIsExclusive = true)]
+        public double Amount { get; set; } = 0;
+        [Range(0, double.MaxValue, ErrorMessage = "Value must be greater than 0", MinimumIsExclusive = true)]
+        public double Price { get; set; }
+        public double Ratio => Amount == 0 ? 0 : (Price / Amount);
+
+        public bool IsValid() => Amount > 0 && Price > 0;
+    }
+}
