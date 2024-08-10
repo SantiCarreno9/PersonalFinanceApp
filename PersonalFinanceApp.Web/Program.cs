@@ -35,8 +35,8 @@ builder.Services.AddScoped(
 // configure client for auth interactions
 builder.Services.AddHttpClient(
     "Auth",
-    //opt => opt.BaseAddress = new Uri(builder.Configuration["BackendUrl"] ?? "https://localhost:7236"))
-    opt => opt.BaseAddress = new Uri(builder.Configuration["LocalBackendUrl"] ?? "https://localhost:7236"))
+    opt => opt.BaseAddress = new Uri(builder.Configuration["BackendUrl"] ?? "https://localhost:7236"))
+    //opt => opt.BaseAddress = new Uri(builder.Configuration["LocalBackendUrl"] ?? "https://localhost:7236"))
     .AddHttpMessageHandler<CookieHandler>();
 
 builder.Services.AddScoped(implementationFactory: sp =>
