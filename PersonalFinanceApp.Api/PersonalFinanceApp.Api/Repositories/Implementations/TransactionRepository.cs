@@ -165,7 +165,10 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
                 .Where(t => t.TransactionTypeId == request.TransactionTypeId && t.UserId.Equals(userId));
 
             transactionsQuery = transactionsQuery.
-                Where(t => t.Date.CompareTo(request.StartDate) >= 0 && t.Date.CompareTo(request.EndDate) <= 0);
+                Where(t => t.Date.CompareTo(request.StartDate) >= 0);
+
+            transactionsQuery = transactionsQuery.
+                Where(t => t.Date.CompareTo(request.EndDate) <= 0);
 
             HashSet<Summary> summaries = new HashSet<Summary>();
             switch (request.Property.ToLower())

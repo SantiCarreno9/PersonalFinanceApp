@@ -43,7 +43,7 @@ namespace PersonalFinanceApp.Web.Pages
             TransactionItemsProvider = async req =>
             {
                 RequestHelper.SortColumn = req.SortByColumn?.Title;
-                RequestHelper.SortOrder = (req.SortByAscending ? "asc" : "desc");                
+                RequestHelper.SortOrder = (req.SortByAscending ? "asc" : "desc");
                 RequestHelper.Page = (req.StartIndex / req.Count!.Value) + 1;
                 RequestHelper.PageSize = req.Count!.Value;
 
@@ -64,17 +64,10 @@ namespace PersonalFinanceApp.Web.Pages
             await UpdateTotal();
         }
 
-        protected override void OnAfterRender(bool firstRender)
-        {
-            base.OnAfterRender(firstRender);
-        }
-
         protected async Task OnFiltersUpdated()
         {
             await state.SetCurrentPageIndexAsync(0);
-            await TransactionGrid?.RefreshDataAsync();
             await UpdateTotal();
-            await state.SetCurrentPageIndexAsync(0);
         }
 
         protected async Task UpdateTotal()
@@ -95,8 +88,9 @@ namespace PersonalFinanceApp.Web.Pages
         protected async Task OnTabSelected(TransactionTypes transactionType)
         {
             currentTransactionType = transactionType;
-            RequestHelper.TransactionTypeId = transactionType == TransactionTypes.All ? null : (int)currentTransactionType;
-            await TransactionGrid?.RefreshDataAsync();
+            RequestHelper.TransactionTypeId = transactionType == TransactionTypes.All ? null : (int)transactionType;
+            if (state.CurrentPageIndex != 0)
+                await state.SetCurrentPageIndexAsync(0);
             await UpdateTotal();
         }
 
