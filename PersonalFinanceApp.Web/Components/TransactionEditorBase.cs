@@ -33,6 +33,7 @@ namespace PersonalFinanceApp.Web.Components
         {
             await base.OnInitializedAsync();
             TransactionForm = new();
+            TransactionForm.Date = DateTime.Today;
             TransactionForm.TransactionDetails = [new TransactionDetailDTO()];
             locations = await TransactionService.GetLocations();
             OnTransactionTypeChanged((byte)TransactionTypes.Expense);
@@ -55,6 +56,7 @@ namespace PersonalFinanceApp.Web.Components
             else
             {
                 TransactionForm = new();
+                TransactionForm.Date = DateTime.Today;
                 TransactionForm.TransactionDetails = [new TransactionDetailDTO()];
                 isEditingExistingTransaction = false;                
             }
