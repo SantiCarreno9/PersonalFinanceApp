@@ -1,7 +1,8 @@
 ﻿@page "/transactions"
 @inherits TransactionsBase
 @using BaseLibrary.DTOs
-@using Microsoft.AspNetCore.Components.QuickGrid
+@using PersonalFinanceApp.Web.Services
+@using Syncfusion.Blazor
 @using Syncfusion.Blazor.Popups
 @using PersonalFinanceApp.Web.Components
 
@@ -46,64 +47,17 @@
                             <TransactionsTotal Filters="RequestHelper" TransactionService="TransactionService" @ref="transactionsTotal"></TransactionsTotal>
                         </h5>
                     </div>
-                    <button id="deleteButton" @onclick="DeleteTransactions" class="btn btn-outline-light" disabled="@(!isAnyItemSelected)">
+                    <button id="deleteButton" @onclick="DeleteTransactions" class="btn btn-outline-light" disabled>
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </div>
                 <div style="overflow-x:scroll;">
-                    <QuickGrid Class="w-100" ItemsProvider="@TransactionItemsProvider" Pagination="state" @ref=TransactionGrid>
-                        <TemplateColumn Class="p-0 m-0">
-                            <HeaderTemplate>
-                                <div class="d-flex w-100 justify-content-center py-0">
-                                    <input class="form-check-input" type="checkbox" id="allCheckbox" @bind-value="@areAllItemsSelected" />
-                                </div>
-                            </HeaderTemplate>
-                            <ChildContent>
-                                <div class="d-flex w-100 justify-content-center my-2 px-1">
-                                    <input class="form-check-input items-toggle" type="checkbox" @onchange="(value)=>OnTransactionSelected(context.Id,(bool)value.Value!)" />
-                                </div>
-                            </ChildContent>
-                        </TemplateColumn>
-                        <TemplateColumn Title="Location" Sortable="true">
-                            <ChildContent>
-                                <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
-                                    @context.Location
-                                </div>
-                            </ChildContent>
-                        </TemplateColumn>
-                        <TemplateColumn Title="Date" Sortable="true">
-                            <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
-                                @context.Date.ToString("MMM dd, yyyy")
-                            </div>
-                        </TemplateColumn>
-                        <TemplateColumn Title="Payment Method" Sortable="true">
-                            <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
-                                @GetPaymentMethod(@context.PaymentMethodId)
-                            </div>
-                        </TemplateColumn>
-                        <TemplateColumn Title="Category" Sortable="true">
-                            <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
-                                @GetCategoryName(@context.CategoryId)
-                            </div>
-                        </TemplateColumn>
-                        @if (currentTransactionType == TransactionTypes.All)
-                        {
-                            <TemplateColumn Title="Type">
-                                <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
-                                    @(context.TransactionTypeId == (byte)TransactionTypes.Expense ? "Expense" : "Income")
-                                </div>
-                            </TemplateColumn>
-                        }
-                        <TemplateColumn Title="Amount" Sortable="true">
-                            <div @onclick="async()=>{await DisplayTransaction(context.Id);}">
-                                @context.TotalAmount.ToString("C")
-                            </div>
-                        </TemplateColumn>
-                    </QuickGrid>
-                    @if (!anyResultsFound)
+                    <TransactionsGrid TransactionService="TransactionService" RequestHelper="RequestHelper" OnTransactionClicked="async(id)=>await DisplayTransaction(id)"
+                    OnTransactionsUpdate="async()=>await UpdateTotal()" @ref="TransactionsGrid"></TransactionsGrid>                   
+                    @* @if (!anyResultsFound)
                     {
                         <h2 strong style="text-align:center">NO ITEMS FOUND</h2>
-                    }
+                    } *@
                 </div>
             </div>
 
@@ -119,8 +73,6 @@
                 </DialogTemplates>
                 <DialogEvents OnClose="HideDialog"></DialogEvents>
             </SfDialog>
-
-            <Paginator State="state"></Paginator>
         </Authorized>
     </AuthorizeView>
 </div>

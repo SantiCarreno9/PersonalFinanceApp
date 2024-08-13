@@ -15,13 +15,14 @@ nav {
     }
 
     ::deep .quickgrid th {
-        gap: 0.4rem; /* Separate the sort indicator from title text */
+        gap: 0.4rem; /*Separate the sort indicator from title text */
         font-weight: bold;
         background-color: var(--bs-secondary-bg);
         margin: 0;
+        padding:0.5rem;
         border-color: black;
         border-width: thin;
-        /*text-transform: uppercase;*/
+        text-transform: uppercase;
     }
 
     ::deep .quickgrid .col-header-content{
@@ -35,10 +36,10 @@ nav {
     }
 
         ::deep .quickgrid tr:hover {
-            background-color: var(--bs-secondary-bg);
+            /*background-color: var(--bs-secondary-bg);*/
         }
 
-    ::deep .quickgrid[theme=corporate] .sort-indicator {
+/*    ::deep .quickgrid[theme=corporate] .sort-indicator {
         color: blue;
     }
 
@@ -48,4 +49,4 @@ nav {
 
     ::deep .quickgrid[theme=corporate] button.col-title:active, ::deep .quickgrid[theme=corporate] .col-options-button:active {
         background-color: yellow;
-    }
+    }*/
