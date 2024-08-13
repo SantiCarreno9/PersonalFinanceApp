@@ -1,0 +1,100 @@
+﻿using BaseLibrary.DTOs;
+using BaseLibrary.Helper.GET;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.QuickGrid;
+using PersonalFinanceApp.Web.Services.Contracts;
+
+namespace PersonalFinanceApp.Web.Components
+{
+    public partial class TransactionsGrid : CustomBase
+    {
+        [Parameter]
+        public required ITransactionService TransactionService { get; set; }
+        [Parameter]
+        public GetTransactionsRequestHelper RequestHelper { get; set; }
+        [Parameter]
+        public Action<long> OnTransactionClicked { get; set; }
+        [Parameter]
+        public Action OnTransactionsUpdate { get; set; }
+
+        protected GridItemsProvider<TransactionDTO>? TransactionItemsProvider { get; set; }
+
+        public TransactionTypes currentTransactionType = TransactionTypes.Expense;
+
+        protected PaginationState state = new PaginationState { ItemsPerPage = 20 };
+
+        protected QuickGrid<TransactionDTO>? TransactionGrid { get; set; }
+        protected bool anyResultsFound = true;
+
+        private HashSet<long> selectedTransactions = new HashSet<long>();
+
+        protected bool areAllItemsSelected = false;        
+        private bool _shouldRender = true;
+
+        protected override async Task OnInitializedAsync()
+        {
+            await base.OnInitializedAsync();
+
+            TransactionItemsProvider = async req =>
+            {
+                RequestHelper.SortColumn = req.SortByColumn?.Title;
+                RequestHelper.SortOrder = (req.SortByAscending ? "asc" : "desc");
+                RequestHelper.Page = (req.StartIndex / req.Count!.Value) + 1;
+                RequestHelper.PageSize = req.Count!.Value;
+
+                var simpleTransactions = await TransactionService.GetTransactions(RequestHelper);
+                //if ((simpleTransactions?.TotalCount != 0) != anyResultsFound)
+                //{
+                //    anyResultsFound = !anyResultsFound;
+                //    StateHasChanged();
+                //}
+                selectedTransactions.Clear();
+                areAllItemsSelected = false;                
+                _shouldRender = false;
+
+                return GridItemsProviderResult.From(
+                    items: simpleTransactions!.Items,
+                    totalItemCount: simpleTransactions.TotalCount);
+            };
+        }
+
+        protected override void OnParametersSet()
+        {
+            base.OnParametersSet();
+            if (RequestHelper == null)
+                return;
+            var newTransactionType= RequestHelper.TransactionTypeId.HasValue ? (TransactionTypes)RequestHelper.TransactionTypeId : TransactionTypes.All;
+            if (currentTransactionType != newTransactionType)
+                _shouldRender = true;
+            currentTransactionType = newTransactionType;
+        }
+
+        protected void OnTransactionSelected(long id, bool value)
+        {
+            if (value) selectedTransactions.Add(id);
+            else selectedTransactions.Remove(id);            
+        }
+
+        public async Task<bool> DeleteTransactions()
+        {
+            var wasTransactionDeleted = await TransactionService.DeleteTransactions(selectedTransactions);
+            if (wasTransactionDeleted)
+            {
+                await TransactionGrid!.RefreshDataAsync();                
+                selectedTransactions.Clear();
+            }
+            return wasTransactionDeleted;
+        }
+
+        public async Task Update()
+        {
+            _shouldRender = true;
+            await state.SetCurrentPageIndexAsync(0);
+        }
+
+        protected override bool ShouldRender()
+        {
+            return _shouldRender;
+        }
+    }
+}

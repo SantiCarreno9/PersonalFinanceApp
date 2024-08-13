@@ -1,7 +1,6 @@
 ﻿using BaseLibrary.DTOs;
 using BaseLibrary.Helper.GET;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.QuickGrid;
 using PersonalFinanceApp.Web.Components;
 using PersonalFinanceApp.Web.Services.Contracts;
 
@@ -12,61 +11,28 @@ namespace PersonalFinanceApp.Web.Pages
         [Inject]
         public required ITransactionService TransactionService { get; set; }
 
-        protected GetTransactionsRequestHelper RequestHelper { get; set; } = new();
-
-        protected GridItemsProvider<TransactionDTO>? TransactionItemsProvider { get; set; }
+        protected GetTransactionsRequestHelper RequestHelper { get; set; } = new();        
 
         protected bool shouldShowDialog = false;
 
         protected TransactionTypes currentTransactionType = TransactionTypes.Expense;
 
-        protected TransactionDTO? CurrentTransaction = null;
+        protected TransactionDTO? CurrentTransaction = null;                        
 
-        protected PaginationState state = new PaginationState { ItemsPerPage = 20 };
+        protected TransactionsGrid? TransactionsGrid { get; set; }
 
-        protected QuickGrid<TransactionDTO>? TransactionGrid { get; set; }
-        protected bool anyResultsFound = true;
-
-        private HashSet<long> selectedTransactions = new HashSet<long>();
-
-        protected TransactionsTotal? transactionsTotal;
-
-        protected bool areAllItemsSelected = false;
-        protected bool isAnyItemSelected = false;
-        protected string total = "0";
+        protected TransactionsTotal? transactionsTotal;       
 
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
             RequestHelper.TransactionTypeId = (int)currentTransactionType;
-
-            TransactionItemsProvider = async req =>
-            {
-                RequestHelper.SortColumn = req.SortByColumn?.Title;
-                RequestHelper.SortOrder = (req.SortByAscending ? "asc" : "desc");
-                RequestHelper.Page = (req.StartIndex / req.Count!.Value) + 1;
-                RequestHelper.PageSize = req.Count!.Value;
-
-                var simpleTransactions = await TransactionService.GetTransactions(RequestHelper);
-                if ((simpleTransactions?.TotalCount != 0) != anyResultsFound)
-                {
-                    anyResultsFound = !anyResultsFound;
-                    StateHasChanged();
-                }
-                selectedTransactions.Clear();
-                areAllItemsSelected = false;
-                isAnyItemSelected = false;
-
-                return GridItemsProviderResult.From(
-                    items: simpleTransactions!.Items,
-                    totalItemCount: simpleTransactions.TotalCount);
-            };
             await UpdateTotal();
         }
 
         protected async Task OnFiltersUpdated()
         {
-            await state.SetCurrentPageIndexAsync(0);
+            await TransactionsGrid?.Update();
             await UpdateTotal();
         }
 
@@ -79,6 +45,11 @@ namespace PersonalFinanceApp.Web.Pages
             }
         }
 
+        protected override bool ShouldRender()
+        {
+            return base.ShouldRender();
+        }
+
         public void AddTransactionBtn_Clicked()
         {
             CurrentTransaction = null;
@@ -89,15 +60,14 @@ namespace PersonalFinanceApp.Web.Pages
         {
             currentTransactionType = transactionType;
             RequestHelper.TransactionTypeId = transactionType == TransactionTypes.All ? null : (int)transactionType;
-            if (state.CurrentPageIndex != 0)
-                await state.SetCurrentPageIndexAsync(0);
+            await TransactionsGrid?.Update();
             await UpdateTotal();
         }
 
         protected void OnTransactionAdded(TransactionDTO transactionDTO)
         {
             HideDialog();
-            TransactionGrid?.RefreshDataAsync();
+            TransactionsGrid?.Update();
             UpdateTotal();
         }
 
@@ -105,25 +75,14 @@ namespace PersonalFinanceApp.Web.Pages
         {
             CurrentTransaction = await TransactionService.GetTransaction(id);
             shouldShowDialog = true;
-        }
-
-        protected void OnTransactionSelected(long id, bool value)
-        {
-            if (value) selectedTransactions.Add(id);
-            else selectedTransactions.Remove(id);
-
-            isAnyItemSelected = selectedTransactions.Any();
+            StateHasChanged();
         }
 
         public async Task DeleteTransactions()
         {
-            var wasTransactionDeleted = await TransactionService.DeleteTransactions(selectedTransactions);
+            var wasTransactionDeleted = await TransactionsGrid?.DeleteTransactions();
             if (wasTransactionDeleted)
-            {
-                await TransactionGrid!.RefreshDataAsync();
                 await UpdateTotal();
-                selectedTransactions.Clear();
-            }
         }
 
         protected void HideDialog()
