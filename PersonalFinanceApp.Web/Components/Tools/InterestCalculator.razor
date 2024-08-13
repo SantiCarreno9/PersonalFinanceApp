@@ -1,0 +1,131 @@
+﻿@page "/tools/interestcalculator"
+
+@using Syncfusion.Blazor
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Interest Calculator</PageTitle>
+<div class="container">
+    <div class="d-flex">
+        <h2>Interest Calculator</h2>
+        <div style="flex:1;text-align:end;">
+            <a class="btn btn-secondary" href="/tools">Back to Tools</a>
+        </div>
+    </div>
+    <div class="mt-2">
+        <div style="display:@(shouldShowResult?"none":"block")">
+            <EditForm Model="model" OnValidSubmit="Calculate">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="input-group mb-3">
+                    <span class="input-group-text">$</span>
+                    <div class="form-floating">
+                        <InputNumber class="form-control" id="amountInput" @bind-Value="model.Amount" />
+                        <label for="amountInput">Amount</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md">
+                        <div class="input-group mb-2">
+                            <div class="form-floating">
+                                <InputNumber class="form-control" id="interestRateInput" @bind-Value="model.InterestRate" />
+                                <label for="interestRateInput">Interest Rate</label>
+                            </div>
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div class="form-floating mb-2">
+                            <InputNumber class="form-control" id="timeInput" @bind-Value="@model!.time"></InputNumber>
+                            <label for="timeInput">Time</label>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div class="form-floating mb-2">
+                            <InputSelect class="form-select" id="unitInput" DisplayName="Unit" @bind-Value="@model!.TimeUnit">
+                                <option value="Days">Days</option>
+                                <option value="Months">Months</option>
+                                <option value="Years">Years</option>
+                            </InputSelect>
+                            <label for="unitInput">Unit</label>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <button class="btn btn-outline-primary" type="submit">Calculate</button>
+                <button class="btn btn-outline-secondary" type="button" @onclick:preventDefault @onclick="Reset">Reset</button>
+            </EditForm>
+        </div>
+        @if (shouldShowResult)
+        {
+            <div class="card text-center" style="background-color:var(--bs-secondary-bg)">
+                <div class="card-body">
+                    <p>Final Amount</p>
+                    <h3>@((model.Amount + interestEarned).ToString("C"))</h3>
+                    <p>Interest earned</p><h3>@(interestEarned.ToString("C"))</h3>
+                </div>
+            </div>
+            <div class="row g-3 align-items-center">
+            </div>
+            <br>
+            <div style="flex:1;text-align:end;">
+                <button class="btn btn-outline-secondary" @onclick="()=>shouldShowResult=false">Back</button>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Investment model { get; set; }
+    private Theme Theme = Theme.Bootstrap5Dark;
+
+    private bool shouldShowResult = false;
+    private double interestEarned = 0;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        model = new();
+    }
+
+    private void Calculate(EditContext context)
+    {
+        if (!model.IsValid())
+            return;
+        interestEarned = model.GetInterestEarned();
+        shouldShowResult = true;
+    }
+
+    private void Reset()
+    {
+        model = new();
+    }
+
+    class Investment
+    {
+        public string? Description;
+        [Range(0, double.MaxValue, ErrorMessage = "Value must be greater than 0", MinimumIsExclusive = true)]
+        public double Amount;
+        [Range(0, double.MaxValue, ErrorMessage = "Value must be greater than 0", MinimumIsExclusive = true)]
+        public double InterestRate;
+        [Range(0, int.MaxValue, ErrorMessage = "Value must be greater than 0", MinimumIsExclusive = true)]
+        public int time;
+        public string TimeUnit = "Months";
+
+        public double GetInterestEarned()
+        {
+            switch (TimeUnit)
+            {
+                case "Days":
+                    return Amount * (((InterestRate / 100) / 12) / 30) * time;
+                case "Months":
+                    return Amount * ((InterestRate / 100) / 12) * time;
+                case "Years":
+                default:
+                    return Amount * (InterestRate / 100) * time;
+            }
+        }
+
+        public bool IsValid() => Amount > 0 && InterestRate > 0 && time > 0;
+    }
+}

@@ -27,8 +27,7 @@ namespace PersonalFinanceApp.Web.Components
         protected bool anyResultsFound = true;
 
         private HashSet<long> selectedTransactions = new HashSet<long>();
-
-        protected bool areAllItemsSelected = false;        
+              
         private bool _shouldRender = true;
 
         protected override async Task OnInitializedAsync()
@@ -48,8 +47,7 @@ namespace PersonalFinanceApp.Web.Components
                 //    anyResultsFound = !anyResultsFound;
                 //    StateHasChanged();
                 //}
-                selectedTransactions.Clear();
-                areAllItemsSelected = false;                
+                selectedTransactions.Clear();                                
                 _shouldRender = false;
 
                 return GridItemsProviderResult.From(
@@ -72,11 +70,13 @@ namespace PersonalFinanceApp.Web.Components
         protected void OnTransactionSelected(long id, bool value)
         {
             if (value) selectedTransactions.Add(id);
-            else selectedTransactions.Remove(id);            
+            else selectedTransactions.Remove(id);
         }
 
         public async Task<bool> DeleteTransactions()
         {
+            if(selectedTransactions.Count==0)
+                return false;
             var wasTransactionDeleted = await TransactionService.DeleteTransactions(selectedTransactions);
             if (wasTransactionDeleted)
             {
