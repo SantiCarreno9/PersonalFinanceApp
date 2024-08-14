@@ -42,16 +42,16 @@ namespace PersonalFinanceApp.Web.Components
                 RequestHelper.PageSize = req.Count!.Value;
 
                 var simpleTransactions = await TransactionService.GetTransactions(RequestHelper);
-                //if ((simpleTransactions?.TotalCount != 0) != anyResultsFound)
-                //{
-                //    anyResultsFound = !anyResultsFound;
-                //    StateHasChanged();
-                //}
+                if ((simpleTransactions?.TotalCount != 0) != anyResultsFound)
+                {
+                    anyResultsFound = !anyResultsFound;
+                    StateHasChanged();
+                }
                 selectedTransactions.Clear();                                
                 _shouldRender = false;
 
                 return GridItemsProviderResult.From(
-                    items: simpleTransactions!.Items,
+                    items: simpleTransactions.Items,
                     totalItemCount: simpleTransactions.TotalCount);
             };
         }

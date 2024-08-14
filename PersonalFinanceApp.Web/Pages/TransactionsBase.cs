@@ -45,11 +45,6 @@ namespace PersonalFinanceApp.Web.Pages
             }
         }
 
-        protected override bool ShouldRender()
-        {
-            return base.ShouldRender();
-        }
-
         public void AddTransactionBtn_Clicked()
         {
             CurrentTransaction = null;
