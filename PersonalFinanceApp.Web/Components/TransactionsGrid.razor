@@ -50,6 +50,10 @@
         </div>
     </TemplateColumn>
 </QuickGrid>
+@if (!anyResultsFound)
+{
+    <h2 strong style="text-align:center">NO ITEMS FOUND</h2>
+}
 <Paginator State="state"></Paginator>
 
 <script>
@@ -62,22 +66,17 @@
         if ($(this).attr('id') != null && $(this).attr('id') === 'allCheckbox') {
             const checkboxes = $(parent).find('input[type="checkbox"]');
 
-            // checkboxes.each(function () {
-            //     $(this).prop("checked", checked);
-            //     $(this).trigger('change');
-            // })
-
             const e = new Event('change');
             for (let i = 0; i < checkboxes.length; i++) {
-                checkboxes[i].checked = checked;                
+                checkboxes[i].checked = checked;
                 checkboxes[i].dispatchEvent(e);
                 $(checkboxes[i]).trigger('change');
-               }
+            }
 
             deleteButton.disabled = !checked;
             return;
         }
-        
+
         if (checked)
             $(this).parent().parent().parent().addClass("table-active");
         else $(this).parent().parent().parent().removeClass("table-active");

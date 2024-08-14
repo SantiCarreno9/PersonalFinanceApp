@@ -53,11 +53,7 @@
                 </div>
                 <div style="overflow-x:scroll;">
                     <TransactionsGrid TransactionService="TransactionService" RequestHelper="RequestHelper" OnTransactionClicked="async(id)=>await DisplayTransaction(id)"
-                    OnTransactionsUpdate="async()=>await UpdateTotal()" @ref="TransactionsGrid"></TransactionsGrid>                   
-                    @* @if (!anyResultsFound)
-                    {
-                        <h2 strong style="text-align:center">NO ITEMS FOUND</h2>
-                    } *@
+                    OnTransactionsUpdate="async()=>await UpdateTotal()" @ref="TransactionsGrid"></TransactionsGrid>                                       
                 </div>
             </div>
 

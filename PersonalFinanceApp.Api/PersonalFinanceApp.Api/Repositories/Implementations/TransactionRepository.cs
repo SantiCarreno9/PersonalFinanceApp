@@ -96,7 +96,7 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
             Expression<Func<Transaction, object>> keySelector = request.SortColumn?.ToLower() switch
             {
                 "location" => t => t.Location!,
-                "amount" => t => t.TotalAmount,
+                "amount" => t => (double)t.TotalAmount,
                 "category" => t => t.CategoryId,
                 "payment method" => t => t.PaymentMethodId,
                 _ => t => t.Date,
