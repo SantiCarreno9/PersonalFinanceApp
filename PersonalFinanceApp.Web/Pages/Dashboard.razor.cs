@@ -23,7 +23,7 @@ namespace PersonalFinanceApp.Web.Pages
         public DateRange EditableDateRange { get; set; } = new();
         public DateRange DateRange { get; set; } = new();
 
-        private PeriodOption periodOption = PeriodOption.AllTime;
+        private PeriodOption periodOption = PeriodOption.Monthly;
 
         private DateTime oldestTransactionDate = DateTime.MinValue;
         private TransactionsTotal? expenseTotal;
@@ -32,6 +32,7 @@ namespace PersonalFinanceApp.Web.Pages
 
         protected override async Task OnInitializedAsync()
         {
+            DateRange.EndDate = DateTime.Today;
             var oldestTransaction = await TransactionService.GetBoundTransactionByProperty(
                 new GetBoundTransaction
                 {
@@ -39,9 +40,8 @@ namespace PersonalFinanceApp.Web.Pages
                     Position = "First"
                 });
             if (oldestTransaction != null)
-                oldestTransactionDate = oldestTransaction.Date;
-
-            await ChangePeriodOption(PeriodOption.AllTime);
+                oldestTransactionDate = oldestTransaction.Date;            
+            await ChangePeriodOption(PeriodOption.Monthly);
 
             await base.OnInitializedAsync();
         }
