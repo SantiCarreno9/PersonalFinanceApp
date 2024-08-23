@@ -57,10 +57,10 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
                 transactionsQuery = transactionsQuery.Where(t => t.Date.CompareTo(filters.EndDate.Value) <= 0);
 
             if (filters.MinAmount != null)
-                transactionsQuery = transactionsQuery.Where(t => t.TotalAmount >= filters.MinAmount);
+                transactionsQuery = transactionsQuery.Where(t => (double)t.TotalAmount >= (double)filters.MinAmount);
 
             if (filters.MaxAmount != null)
-                transactionsQuery = transactionsQuery.Where(t => t.TotalAmount <= filters.MaxAmount);
+                transactionsQuery = transactionsQuery.Where(t => (double)t.TotalAmount <= (double)filters.MaxAmount);
 
             if (!string.IsNullOrWhiteSpace(filters.Location))
                 transactionsQuery = transactionsQuery.Where(t => t.Location.Contains(filters.Location));
