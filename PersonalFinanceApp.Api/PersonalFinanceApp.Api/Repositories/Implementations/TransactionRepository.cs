@@ -134,6 +134,7 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
             {
                 total = await transactionsQuery
                     .SelectMany(t => t.TransactionDetails)
+                    .Where(td=>request.CategoriesIds.Contains(td.CategoryId))
                     .SumAsync(td => (double)td.Amount);                
             }
             else
