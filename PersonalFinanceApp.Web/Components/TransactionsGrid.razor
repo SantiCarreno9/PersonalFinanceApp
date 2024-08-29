@@ -82,8 +82,9 @@
         else $(this).parent().parent().parent().removeClass("table-active");
 
         const checkedCheckboxesCount = $(parent).find('input[type="checkbox"]:checked').length;
-        const indeterminate = (checkedCheckboxesCount > 0 && checkedCheckboxesCount < 20);
-        const allchecked = (checkedCheckboxesCount === 20);
+        const allCheckboxesCount = $(parent).find('input[type="checkbox"]').length;
+        const indeterminate = (checkedCheckboxesCount > 0 && checkedCheckboxesCount < allCheckboxesCount);
+        const allchecked = (checkedCheckboxesCount === allCheckboxesCount);
         $('#allCheckbox').prop("checked", allchecked);
         $('#allCheckbox').prop("indeterminate", indeterminate);
         deleteButton.disabled = !(indeterminate || allchecked);
