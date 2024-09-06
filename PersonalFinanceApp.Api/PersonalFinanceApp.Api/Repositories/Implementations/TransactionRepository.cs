@@ -63,7 +63,7 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
                 transactionsQuery = transactionsQuery.Where(t => (double)t.TotalAmount <= (double)filters.MaxAmount);
 
             if (!string.IsNullOrWhiteSpace(filters.Location))
-                transactionsQuery = transactionsQuery.Where(t => t.Location.Contains(filters.Location));
+                transactionsQuery = transactionsQuery.Where(t => t.Location.ToLower().Contains(filters.Location.ToLower()));
 
             if (filters.PaymentMethodsIds != null)
                 transactionsQuery = transactionsQuery.Where(t => filters.PaymentMethodsIds.Contains(t.PaymentMethodId));
@@ -83,7 +83,7 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
                     .AsNoTracking()
                     .Include(t => t.TransactionDetails);
                 transactionsQuery = transactionsQuery.Where(t => t.TransactionDetails.FirstOrDefault(td => td.Description != null &&
-                                    td.Description.Contains(filters.Description)) != null);
+                                    td.Description.ToLower().Contains(filters.Description.ToLower())) != null);
             }
 
             return transactionsQuery;
