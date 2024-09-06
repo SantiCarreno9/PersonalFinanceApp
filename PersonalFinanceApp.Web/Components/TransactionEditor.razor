@@ -40,7 +40,7 @@
             </div>
         </div>
         <div class="form-floating mb-2">
-            <SfAutoComplete CssClass="form-control" Placeholder="e.g. Dollarama" DataSource="@locations" @bind-Value="TransactionForm!.Location">
+            <SfAutoComplete CssClass="form-control" Placeholder="e.g. Dollarama" DataSource="@locations" @bind-Value="TransactionForm!.Location" IgnoreCase="false">
                 <AutoCompleteFieldSettings Value="Text"></AutoCompleteFieldSettings>
             </SfAutoComplete>
             <label for="locationInput">Location</label>
