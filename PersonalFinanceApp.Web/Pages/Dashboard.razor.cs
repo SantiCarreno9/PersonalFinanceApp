@@ -26,6 +26,7 @@ namespace PersonalFinanceApp.Web.Pages
         private PeriodOption periodOption = PeriodOption.Monthly;
 
         private DateTime oldestTransactionDate = DateTime.MinValue;
+        private DateTime newestTransactionDate = DateTime.Today.ToLocalTime();
         private TransactionsTotal? expenseTotal;
         private TransactionsTotal? incomeTotal;
         private decimal balance = 0;
@@ -39,8 +40,16 @@ namespace PersonalFinanceApp.Web.Pages
                     Property = "Date",
                     Position = "First"
                 });
+            var newestTransaction = await TransactionService.GetBoundTransactionByProperty(
+                new GetBoundTransaction
+                {
+                    Property = "Date",
+                    Position = "Last"
+                });
             if (oldestTransaction != null)
-                oldestTransactionDate = oldestTransaction.Date;            
+                oldestTransactionDate = oldestTransaction.Date;
+            if (newestTransaction != null)
+                oldestTransactionDate = newestTransaction.Date;
             await ChangePeriodOption(PeriodOption.Monthly);
 
             await base.OnInitializedAsync();
