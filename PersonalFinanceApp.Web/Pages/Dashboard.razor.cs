@@ -49,7 +49,7 @@ namespace PersonalFinanceApp.Web.Pages
             if (oldestTransaction != null)
                 oldestTransactionDate = oldestTransaction.Date;
             if (newestTransaction != null)
-                oldestTransactionDate = newestTransaction.Date;
+                newestTransactionDate = newestTransaction.Date;
             await ChangePeriodOption(PeriodOption.Monthly);
 
             await base.OnInitializedAsync();
