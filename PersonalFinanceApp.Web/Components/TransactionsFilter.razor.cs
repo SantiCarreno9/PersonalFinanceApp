@@ -27,6 +27,7 @@ namespace PersonalFinanceApp.Web.Components
         private SfMultiSelect<int[], Category>? categoriesSelect { get; set; }
 
         private DateTime oldestTransactionDate { get; set; } = DateTime.MinValue;
+        private DateTime newestTransactionDate { get; set; } = DateTime.Today.ToLocalTime();
 
         protected override async Task OnInitializedAsync()
         {
@@ -39,12 +40,22 @@ namespace PersonalFinanceApp.Web.Components
                     Property = "Date",
                     Position = "First"
                 });
+            var newestTransaction = await TransactionService.GetBoundTransactionByProperty(
+                new GetBoundTransaction
+                {
+                    Property = "Date",
+                    Position = "Last"
+                });
             if (oldestTransaction != null)
             {
                 oldestTransactionDate = oldestTransaction.Date;
                 RequestHelper.StartDate = oldestTransactionDate;
             }
-            RequestHelper.EndDate = DateTime.Today;
+            if (newestTransaction != null)
+            {
+                newestTransactionDate = newestTransaction.Date;
+                RequestHelper.EndDate = newestTransactionDate;
+            }            
         }
 
         protected override async Task OnParametersSetAsync()

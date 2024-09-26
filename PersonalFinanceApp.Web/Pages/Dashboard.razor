@@ -12,13 +12,13 @@
                              ValueChanged="@((PeriodOption po)=>ChangePeriodOption(po))" ValueExpression="()=>periodOption">
                 <div class="d-flex flex-row">
                     <div class="m-1">
-                        <InputRadio class="form-check-input m-1" Value="@PeriodOption.AllTime" />
-                        All Time
+                        <InputRadio class="form-check-input" Value="@PeriodOption.Monthly" />
+                        Monthly
                     </div>
                     <div class="m-1">
-                        <InputRadio class="form-check-input" Value="@PeriodOption.Monthly" />
-                        By Month
-                    </div>
+                        <InputRadio class="form-check-input m-1" Value="@PeriodOption.AllTime" />
+                        All Time
+                    </div>                    
                     <div class="m-1">
                         <InputRadio class="form-check-input" Value="@PeriodOption.Custom" />
                         Custom
@@ -27,11 +27,11 @@
                 @if (periodOption == PeriodOption.Monthly)
                 {
                     <input class="form-control"
-                           type="month" value="@(DateRange.EndDate.ToString("yyyy-MM"))" min="@(oldestTransactionDate.ToString("yyyy-MM"))" max="@(DateTime.Today.ToString("yyyy-MM"))" @onchange="SelectMonth"></input>
+                           type="month" value="@(DateRange.EndDate.ToString("yyyy-MM"))" min="@(oldestTransactionDate.ToString("yyyy-MM"))" max="@(newestTransactionDate.ToString("yyyy-MM"))" @onchange="SelectMonth"></input>
                 }
                 <div class="flex-row" style="display:@(periodOption == PeriodOption.Custom?"flex":"none");">
-                    <InputDate class="form-control" @bind-Value="EditableDateRange.StartDate" placeholder="yyyy-MM-dd" min="@(GetFormattedDate(oldestTransactionDate))" max="@GetFormattedDate(DateTime.Today)" />
-                    <InputDate class="form-control" @bind-Value="EditableDateRange.EndDate" placeholder="yyyy-MM-dd" min="@GetFormattedDate(EditableDateRange.StartDate)" max="@GetFormattedDate(DateTime.Today)" />
+                    <InputDate class="form-control" @bind-Value="EditableDateRange.StartDate" placeholder="yyyy-MM-dd" min="@(GetFormattedDate(oldestTransactionDate))" max="@GetFormattedDate(newestTransactionDate)" />
+                    <InputDate class="form-control" @bind-Value="EditableDateRange.EndDate" placeholder="yyyy-MM-dd" min="@GetFormattedDate(EditableDateRange.StartDate)" max="@GetFormattedDate(DateTime.Today.ToLocalTime())" />
                     <button class="btn btn-outline-primary mx-1" type="submit">Update</button>
                 </div>
             </InputRadioGroup>

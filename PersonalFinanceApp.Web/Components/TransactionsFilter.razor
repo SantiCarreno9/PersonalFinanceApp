@@ -21,14 +21,16 @@
             </div>
             <div class="col-md">
                 <div class="form-floating mb-2">
-                    <InputDate class="form-control" id="startDateFilter" @bind-Value="RequestHelper.StartDate" min="@(oldestTransactionDate.ToString("yyyy-MM-dd"))" />
+                    <InputDate class="form-control" id="startDateFilter" @bind-Value="RequestHelper.StartDate" min="@(oldestTransactionDate.ToString("yyyy-MM-dd"))"
+                               max="@newestTransactionDate.ToString("yyyy-MM-dd")" />
                     <label for="startDateFilter">Start Date</label>
                 </div>
             </div>
             <div class="col-md">
                 <div class="form-floating mb-2">
                     <InputDate class="form-control" id="endDateFilter" @bind-Value="RequestHelper.EndDate"
-                               min="@((RequestHelper.StartDate!=null ?RequestHelper.StartDate.Value.ToString("yyyy-MM-dd"):DateTime.Today.ToString("yyyy-MM-dd")))" />
+                               min="@((RequestHelper.StartDate!=null ?RequestHelper.StartDate.Value.ToString("yyyy-MM-dd"):newestTransactionDate.ToString("yyyy-MM-dd")))"
+                               max="@newestTransactionDate.ToString("yyyy-MM-dd")" />
                     <label for="endDateFilter">End Date</label>
                 </div>
             </div>

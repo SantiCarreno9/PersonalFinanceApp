@@ -7,7 +7,7 @@ namespace BaseLibrary.DTOs
         public long Id { get; set; }
         [Required]
         [DataType(DataType.Date)]
-        public DateTime Date { get; set; } = DateTime.Now;
+        public DateTime Date { get; set; } = DateTime.Today.ToLocalTime();
         [Required]
         public decimal TotalAmount { get; set; }
         public byte CategoryId { get; set; }
