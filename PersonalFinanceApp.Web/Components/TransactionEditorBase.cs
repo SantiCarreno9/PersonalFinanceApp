@@ -55,8 +55,8 @@ namespace PersonalFinanceApp.Web.Components
             }
             else
             {
-                TransactionForm = new();
-                TransactionForm.Date = DateTime.Today;
+                TransactionForm = new();                
+                TransactionForm.Date = DateTime.Today.ToLocalTime();
                 TransactionForm.TransactionDetails = [new TransactionDetailDTO()];
                 isEditingExistingTransaction = false;                
             }
@@ -73,7 +73,7 @@ namespace PersonalFinanceApp.Web.Components
                 await TransactionService.UpdateTransaction(TransactionForm);
             else
                 await TransactionService.CreateTransaction(TransactionForm);
-            Logger.LogInformation("Submitted");
+            
             OnSuccessfullySubmitted?.Invoke(TransactionForm);
         }
 
