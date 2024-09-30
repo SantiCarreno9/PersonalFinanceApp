@@ -51,11 +51,9 @@ namespace PersonalFinanceApp.Web.Components
                 oldestTransactionDate = oldestTransaction.Date;
                 RequestHelper.StartDate = oldestTransactionDate;
             }
-            if (newestTransaction != null)
-            {
+            if (newestTransaction != null && newestTransaction.Date.CompareTo(DateTime.Today.ToLocalTime()) > 0)            
                 newestTransactionDate = newestTransaction.Date;
-                RequestHelper.EndDate = newestTransactionDate;
-            }            
+            RequestHelper.EndDate = newestTransactionDate;
         }
 
         protected override async Task OnParametersSetAsync()

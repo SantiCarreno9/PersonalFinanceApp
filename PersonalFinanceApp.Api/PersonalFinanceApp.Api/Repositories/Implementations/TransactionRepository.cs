@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using BaseLibrary.Entities;
+﻿using BaseLibrary.Entities;
 using BaseLibrary.Helper;
 using BaseLibrary.Helper.GET;
 using Microsoft.EntityFrameworkCore;
