@@ -27,7 +27,7 @@ namespace PersonalFinanceApp.Web.Components
         protected bool anyResultsFound = true;
 
         private HashSet<long> selectedTransactions = new HashSet<long>();
-              
+
         private bool _shouldRender = true;
 
         protected override async Task OnInitializedAsync()
@@ -47,7 +47,7 @@ namespace PersonalFinanceApp.Web.Components
                     anyResultsFound = !anyResultsFound;
                     StateHasChanged();
                 }
-                selectedTransactions.Clear();                                
+                selectedTransactions.Clear();
                 _shouldRender = false;
 
                 return GridItemsProviderResult.From(
@@ -61,7 +61,7 @@ namespace PersonalFinanceApp.Web.Components
             base.OnParametersSet();
             if (RequestHelper == null)
                 return;
-            var newTransactionType= RequestHelper.TransactionTypeId.HasValue ? (TransactionTypes)RequestHelper.TransactionTypeId : TransactionTypes.All;
+            var newTransactionType = RequestHelper.TransactionTypeId.HasValue ? (TransactionTypes)RequestHelper.TransactionTypeId : TransactionTypes.All;
             if (currentTransactionType != newTransactionType)
                 _shouldRender = true;
             currentTransactionType = newTransactionType;
@@ -75,21 +75,21 @@ namespace PersonalFinanceApp.Web.Components
 
         public async Task<bool> DeleteTransactions()
         {
-            if(selectedTransactions.Count==0)
+            if (selectedTransactions.Count == 0)
                 return false;
             var wasTransactionDeleted = await TransactionService.DeleteTransactions(selectedTransactions);
             if (wasTransactionDeleted)
             {
-                await TransactionGrid!.RefreshDataAsync();                
+                await TransactionGrid!.RefreshDataAsync();
                 selectedTransactions.Clear();
             }
             return wasTransactionDeleted;
         }
 
-        public async Task Update()
+        public async Task Update(bool goToFirstPage = true)
         {
-            _shouldRender = true;
-            await state.SetCurrentPageIndexAsync(0);
+            _shouldRender = true;            
+            await state.SetCurrentPageIndexAsync(goToFirstPage ? 0 : state.CurrentPageIndex);            
         }
 
         protected override bool ShouldRender()
