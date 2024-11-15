@@ -17,6 +17,8 @@ namespace PersonalFinanceApp.Web.Components
         [Parameter]
         public Action<TransactionDTO>? OnSuccessfullySubmitted { get; set; }
         [Parameter]
+        public Action<TransactionDTO>? OnSuccessfullyUpdated { get; set; }
+        [Parameter]
         public Action? OnCancel { get; set; }
 
         [SupplyParameterFromForm]
@@ -70,11 +72,15 @@ namespace PersonalFinanceApp.Web.Components
                 return;
 
             if (isEditingExistingTransaction)
+            {
                 await TransactionService.UpdateTransaction(TransactionForm);
+                OnSuccessfullyUpdated?.Invoke(TransactionForm);
+            }                
             else
+            {
                 await TransactionService.CreateTransaction(TransactionForm);
-            
-            OnSuccessfullySubmitted?.Invoke(TransactionForm);
+                OnSuccessfullySubmitted?.Invoke(TransactionForm);
+            }                                        
         }
 
         public void Cancel()

@@ -11,17 +11,17 @@ namespace PersonalFinanceApp.Web.Pages
         [Inject]
         public required ITransactionService TransactionService { get; set; }
 
-        protected GetTransactionsRequestHelper RequestHelper { get; set; } = new();        
+        protected GetTransactionsRequestHelper RequestHelper { get; set; } = new();
 
         protected bool shouldShowDialog = false;
 
         protected TransactionTypes currentTransactionType = TransactionTypes.Expense;
 
-        protected TransactionDTO? CurrentTransaction = null;                        
+        protected TransactionDTO? CurrentTransaction = null;
 
         protected TransactionsGrid? TransactionsGrid { get; set; }
 
-        protected TransactionsTotal? transactionsTotal;       
+        protected TransactionsTotal? transactionsTotal;
 
         protected override async Task OnInitializedAsync()
         {
@@ -63,6 +63,13 @@ namespace PersonalFinanceApp.Web.Pages
         {
             HideDialog();
             TransactionsGrid?.Update();
+            UpdateTotal();
+        }
+
+        protected void OnTransactionUpdated(TransactionDTO transactionDTO)
+        {
+            HideDialog();
+            TransactionsGrid?.Update(false);
             UpdateTotal();
         }
 

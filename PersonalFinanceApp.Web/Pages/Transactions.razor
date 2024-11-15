@@ -64,7 +64,7 @@
                     </Header>
                     <Content>
                         <TransactionEditor Transaction="@CurrentTransaction" OnSuccessfullySubmitted="OnTransactionAdded"
-                                           OnCancel="HideDialog"></TransactionEditor>
+                                           OnSuccessfullyUpdated="OnTransactionUpdated" OnCancel="HideDialog"></TransactionEditor>
                     </Content>
                 </DialogTemplates>
                 <DialogEvents OnClose="HideDialog"></DialogEvents>
