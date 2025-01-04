@@ -80,18 +80,20 @@
                     double balance = 0;
                     double income = 0;
                     double expense = 0;
+                    string month = "";
                     var values = (List<ChartTooltipInfo>)context;
                     if (values.Count > 0)
                     {
                         income = Double.Parse(string.IsNullOrEmpty(values[0].PointY.ToString()) ? "0" : values[0].PointY.ToString());
                         expense = Double.Parse(string.IsNullOrEmpty(values[1].PointY.ToString()) ? "0" : values[1].PointY.ToString());
                         balance = income - expense;
+                        month = values[0].PointX.ToString();
                     }
                 }
                 <div class="rounded text-black" style="background-color:white">
                     <div class="p-3">
                         <div class="text-center">
-                            <b>@values[0].PointX.ToString()</b>
+                            <b>@month</b>
                         </div>
                         <hr class="custom-hr" />
                         <div class="mb-1">
