@@ -171,7 +171,26 @@ namespace PersonalFinanceApp.Api.Controllers
             var transactionDTO = transaction.ConvertToDTO();
 
             return Ok(transactionDTO);
-        }        
+        }
+
+        // GET api/transactions/monthlytotal?transactiontypeid=1&categories=...&numberOfMonths=5
+        [HttpGet("monthlytotal")]
+        public async Task<ActionResult<MonthlyTotalResponse>> GetTotalMonthly(int numberOfMonths, [FromQuery] TransactionsFiltersDTO request)
+        {
+            var totals = await _transactionRepository.GetTotalAmountMonthly(User.GetUserId(), request, numberOfMonths);
+
+            if (totals == null)
+                return NoContent();
+
+            var response = new MonthlyTotalResponse
+            {
+                TransactionTypeId = request.TransactionTypeId,
+                Categories = request.CategoriesIds,
+                Totals = totals,
+            };
+
+            return Ok(response);
+        }
 
         #endregion
     }

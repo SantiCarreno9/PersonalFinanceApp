@@ -12,6 +12,7 @@ namespace PersonalFinanceApp.Web.Services.Contracts
         Task<TransactionDTO?> GetTransaction(long id);
         Task<PagedList<Summary>?> GetSummaryByProperty(GetSummaryByProperty request);
         Task<decimal?> GetTotal(TransactionsFiltersDTO request);
+        Task<MonthlyTotalResponse?> GetTotalAmountMonthly(TransactionsFiltersDTO request, int numberOfMonths);
         Task<decimal?> GetBalance(TransactionsFiltersDTO request);
         Task<TransactionDTO?> GetBoundTransactionByProperty(GetBoundTransaction request);
 

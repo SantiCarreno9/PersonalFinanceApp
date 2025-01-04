@@ -1,0 +1,26 @@
+﻿.dot {
+    display: inline-block;
+    width: 0.7em; /* Adjust size */
+    height: 0.7em; /* Adjust size */
+    background-color: black; /* Bullet color */
+    border-radius: 50%; /* Makes it a perfect circle */
+    margin-right: 0.5em; /* Space between dot and text */
+    vertical-align: middle; /* Aligns with the text */
+}
+
+.custom-hr {
+    border: 0;
+    height: 2px; /* Thickness */
+    background-color: black; /* Gradient color */
+    margin: 0.5em 0; /* Adds spacing above and below */
+}
+
+.chart-value {
+    display: flex;
+}
+
+@media screen and (max-width: 1000px) {
+    .chart-value {
+        display: none;
+    }
+}

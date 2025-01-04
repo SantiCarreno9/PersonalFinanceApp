@@ -1,0 +1,111 @@
+﻿@using Syncfusion.Blazor.Charts
+@using BaseLibrary.Entities
+@using Syncfusion.Blazor.DropDowns
+
+<div class="d-flex flex-column align-content-center justify-content-center">
+    <div class="w-100 mb-2">
+        <div class="d-flex w-100 justify-content-end">
+            <button class="btn btn-outline-light" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+                <i class="fa-solid fa-sliders"></i>
+            </button>
+        </div>
+        <div class="collapse" id="collapseFilter">
+            <br>
+            <div class="form-floating mb-2">
+                <SfMultiSelect TValue="int[]" AllowCustomValue="true" TItem="Category" Placeholder="e.g. Housing" Mode="@VisualMode.CheckBox"
+                               DataSource="@expenseCategories" ShowSelectAll="true" PopupHeight="350px"
+                               CssClass="form-control" ID="expenseCategoriesFilter" @ref="expenseCategoriesSelect">
+                    <MultiSelectFieldSettings Text="Name" Value="Id"></MultiSelectFieldSettings>
+                </SfMultiSelect>
+                <label for="expenseCategoriesFilter">Expense Categories</label>
+            </div>
+            <div class="form-floating mb-2">
+                <SfMultiSelect TValue="int[]" AllowCustomValue="true" TItem="Category" Placeholder="e.g. Employment" Mode="@VisualMode.CheckBox"
+                               DataSource="@incomeCategories" ShowSelectAll="true" PopupHeight="350px"
+                               CssClass="form-control" ID="incomeCategoriesFilter" @ref="incomeCategoriesSelect">
+                    <MultiSelectFieldSettings Text="Name" Value="Id"></MultiSelectFieldSettings>
+                </SfMultiSelect>
+                <label for="incomeCategoriesFilter">Income Categories</label>
+            </div>
+            <div>
+                <button class="btn btn-outline-primary" @onclick="async()=>{await UpdateData();}">Apply</button>
+                <button class="btn btn-outline-secondary" @onclick="Reset">Reset</button>
+            </div>
+        </div>
+    </div>
+    <SfChart Title="Balances In Previous Months" Theme="@theme">
+        <ChartArea><ChartAreaBorder Width="0"></ChartAreaBorder></ChartArea>
+        <ChartPrimaryXAxis Title="Months" ValueType="Syncfusion.Blazor.Charts.ValueType.Category" IntervalType="IntervalType.Months" Interval="1">
+            <ChartAxisMajorGridLines Width="0"></ChartAxisMajorGridLines>
+            <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
+        </ChartPrimaryXAxis>
+        <ChartPrimaryYAxis Title="Amount" ValueType="Syncfusion.Blazor.Charts.ValueType.Double" Format="C">
+            <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
+            <ChartAxisLineStyle Width="0"></ChartAxisLineStyle>
+        </ChartPrimaryYAxis>
+        <ChartSeriesCollection>
+            @if (monthlyIncome != null)
+            {
+                <ChartSeries TooltipMappingName="MappingName" DataSource="@monthlyIncome.Totals" XName="MonthName" YName="TotalAmount" Name="Income" Fill="darkgreen" ColumnSpacing="0.1" Type="ChartSeriesType.Column" BullFillColor="Blue">
+                    <ChartMarker>
+                        <ChartDataLabel Visible="true" Position="LabelPosition.Outer">
+                            <Template>
+                                <div class="chart-value">
+                                    <b>@(Double.Parse(context.PointY.ToString()).ToString("C"))</b>
+                                </div>
+                            </Template>
+                        </ChartDataLabel>
+                    </ChartMarker>
+                </ChartSeries>
+            }
+            @if (monthlyExpenses != null)
+            {
+                <ChartSeries TooltipMappingName="MappingName" DataSource="@monthlyExpenses.Totals" XName="MonthName" YName="TotalAmount" Name="Expense" Fill="darkred" ColumnSpacing="0.1" Type="ChartSeriesType.Column" BullFillColor="Red">
+                    <ChartMarker>
+                        <ChartDataLabel Visible="true" Position="LabelPosition.Outer">
+                            <Template>
+                                <div class="chart-value">
+                                    <b>@(Double.Parse(context.PointY.ToString()).ToString("C"))</b>
+                                </div>
+                            </Template>                           
+                        </ChartDataLabel>
+                    </ChartMarker>
+                </ChartSeries>
+            }
+        </ChartSeriesCollection>
+        <ChartLegendSettings Visible="true" EnableHighlight="true"></ChartLegendSettings>
+        <ChartTooltipSettings Enable="true" Shared="true">
+            <Template>
+                @{
+                    double balance = 0;
+                    double income = 0;
+                    double expense = 0;
+                    var values = (List<ChartTooltipInfo>)context;
+                    if (values.Count > 0)
+                    {
+                        income = Double.Parse(string.IsNullOrEmpty(values[0].PointY.ToString()) ? "0" : values[0].PointY.ToString());
+                        expense = Double.Parse(string.IsNullOrEmpty(values[1].PointY.ToString()) ? "0" : values[1].PointY.ToString());
+                        balance = income - expense;
+                    }
+                }
+                <div class="rounded text-black" style="background-color:white">
+                    <div class="p-3">
+                        <div class="text-center">
+                            <b>@values[0].PointX.ToString()</b>
+                        </div>
+                        <hr class="custom-hr" />
+                        <div class="mb-1">
+                            <span class="dot" style="background-color:darkgreen;"></span>Income:<b>@(income.ToString("C"))</b>
+                        </div>
+                        <div class="mb-1">
+                            <span class="dot" style="background-color:darkred;"></span>Expense:<b>@(expense.ToString("C"))</b>
+                        </div>
+                        <div>
+                            <span class="dot" style="background-color:transparent;"></span>Balance:<b>@(balance.ToString("C"))</b>
+                        </div>
+                    </div>
+                </div>
+            </Template>
+        </ChartTooltipSettings>
+    </SfChart>
+</div>

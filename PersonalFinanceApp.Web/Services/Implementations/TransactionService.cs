@@ -127,5 +127,13 @@ namespace PersonalFinanceApp.Web.Services.Implementations
                        
             return await Get<TransactionDTO?>(query);
         }
+
+        public async Task<MonthlyTotalResponse?> GetTotalAmountMonthly(TransactionsFiltersDTO request, int numberOfMonths)
+        {
+            string query = ApiURI + $"/monthlytotal?numberofmonths={numberOfMonths}";
+            query = AddFiltersToQuery(request, query);
+
+            return await Get<MonthlyTotalResponse?>(query);
+        }
     }
 }
