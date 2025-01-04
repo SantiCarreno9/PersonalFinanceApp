@@ -13,6 +13,7 @@ namespace PersonalFinanceApp.Api.Repositories.Contracts
         Task<IEnumerable<string>?> GetLocations(string userId);
         Task<IEnumerable<TransactionType>> GetTransactionTypes();
         Task<decimal?> GetTotalAmount(string userId, TransactionsFiltersDTO request);
+        Task<IEnumerable<MonthlyTotal>?> GetTotalAmountMonthly(string userId, TransactionsFiltersDTO request, int numberOfMonths);
         Task<decimal?> GetBalance(string userId, TransactionsFiltersDTO request);
         Task<PagedList<Summary>?> GetSummaryByProperty(string userId, GetSummaryByProperty request);        
         //POST

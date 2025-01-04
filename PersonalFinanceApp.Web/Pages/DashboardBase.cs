@@ -6,9 +6,9 @@ using PersonalFinanceApp.Web.Services.Contracts;
 
 namespace PersonalFinanceApp.Web.Pages
 {
-    public partial class Dashboard : ComponentBase
+    public class DashboardBase : CustomBase
     {
-        enum PeriodOption
+        public enum PeriodOption
         {
             AllTime,
             Monthly,
@@ -18,18 +18,19 @@ namespace PersonalFinanceApp.Web.Pages
         [Inject]
         public ITransactionService TransactionService { get; set; }
 
-        private SummaryChart? summaryChart { get; set; }
+        protected SummaryChart? summaryChart { get; set; }
+        protected MonthlyStats? monthlyStats { get; set; }
 
         public DateRange EditableDateRange { get; set; } = new();
         public DateRange DateRange { get; set; } = new();
 
-        private PeriodOption periodOption = PeriodOption.Monthly;
+        protected PeriodOption periodOption = PeriodOption.Monthly;
 
-        private DateTime oldestTransactionDate = DateTime.MinValue;
-        private DateTime newestTransactionDate = DateTime.Today.ToLocalTime();
-        private TransactionsTotal? expenseTotal;
-        private TransactionsTotal? incomeTotal;
-        private decimal balance = 0;
+        protected DateTime oldestTransactionDate = DateTime.MinValue;
+        protected DateTime newestTransactionDate = DateTime.Today.ToLocalTime();
+        protected TransactionsTotal? expenseTotal;
+        protected TransactionsTotal? incomeTotal;
+        protected decimal balance = 0;
 
         protected override async Task OnInitializedAsync()
         {
@@ -60,7 +61,7 @@ namespace PersonalFinanceApp.Web.Pages
             base.OnAfterRender(firstRender);
         }
 
-        private async Task ChangePeriodOption(PeriodOption option)
+        protected async Task ChangePeriodOption(PeriodOption option)
         {
             periodOption = option;
             switch (option)
@@ -82,7 +83,7 @@ namespace PersonalFinanceApp.Web.Pages
             await UpdateData();
         }
 
-        private async Task SelectMonth(ChangeEventArgs e)
+        protected async Task SelectMonth(ChangeEventArgs e)
         {
             if (DateTime.TryParse(e.Value.ToString(), out DateTime selectedDate))
                 SetDatesByMonth(selectedDate);
@@ -90,15 +91,15 @@ namespace PersonalFinanceApp.Web.Pages
             await UpdateData();
         }
 
-        private void SetDatesByMonth(DateTime date)
+        protected void SetDatesByMonth(DateTime date)
         {
             DateRange.StartDate = new DateTime(date.Year, date.Month, 1);
             DateRange.EndDate = new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month));
         }
 
-        private string GetFormattedDate(DateTime date) => date.ToString("yyyy-MM-dd");
+        protected string GetFormattedDate(DateTime date) => date.ToString("yyyy-MM-dd");
 
-        private async Task UpdateData(DateRange? dateRange = null)
+        protected async Task UpdateData(DateRange? dateRange = null)
         {
             if (dateRange!=null)
             {
@@ -124,6 +125,9 @@ namespace PersonalFinanceApp.Web.Pages
 
             if (summaryChart != null)
                 await summaryChart.UpdateData(DateRange);
+
+            if (monthlyStats != null)
+                await monthlyStats.UpdateData(DateRange);
         }
 
     }

@@ -1,4 +1,5 @@
-﻿using BaseLibrary.Entities;
+﻿using Azure.Core;
+using BaseLibrary.Entities;
 using BaseLibrary.Helper;
 using BaseLibrary.Helper.GET;
 using Microsoft.EntityFrameworkCore;
@@ -128,13 +129,13 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
         public async Task<decimal?> GetTotalAmount(string userId, TransactionsFiltersDTO request)
         {
             var transactionsQuery = FilterTransactions(userId, request);
-            double total = 0;            
+            double total = 0;
             if (request.CategoriesIds != null)
             {
                 total = await transactionsQuery
                     .SelectMany(t => t.TransactionDetails)
-                    .Where(td=>request.CategoriesIds.Contains(td.CategoryId))
-                    .SumAsync(td => (double)td.Amount);                
+                    .Where(td => request.CategoriesIds.Contains(td.CategoryId))
+                    .SumAsync(td => (double)td.Amount);
             }
             else
             {
@@ -160,15 +161,13 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
 
         public async Task<PagedList<Summary>?> GetSummaryByProperty(string userId, GetSummaryByProperty request)
         {
-            IQueryable<Transaction> transactionsQuery = _context.Transactions
-                .AsNoTracking()
-                .Where(t => t.TransactionTypeId == request.TransactionTypeId && t.UserId.Equals(userId));
-
-            transactionsQuery = transactionsQuery.
-                Where(t => t.Date.CompareTo(request.StartDate) >= 0);
-
-            transactionsQuery = transactionsQuery.
-                Where(t => t.Date.CompareTo(request.EndDate) <= 0);
+            var transactionsFilter = new TransactionsFiltersDTO
+            {
+                TransactionTypeId = request.TransactionTypeId,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+            };
+            var transactionsQuery = FilterTransactions(userId, transactionsFilter);
 
             HashSet<Summary> summaries = new HashSet<Summary>();
             switch (request.Property.ToLower())
@@ -291,6 +290,48 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
             }
         }
 
+        public async Task<IEnumerable<MonthlyTotal>?> GetTotalAmountMonthly(string userId, TransactionsFiltersDTO request, int numberOfMonths)
+        {
+            Dictionary<int, MonthlyTotal> totals = new();
+            var baseDate = new DateTime(request.EndDate!.Value.Year, request.EndDate!.Value.Month, 1);
+            for (int i = numberOfMonths; i >= 0; i--)
+            {
+                var date = baseDate.AddMonths(-i);
+                totals.Add(date.Month + date.Year, new MonthlyTotal
+                {
+                    Month = date.Month,
+                    Year = date.Year,
+                    TotalAmount = 0
+                });
+            }
+            request.StartDate = baseDate.AddMonths(-numberOfMonths);            
+            var transactionsQuery = FilterTransactions(userId, request);
+            if (request.CategoriesIds == null)
+            {
+                var groups = transactionsQuery
+                    .GroupBy(x => new { x.Date.Year, x.Date.Month });
+                foreach (var group in groups)
+                {
+                    var index = group.Key.Month + group.Key.Year;
+                    totals[index].TotalAmount = group.Sum(x => x.TotalAmount);
+                }
+            }
+            else
+            {
+                var groups = transactionsQuery
+                    .SelectMany(t => t.TransactionDetails)
+                    .Where(td => request.CategoriesIds.Contains(td.CategoryId))
+                    .GroupBy(x => new { x.Transaction.Date.Year, x.Transaction.Date.Month });
+                foreach (var group in groups)
+                {
+                    var index = group.Key.Month + group.Key.Year;
+                    totals[index].TotalAmount = group.Sum(x => x.Amount);
+                }
+            }
+
+            return totals.Values;
+        }
+
         #endregion
 
         #region POST
@@ -378,5 +419,7 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
                 return true;
             return false;
         }
+
+
     }
 }

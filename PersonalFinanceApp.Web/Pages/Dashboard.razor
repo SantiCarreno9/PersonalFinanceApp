@@ -1,4 +1,9 @@
 ﻿@page "/dashboard"
+@inherits DashboardBase
+@using BaseLibrary.DTOs
+@using PersonalFinanceApp.Web.Services
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Popups
 @using PersonalFinanceApp.Web.Components
 @using PersonalFinanceApp.Web.Models
 
@@ -18,7 +23,7 @@
                     <div class="m-1">
                         <InputRadio class="form-check-input m-1" Value="@PeriodOption.AllTime" />
                         All Time
-                    </div>                    
+                    </div>
                     <div class="m-1">
                         <InputRadio class="form-check-input" Value="@PeriodOption.Custom" />
                         Custom
@@ -41,17 +46,17 @@
             <div class="row">
                 <div class="card col border-2 text-center p-2 m-2">
                     <h2>Balance</h2>
-                    <h2 style="color:blue">@(balance.ToString("C"))</h2>
+                    <h2>@(balance.ToString("C"))</h2>
                 </div>
                 <div class="card col border-2 text-center p-2 m-2">
                     <h2>Expenses</h2>
-                    <h2 style="color:red">
+                    <h2>
                         <TransactionsTotal TransactionService="TransactionService" @ref="expenseTotal"></TransactionsTotal>
                     </h2>
                 </div>
                 <div class="card col border-2 text-center p-2 m-2">
                     <h2>Income</h2>
-                    <h2 style="color:green">
+                    <h2>
                         <TransactionsTotal TransactionService="TransactionService" @ref="incomeTotal"></TransactionsTotal>
                     </h2>
                 </div>
@@ -66,8 +71,10 @@
                 <SummaryChart TransactionService="TransactionService" @ref="summaryChart"></SummaryChart>
             </div>
         </div>
+        <div class="card border-2 m-2 p-2">
+            <div class="card-body">
+                <MonthlyStats TransactionService="TransactionService" Categories="Categories" @ref="monthlyStats"></MonthlyStats>
+            </div>
+        </div>
     </Authorized>
 </AuthorizeView>
-@code {
-
-}
