@@ -46,17 +46,17 @@
             <div class="row">
                 <div class="card col border-2 text-center p-2 m-2">
                     <h2>Balance</h2>
-                    <h2>@(balance.ToString("C"))</h2>
+                    <h2 style="color:royalblue">@(balance.ToString("C"))</h2>
                 </div>
                 <div class="card col border-2 text-center p-2 m-2">
                     <h2>Expenses</h2>
-                    <h2>
+                    <h2 style="color:crimson">
                         <TransactionsTotal TransactionService="TransactionService" @ref="expenseTotal"></TransactionsTotal>
                     </h2>
                 </div>
                 <div class="card col border-2 text-center p-2 m-2">
                     <h2>Income</h2>
-                    <h2>
+                    <h2 style="color:green">
                         <TransactionsTotal TransactionService="TransactionService" @ref="incomeTotal"></TransactionsTotal>
                     </h2>
                 </div>
