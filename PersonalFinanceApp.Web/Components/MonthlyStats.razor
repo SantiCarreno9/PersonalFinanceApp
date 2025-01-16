@@ -97,7 +97,7 @@
                     if (values.Count > 0)
                     {
                         income = Double.Parse(string.IsNullOrEmpty(values[0].PointY.ToString()) ? "0" : values[0].PointY.ToString());
-                        expense = values.Count > 1 ? Double.Parse(string.IsNullOrEmpty(values[1].PointY.ToString()) ? "0" : values[1].PointY.ToString()) : 0;
+                        expense = Double.Parse(string.IsNullOrEmpty(values[values.Count - 1].PointY.ToString()) ? "0" : values[values.Count - 1].PointY.ToString());
                         balance = income - expense;
                         month = values[0].PointX.ToString();
                     }
