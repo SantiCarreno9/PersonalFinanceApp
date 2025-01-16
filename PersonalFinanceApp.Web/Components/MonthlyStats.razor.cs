@@ -24,6 +24,9 @@ namespace PersonalFinanceApp.Web.Components
         private IEnumerable<Category>? expenseCategories { get; set; }
         private IEnumerable<Category>? incomeCategories { get; set; }
 
+        private bool showExpenses = true;
+        private bool showIncome = true;
+
         private SfMultiSelect<int[], Category>? expenseCategoriesSelect { get; set; }
         private SfMultiSelect<int[], Category>? incomeCategoriesSelect { get; set; }
 
@@ -43,26 +46,35 @@ namespace PersonalFinanceApp.Web.Components
         {
             if (dateRange != null)
                 Dates = dateRange;
-            monthlyExpenses = await TransactionService.GetTotalAmountMonthly(new TransactionsFiltersDTO
+            if (showExpenses)
             {
-                TransactionTypeId = (int)TransactionTypes.Expense,
-                EndDate = Dates.EndDate,
-                CategoriesIds = expenseCategoriesSelect?.Value
-            }, numberOfMonths);
-            //if (monthlyExpenses != null)
-            //    monthlyExpenses.Totals = monthlyExpenses.Totals.SkipLast(1);
-            monthlyIncome = await TransactionService.GetTotalAmountMonthly(new TransactionsFiltersDTO
+                monthlyExpenses = await TransactionService.GetTotalAmountMonthly(new TransactionsFiltersDTO
+                {
+                    TransactionTypeId = (int)TransactionTypes.Expense,
+                    EndDate = Dates.EndDate,
+                    CategoriesIds = expenseCategoriesSelect?.Value
+                }, numberOfMonths);
+                //if (monthlyExpenses != null)
+                //    monthlyExpenses.Totals = monthlyExpenses.Totals.SkipLast(1);
+            }
+
+            if (showIncome)
             {
-                TransactionTypeId = (int)TransactionTypes.Income,
-                EndDate = Dates.EndDate,
-                CategoriesIds = incomeCategoriesSelect?.Value
-            }, numberOfMonths);
-            //if (monthlyIncome != null)
-            //    monthlyIncome.Totals = monthlyIncome.Totals.SkipLast(1);
+                monthlyIncome = await TransactionService.GetTotalAmountMonthly(new TransactionsFiltersDTO
+                {
+                    TransactionTypeId = (int)TransactionTypes.Income,
+                    EndDate = Dates.EndDate,
+                    CategoriesIds = incomeCategoriesSelect?.Value
+                }, numberOfMonths);
+                //if (monthlyIncome != null)
+                //    monthlyIncome.Totals = monthlyIncome.Totals.SkipLast(1);   
+            }
         }
 
         private async Task Reset()
         {
+            showExpenses = true;
+            showIncome = true;
             if (expenseCategoriesSelect != null)
                 await expenseCategoriesSelect.SelectAllAsync(false);
             if (incomeCategoriesSelect != null)

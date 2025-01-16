@@ -11,21 +11,33 @@
         </div>
         <div class="collapse" id="collapseFilter">
             <br>
-            <div class="form-floating mb-2">
-                <SfMultiSelect TValue="int[]" AllowCustomValue="true" TItem="Category" Placeholder="e.g. Housing" Mode="@VisualMode.CheckBox"
-                               DataSource="@expenseCategories" ShowSelectAll="true" PopupHeight="350px"
-                               CssClass="form-control" ID="expenseCategoriesFilter" @ref="expenseCategoriesSelect">
-                    <MultiSelectFieldSettings Text="Name" Value="Id"></MultiSelectFieldSettings>
-                </SfMultiSelect>
-                <label for="expenseCategoriesFilter">Expense Categories</label>
+            <div>
+                <label>
+                    <InputCheckbox DisplayName="Expenses" @bind-Value="showExpenses"></InputCheckbox>
+                    Expenses
+                </label>
+                <div class="form-floating mb-2" style="display:@(showExpenses?"flex":"none")">
+                    <SfMultiSelect TValue="int[]" AllowCustomValue="true" TItem="Category" Placeholder="e.g. Housing" Mode="@VisualMode.CheckBox"
+                                   DataSource="@expenseCategories" ShowSelectAll="true" PopupHeight="350px"
+                                   CssClass="form-control" ID="expenseCategoriesFilter" @ref="expenseCategoriesSelect">
+                        <MultiSelectFieldSettings Text="Name" Value="Id"></MultiSelectFieldSettings>
+                    </SfMultiSelect>
+                    <label for="expenseCategoriesFilter">Expense Categories</label>
+                </div>
             </div>
-            <div class="form-floating mb-2">
-                <SfMultiSelect TValue="int[]" AllowCustomValue="true" TItem="Category" Placeholder="e.g. Employment" Mode="@VisualMode.CheckBox"
-                               DataSource="@incomeCategories" ShowSelectAll="true" PopupHeight="350px"
-                               CssClass="form-control" ID="incomeCategoriesFilter" @ref="incomeCategoriesSelect">
-                    <MultiSelectFieldSettings Text="Name" Value="Id"></MultiSelectFieldSettings>
-                </SfMultiSelect>
-                <label for="incomeCategoriesFilter">Income Categories</label>
+            <div>
+                <label>
+                    <InputCheckbox DisplayName="Income" @bind-Value="showIncome"></InputCheckbox>
+                    Income
+                </label>
+                <div class="form-floating mb-2" style="display:@(showIncome?"flex":"none")">
+                    <SfMultiSelect TValue="int[]" AllowCustomValue="true" TItem="Category" Placeholder="e.g. Employment" Mode="@VisualMode.CheckBox"
+                                   DataSource="@incomeCategories" ShowSelectAll="true" PopupHeight="350px"
+                                   CssClass="form-control" ID="incomeCategoriesFilter" @ref="incomeCategoriesSelect">
+                        <MultiSelectFieldSettings Text="Name" Value="Id"></MultiSelectFieldSettings>
+                    </SfMultiSelect>
+                    <label for="incomeCategoriesFilter">Income Categories</label>
+                </div>
             </div>
             <div>
                 <button class="btn btn-outline-primary" @onclick="async()=>{await UpdateData();}">Apply</button>
@@ -46,7 +58,7 @@
         <ChartSeriesCollection>
             @if (monthlyIncome != null)
             {
-                <ChartSeries TooltipMappingName="MappingName" DataSource="@monthlyIncome.Totals" XName="MonthName" YName="TotalAmount" Name="Income" Fill="darkgreen" ColumnSpacing="0.1" Type="ChartSeriesType.Column" BullFillColor="Blue">
+                <ChartSeries TooltipMappingName="MappingName" DataSource="@monthlyIncome.Totals" XName="MonthName" YName="TotalAmount" Name="Income" Fill="darkgreen" ColumnSpacing="0.1" Type="ChartSeriesType.Column" BullFillColor="Blue" Visible="showIncome">
                     <ChartMarker>
                         <ChartDataLabel Visible="true" Position="LabelPosition.Outer">
                             <Template>
@@ -60,14 +72,14 @@
             }
             @if (monthlyExpenses != null)
             {
-                <ChartSeries TooltipMappingName="MappingName" DataSource="@monthlyExpenses.Totals" XName="MonthName" YName="TotalAmount" Name="Expense" Fill="darkred" ColumnSpacing="0.1" Type="ChartSeriesType.Column" BullFillColor="Red">
+                <ChartSeries TooltipMappingName="MappingName" DataSource="@monthlyExpenses.Totals" XName="MonthName" YName="TotalAmount" Name="Expense" Fill="darkred" ColumnSpacing="0.1" Type="ChartSeriesType.Column" BullFillColor="Red" Visible="showExpenses">
                     <ChartMarker>
                         <ChartDataLabel Visible="true" Position="LabelPosition.Outer">
                             <Template>
                                 <div class="chart-value">
                                     <b>@(Double.Parse(context.PointY.ToString()).ToString("C"))</b>
                                 </div>
-                            </Template>                           
+                            </Template>
                         </ChartDataLabel>
                     </ChartMarker>
                 </ChartSeries>
@@ -85,7 +97,7 @@
                     if (values.Count > 0)
                     {
                         income = Double.Parse(string.IsNullOrEmpty(values[0].PointY.ToString()) ? "0" : values[0].PointY.ToString());
-                        expense = Double.Parse(string.IsNullOrEmpty(values[1].PointY.ToString()) ? "0" : values[1].PointY.ToString());
+                        expense = values.Count > 1 ? Double.Parse(string.IsNullOrEmpty(values[1].PointY.ToString()) ? "0" : values[1].PointY.ToString()) : 0;
                         balance = income - expense;
                         month = values[0].PointX.ToString();
                     }
@@ -96,13 +108,13 @@
                             <b>@month</b>
                         </div>
                         <hr class="custom-hr" />
-                        <div class="mb-1">
+                        <div class="mb-1" style="display:@(showIncome?"flex":"none")">
                             <span class="dot" style="background-color:darkgreen;"></span>Income:<b>@(income.ToString("C"))</b>
                         </div>
-                        <div class="mb-1">
+                        <div class="mb-1" style="display:@(showExpenses?"flex":"none")">
                             <span class="dot" style="background-color:darkred;"></span>Expense:<b>@(expense.ToString("C"))</b>
                         </div>
-                        <div>
+                        <div style="display:@(showIncome && showExpenses?"flex":"none")">
                             <span class="dot" style="background-color:transparent;"></span>Balance:<b>@(balance.ToString("C"))</b>
                         </div>
                     </div>
