@@ -9,8 +9,10 @@ using Syncfusion.Blazor;
 
 //IMPORTANT: CHECK ENV VARIABLES
 
-Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzM4NDk4M0AzMjM2MmUzMDJlMzBkTVBDdFFZeUQxdjZwaUVjbDREVTRNUThnOU9JMTc2ZlloOStuQ016RlhZPQ==");
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(builder.Configuration["SyncfusionApiKey"]);
+
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
@@ -35,8 +37,7 @@ builder.Services.AddScoped(
 // configure client for auth interactions
 builder.Services.AddHttpClient(
     "Auth",
-    opt => opt.BaseAddress = new Uri(builder.Configuration["BackendUrl"] ?? "https://localhost:7236"))
-    //opt => opt.BaseAddress = new Uri(builder.Configuration["LocalBackendUrl"] ?? "https://localhost:7236"))
+    opt => opt.BaseAddress = new Uri(builder.Configuration["BackendUrl"] ?? "https://localhost:7236"))    
     .AddHttpMessageHandler<CookieHandler>();
 
 builder.Services.AddScoped(implementationFactory: sp =>
