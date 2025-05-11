@@ -363,3 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 /PersonalFinanceApp.Web/wwwroot/appsettings.Production.json
 /PersonalFinanceApp.Web/wwwroot/appsettings.Development.json
+/PersonalFinanceApp.Api/PersonalFinanceApp.Api/personalfinanceapp.db
+/PersonalFinanceApp.Api/PersonalFinanceApp.Api/personalfinanceapp.db-shm
+/PersonalFinanceApp.Api/PersonalFinanceApp.Api/personalfinanceapp.db-wal
