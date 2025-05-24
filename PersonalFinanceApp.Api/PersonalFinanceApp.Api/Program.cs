@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using PersonalFinanceApp.Api.Data;
+using PersonalFinanceApp.Api.Extensions;
 using PersonalFinanceApp.Api.Middleware;
 using PersonalFinanceApp.Api.Repositories.Contracts;
 using PersonalFinanceApp.Api.Repositories.Implementations;
@@ -46,23 +47,15 @@ builder.Services.AddSwaggerGen(options =>
 
 //DI
 
-builder.Services.AddDbContextPool<AppDbContext>(option =>
+builder.Services.AddDbContext<AppDbContext>(option =>
     option.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection") ??
         throw new InvalidOperationException("Connection string not found")));
-//if(builder.Environment.IsDevelopment())
-//{
-//    builder.Services.AddDbContextPool<AppDbContext>(option =>
-//        option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ??
-//            throw new InvalidOperationException("Connection string not found"))
-//    );
-//}
-//else
-//{
-//    builder.Services.AddDbContextPool<AppDbContext>(option =>
-//    option.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection") ??
-//        throw new InvalidOperationException("Connection string not found"))
-//);
-//}
+
+builder.Services.AddDbContext<GuestDbContext>(option =>
+    option.UseSqlite(builder.Configuration.GetConnectionString("GuestSqliteConnection") ??
+        throw new InvalidOperationException("Connection string not found")));
+
+builder.Services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IMetadataRepository, MetadataRepository>();
@@ -125,6 +118,7 @@ app.MapPost("/logout", async (SignInManager<IdentityUser> signInManager, [FromBo
     return Results.Unauthorized();
 }).RequireAuthorization();
 
+app.MapGuestEndpoint();
 app.UseExceptionHandler();
 
 app.Run();

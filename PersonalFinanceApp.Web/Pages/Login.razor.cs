@@ -1,7 +1,12 @@
 ﻿using BlazorWasmAuth.Identity;
+using BlazorWasmAuth.Identity.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Extensions.Configuration;
 using PersonalFinanceApp.Web.Models;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
 
 namespace PersonalFinanceApp.Web.Pages
 {
@@ -10,7 +15,13 @@ namespace PersonalFinanceApp.Web.Pages
         [Inject]
         public IAccountManagement AccountManagement { get; set; }
         [Inject]
-        public NavigationManager NavigationManager { get; set; }
+        public NavigationManager NavigationManager { get; set; }        
+        [Inject]
+        public HttpClient _httpClient { get; set; }
+        [Inject]
+        public IAccountManagement _accountManagement { get; set; }
+        [Inject]
+        public AuthenticationStateProvider _authStateProvider { get; set; }
 
         [SupplyParameterFromForm]
         public LoginModel? LoginModel { get; set; }
@@ -48,6 +59,27 @@ namespace PersonalFinanceApp.Web.Pages
                 errors = true;
                 errorList = result.ErrorList;
             }
+        }
+
+        private async Task LoginAsAGuest()
+        {           
+            try
+            {
+                // login with cookies
+                var result = await _httpClient.PostAsJsonAsync(
+                    "login-as-guest?useSessionCookies=true", "");
+
+                // success?
+                if (result.IsSuccessStatusCode)
+                {                    
+                    await AccountManagement.CheckAuthenticatedAsync();
+                    NavigationManager.Refresh();                 
+                }
+            }
+            catch { }
+
+            errors = true;
+            errorList = ["Invalid email and/or password."];                        
         }
     }
 }
