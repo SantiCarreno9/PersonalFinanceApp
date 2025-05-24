@@ -5,6 +5,16 @@
 
 <h1>Login</h1>
 
+@if (isLoading)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    return;
+}
+
 <AuthorizeView>
     <Authorized>
         <div class="alert alert-success">You're already logged in as @context.User.Identity?.Name.</div>
@@ -38,9 +48,9 @@
                             <label for="passwordField">Password</label>
                         </div>
                     </div>
-                    <button class="btn btn-primary mb-3" type="submit">Login</button>                    
+                    <button class="btn btn-primary mb-3" type="submit">Login</button>
                 </EditForm>
-                <button class="btn btn-primary mb-3" @onclick="LoginAsAGuest">Login as a Guest</button>
+                <button class="btn btn-primary mb-3" type="button" @onclick="LoginAsAGuest">Login as a Guest</button>
             }
             @* <div>
                 Don't have an account? <a href="register">Register</a>

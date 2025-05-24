@@ -1,12 +1,8 @@
 ﻿using BlazorWasmAuth.Identity;
-using BlazorWasmAuth.Identity.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.Extensions.Configuration;
 using PersonalFinanceApp.Web.Models;
-using System.Net.Http;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
 
 namespace PersonalFinanceApp.Web.Pages
 {
@@ -17,17 +13,14 @@ namespace PersonalFinanceApp.Web.Pages
         [Inject]
         public NavigationManager NavigationManager { get; set; }        
         [Inject]
-        public HttpClient _httpClient { get; set; }
-        [Inject]
-        public IAccountManagement _accountManagement { get; set; }
-        [Inject]
-        public AuthenticationStateProvider _authStateProvider { get; set; }
+        public HttpClient _httpClient { get; set; }        
 
         [SupplyParameterFromForm]
         public LoginModel? LoginModel { get; set; }
 
         private string[] errorList = [];
         private bool success, errors;
+        private bool isLoading = false;
 
         protected override async Task OnInitializedAsync()
         {
@@ -47,6 +40,7 @@ namespace PersonalFinanceApp.Web.Pages
             success = errors = false;
             errorList = [];
 
+            isLoading = true;
             var result = await AccountManagement.LoginAsync(LoginModel!.EmailAddress, LoginModel!.Password);            
 
             if (result.Succeeded)
@@ -59,27 +53,25 @@ namespace PersonalFinanceApp.Web.Pages
                 errors = true;
                 errorList = result.ErrorList;
             }
+            isLoading = false;
         }
 
         private async Task LoginAsAGuest()
-        {           
-            try
+        {
+            isLoading = true;
+            var result = await AccountManagement.LoginAsGuestAsync();
+
+            if(result.Succeeded)
             {
-                // login with cookies
-                var result = await _httpClient.PostAsJsonAsync(
-                    "login-as-guest?useSessionCookies=true", "");
-
-                // success?
-                if (result.IsSuccessStatusCode)
-                {                    
-                    await AccountManagement.CheckAuthenticatedAsync();
-                    NavigationManager.Refresh();                 
-                }
+                success = true;
+                NavigationManager.NavigateTo("dashboard");                
             }
-            catch { }
-
-            errors = true;
-            errorList = ["Invalid email and/or password."];                        
+            else
+            {
+                errors = true;
+                errorList = result.ErrorList;                
+            }
+            isLoading = false;
         }
     }
 }

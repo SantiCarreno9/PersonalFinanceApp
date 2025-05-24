@@ -35,7 +35,7 @@ namespace BlazorWasmAuth.Identity
         /// Default principal for anonymous (not authenticated) users.
         /// </summary>
         private readonly ClaimsPrincipal Unauthenticated =
-            new(new ClaimsIdentity());
+            new(new ClaimsIdentity());        
 
         /// <summary>
         /// Create a new instance of the auth provider.
@@ -144,6 +144,34 @@ namespace BlazorWasmAuth.Identity
             {
                 Succeeded = false,
                 ErrorList = ["Invalid email and/or password."]
+            };
+        }
+
+        public async Task<FormResult> LoginAsGuestAsync()
+        {
+            try
+            {
+                // login with cookies
+                var result = await _httpClient.PostAsJsonAsync(
+                    "login-as-guest?useSessionCookies=true", "");
+
+                // success?
+                if (result.IsSuccessStatusCode)
+                {
+                    // need to refresh auth state
+                    NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+
+                    // success!
+                    return new FormResult { Succeeded = true };
+                }
+            }
+            catch { }
+
+            // unknown error
+            return new FormResult
+            {
+                Succeeded = false,
+                ErrorList = ["Unexpected Error"]
             };
         }
 
