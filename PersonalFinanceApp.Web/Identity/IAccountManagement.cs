@@ -30,5 +30,6 @@ namespace BlazorWasmAuth.Identity
         public Task<FormResult> RegisterAsync(string email, string password);        
 
         public Task<bool> CheckAuthenticatedAsync();
+        Task<FormResult> LoginAsGuestAsync();
     }
 }
