@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using BaseLibrary.Entities;
+﻿using BaseLibrary.Entities;
 using BaseLibrary.Helper;
 using BaseLibrary.Helper.GET;
 using Microsoft.EntityFrameworkCore;
@@ -11,18 +10,28 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
 {
     public class TransactionRepository : ITransactionRepository
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _mainAppContext;
+        private readonly GuestDbContext _guestAppContext;        
 
-        public TransactionRepository(AppDbContext context)
+        public TransactionRepository(AppDbContext mainContext, GuestDbContext guestDbContext)
         {
-            _context = context;
+            _mainAppContext = mainContext;
+            _guestAppContext = guestDbContext;            
+        }
+
+        private IAppDbContext GetDbContext(string? userId = null)
+        {
+            if (userId is not null && userId.Equals("guest", StringComparison.OrdinalIgnoreCase))
+                return _guestAppContext;
+            return _mainAppContext;
         }
 
         #region GET
 
         public async Task<Transaction?> GetTransaction(string userId, long id)
         {
-            var transaction = await _context.Transactions
+            var context = GetDbContext(userId);
+            var transaction = await GetDbContext(userId).Transactions
                 .Include(t => t.TransactionDetails)!
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.UserId == userId && x.Id == id);
@@ -31,7 +40,8 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
 
         public async Task<IEnumerable<string>?> GetLocations(string userId)
         {
-            var userTransaction = _context.Transactions.AsNoTracking().Where(t => t.UserId == userId);
+            var context = GetDbContext(userId);
+            var userTransaction = context.Transactions.AsNoTracking().Where(t => t.UserId == userId);
             IEnumerable<string>? locations = null;
             if (userTransaction != null)
                 locations = await userTransaction
@@ -43,7 +53,8 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
 
         private IQueryable<Transaction> FilterTransactions(string userId, TransactionsFiltersDTO filters)
         {
-            IQueryable<Transaction> transactionsQuery = _context.Transactions
+            var context = GetDbContext(userId);
+            IQueryable<Transaction> transactionsQuery = context.Transactions
                 .AsNoTracking()
                 .Where(t => t.UserId == userId);
 
@@ -123,7 +134,8 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
 
         public async Task<IEnumerable<TransactionType>> GetTransactionTypes()
         {
-            return await _context.TransactionTypes.ToListAsync();
+            var context = GetDbContext();
+            return await context.TransactionTypes.ToListAsync();
         }
 
         public async Task<decimal?> GetTotalAmount(string userId, TransactionsFiltersDTO request)
@@ -247,7 +259,8 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
 
         public async Task<Transaction?> GetBoundTransaction(string userId, GetBoundTransaction request)
         {
-            IQueryable<Transaction> transactionsQuery = _context.Transactions
+            var context = GetDbContext(userId);
+            IQueryable<Transaction> transactionsQuery = context.Transactions
                 .AsNoTracking()
                 .Where(t => t.UserId == userId);
 
@@ -338,8 +351,9 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
 
         public async Task<Transaction?> AddTransaction(Transaction transaction)
         {
-            var result = await _context.Transactions.AddAsync(transaction);
-            await _context.SaveChangesAsync();
+            var context = GetDbContext(transaction.UserId);
+            var result = await context.Transactions.AddAsync(transaction);
+            await context.SaveChangesAsync();
             return result.Entity;
         }
 
@@ -349,10 +363,9 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
 
         public async Task<bool> DeleteTransactions(string userId, long[] ids)
         {
-            int numberOfRows = 0;
-            for (int i = 0; i < ids.Length; i++)
-                numberOfRows += await _context.Transactions.Where(t => t.UserId.Equals(userId) && t.Id == ids[i]).ExecuteDeleteAsync();
-
+            var context = GetDbContext(userId);
+            int numberOfRows = await context.Transactions.Where(t => t.UserId.Equals(userId) && ids.Contains(t.Id)).ExecuteDeleteAsync();
+            
             return numberOfRows > 0;
         }
 
@@ -362,7 +375,8 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
 
         public async Task<Transaction?> UpdateTransaction(long id, Transaction transaction)
         {
-            var transactionToUpdate = await _context.Transactions
+            var context = GetDbContext(transaction.UserId);
+            var transactionToUpdate = await context.Transactions
                 .Include(t => t.TransactionDetails)
                 .FirstOrDefaultAsync(t => t.Id == id);
             if (transactionToUpdate == null)
@@ -384,7 +398,7 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
             {
                 for (int i = 0; i < Math.Abs(countDifference); i++)
                 {
-                    var newDetail = await _context.TransactionDetails.AddAsync(new TransactionDetail() { TransactionId = id });
+                    var newDetail = await context.TransactionDetails.AddAsync(new TransactionDetail() { TransactionId = id });
                     existingDetails.Add(newDetail.Entity);
                 }
             }
@@ -392,7 +406,7 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
             {
                 for (int i = 0; i < Math.Abs(countDifference); i++)
                 {
-                    var deletedDetail = _context.TransactionDetails.Remove(existingDetails.ElementAt(existingDetails.Count - 1));
+                    var deletedDetail = context.TransactionDetails.Remove(existingDetails.ElementAt(existingDetails.Count - 1));
                     existingDetails.Remove(deletedDetail.Entity);
                 }
             }
@@ -404,7 +418,7 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
                 existingDetails.ElementAt(i).Amount = newTransactionDetails.ElementAt(i).Amount;
             }
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return transactionToUpdate;
         }
 
@@ -412,7 +426,8 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
 
         public async Task<bool> UserOwnsTransaction(string userId, long transactionId)
         {
-            var transaction = await _context.Transactions.AsNoTracking().FirstOrDefaultAsync(t => t.Id == transactionId);
+            var context = GetDbContext(userId);
+            var transaction = await context.Transactions.AsNoTracking().FirstOrDefaultAsync(t => t.Id == transactionId);
             if (transaction == null)
                 return false;
             if (transaction.UserId.Equals(userId, StringComparison.Ordinal))

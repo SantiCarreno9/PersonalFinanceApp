@@ -1,21 +1,21 @@
 ﻿using BaseLibrary.Entities;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace PersonalFinanceApp.Api.Data
 {
-    public class AppDbContext : IdentityDbContext<IdentityUser>, IAppDbContext
+    public class GuestDbContext : IdentityDbContext<IdentityUser>, IAppDbContext
     {
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<TransactionDetail> TransactionDetails { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<TransactionType> TransactionTypes { get; set; }
-        public DbSet<PaymentMethod> PaymentMethods { get; set; }        
+        public DbSet<PaymentMethod> PaymentMethods { get; set; }
 
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        public GuestDbContext(DbContextOptions<GuestDbContext> options) : base(options)
         {
-        }                
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,13 +24,13 @@ namespace PersonalFinanceApp.Api.Data
             modelBuilder.Entity<IdentityUser>()
                 .HasMany<Transaction>()
                 .WithOne()
-                .HasForeignKey(t=>t.UserId)
-                .IsRequired();            
+                .HasForeignKey(t => t.UserId)
+                .IsRequired();
 
             modelBuilder.Entity<TransactionDetail>()
                 .HasOne(td => td.Transaction)
                 .WithMany(t => t.TransactionDetails)
-                .HasForeignKey(td => td.TransactionId)                
+                .HasForeignKey(td => td.TransactionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Category>()

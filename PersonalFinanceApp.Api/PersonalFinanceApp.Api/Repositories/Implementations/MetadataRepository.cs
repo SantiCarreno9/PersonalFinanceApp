@@ -7,8 +7,8 @@ namespace PersonalFinanceApp.Api.Repositories.Implementations
 {
     public class MetadataRepository : IMetadataRepository
     {
-        private readonly AppDbContext _context;
-        public MetadataRepository(AppDbContext context) 
+        private readonly IAppDbContext _context;
+        public MetadataRepository(IAppDbContext context) 
         { 
             _context = context;
         }
