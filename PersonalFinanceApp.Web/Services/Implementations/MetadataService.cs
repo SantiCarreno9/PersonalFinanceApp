@@ -9,7 +9,7 @@ namespace PersonalFinanceApp.Web.Services.Implementations
         private const string ApiURI = "/api/metadata";
         private readonly IMemoryCache _cache;
 
-        public MetadataService(HttpClient httpClient, IMemoryCache cache) : base(httpClient)
+        public MetadataService(HttpClient httpClient, IMemoryCache cache, ILogger logger) : base(httpClient,logger)
         {
             this._cache = cache;
         }

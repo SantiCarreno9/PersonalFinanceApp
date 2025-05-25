@@ -7,8 +7,6 @@ using PersonalFinanceApp.Web.Services.Contracts;
 using PersonalFinanceApp.Web.Services.Implementations;
 using Syncfusion.Blazor;
 
-//IMPORTANT: CHECK ENV VARIABLES
-
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(builder.Configuration["SyncfusionApiKey"]);
@@ -19,7 +17,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IMetadataService, MetadataService>();
 builder.Services.AddSyncfusionBlazor();
-
+builder.Services.AddScoped<ILogger, Logger<Program>>();
 // register the cookie handler
 builder.Services.AddTransient<CookieHandler>();
 
@@ -45,4 +43,6 @@ builder.Services.AddScoped(implementationFactory: sp =>
     return sp.GetService<IHttpClientFactory>()!.CreateClient("Auth");
 });
 
-await builder.Build().RunAsync();
+var host = builder.Build();
+
+await host.RunAsync();

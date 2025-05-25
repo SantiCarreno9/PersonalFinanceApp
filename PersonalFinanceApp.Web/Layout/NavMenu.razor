@@ -1,15 +1,25 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject NavigationManager NavigationManager
+@implements IDisposable
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Finance App</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <div title="Navigation menu" class="navbar-toggler">
+            <span class="navbar-toggler-icon" @onclick="ToggleNavMenu"></span>
+        </div>
     </div>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+<div class="@(collapseNavMenu ? "collapse" : null) nav-scrollable">
     <div class="d-flex flex-column h-100 align-content-between">
         <AuthorizeView>
+            <Authorizing>
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </Authorizing>
             <Authorized>
                 <nav class="flex-column">
                     <div class="nav-item px-3">
@@ -64,12 +74,31 @@
 </div>
 
 @code {
-    private bool collapseNavMenu = true;
+    private bool collapseNavMenu = true;    
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    protected override void OnAfterRender(bool firstRender)
+    {        
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            NavigationManager.LocationChanged += OnLocationChanged;
+        };
+    }    
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        collapseNavMenu = true;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+        StateHasChanged();
     }
 }
