@@ -32,8 +32,7 @@ namespace PersonalFinanceApp.Web.Components
 
         protected override async Task OnInitializedAsync()
         {
-            await base.OnInitializedAsync();
-
+            await base.OnInitializedAsync();            
             TransactionItemsProvider = async req =>
             {
                 RequestHelper.SortColumn = req.SortByColumn?.Title;
