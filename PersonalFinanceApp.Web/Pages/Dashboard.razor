@@ -6,12 +6,13 @@
 @using Syncfusion.Blazor.Popups
 @using PersonalFinanceApp.Web.Components
 @using PersonalFinanceApp.Web.Models
+@using System.Globalization
 
 <PageTitle>Dashboard</PageTitle>
 <AuthorizeView Context="authorized">
     <Authorizing>
-        <div class="d-flex justify-content-center">
-            <div class="spinner-border" role="status">
+        <div class="d-flex justify-content-center m-5 align-items-center">
+            <div class="spinner-border" role="status" style="width: 5rem; height: 5rem;">
                 <span class="visually-hidden">Loading...</span>
             </div>
         </div>
@@ -53,18 +54,18 @@
             <div class="row">
                 <div class="card col border-2 text-center p-2 m-2">
                     <h2>Balance</h2>
-                    <h2 style="color:royalblue">@(balance.ToString("C"))</h2>
+                    <h2 style="color:royalblue">@(balance.HasValue ? balance.Value.ToString("C", CultureInfo.CreateSpecificCulture("en-US")) : "$-")</h2>
                 </div>
                 <div class="card col border-2 text-center p-2 m-2">
                     <h2>Expenses</h2>
                     <h2 style="color:crimson">
-                        <TransactionsTotal TransactionService="TransactionService" @ref="expenseTotal"></TransactionsTotal>
+                        @(expense.HasValue ? expense.Value.ToString("C", CultureInfo.CreateSpecificCulture("en-US")) : "$-")
                     </h2>
                 </div>
                 <div class="card col border-2 text-center p-2 m-2">
                     <h2>Income</h2>
                     <h2 style="color:green">
-                        <TransactionsTotal TransactionService="TransactionService" @ref="incomeTotal"></TransactionsTotal>
+                        @(income.HasValue ? income.Value.ToString("C", CultureInfo.CreateSpecificCulture("en-US")) : "$-")
                     </h2>
                 </div>
             </div>

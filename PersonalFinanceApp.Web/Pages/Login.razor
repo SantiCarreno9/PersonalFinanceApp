@@ -4,11 +4,10 @@
 <PageTitle>Login</PageTitle>
 
 <h1>Login</h1>
-
 @if (isLoading)
 {
-    <div class="d-flex justify-content-center">
-        <div class="spinner-border" role="status">
+    <div class="d-flex justify-content-center m-5 align-items-center">
+        <div class="spinner-border" role="status" style="width: 5rem; height: 5rem;">
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
@@ -42,7 +41,7 @@
                     }
                 }
                 <EditForm Context="formContext" Model="LoginModel" OnValidSubmit="Submit">
-                    <DataAnnotationsValidator />
+                    <DataAnnotationsValidator />                    
                     <div class="w-50">
                         <div class="form-floating mb-2">
                             <InputText id="emailField" class="form-control" @bind-Value="LoginModel!.EmailAddress" />

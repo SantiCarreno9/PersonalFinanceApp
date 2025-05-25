@@ -2,6 +2,15 @@
 @using BaseLibrary.Entities
 @using Syncfusion.Blazor.DropDowns
 
+@if (isLoading || monthlyIncome is null || monthlyExpenses is null)
+{
+    <div class="d-flex justify-content-center m-5 align-items-center">
+        <div class="spinner-border" role="status" style="width: 5rem; height: 5rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    return;
+}
 <div class="d-flex flex-column align-content-center justify-content-center">
     <div class="w-100 mb-2">
         <div class="d-flex w-100 justify-content-end">
@@ -45,81 +54,96 @@
             </div>
         </div>
     </div>
-    <SfChart Title="Balances In Previous Months" Theme="@theme">
-        <ChartArea><ChartAreaBorder Width="0"></ChartAreaBorder></ChartArea>
-        <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category" IntervalType="IntervalType.Months" Interval="1">
-            <ChartAxisMajorGridLines Width="0"></ChartAxisMajorGridLines>
-            <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
-        </ChartPrimaryXAxis>
-        <ChartPrimaryYAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Double" Format="C">
-            <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
-            <ChartAxisLineStyle Width="0"></ChartAxisLineStyle>
-        </ChartPrimaryYAxis>
-        <ChartSeriesCollection>
-            @if (monthlyIncome != null)
-            {
-                <ChartSeries TooltipMappingName="MappingName" DataSource="@monthlyIncome.Totals" XName="MonthName" YName="TotalAmount" Name="Income" Fill="darkgreen" ColumnSpacing="0.1" Type="ChartSeriesType.Column" BullFillColor="Blue" Visible="showIncome">
-                    <ChartMarker>
-                        <ChartDataLabel Visible="true" Position="LabelPosition.Outer">
-                            <Template>
-                                <div class="chart-value">
-                                    <b>@(Double.Parse(context.PointY.ToString()).ToString("C"))</b>
-                                </div>
-                            </Template>
-                        </ChartDataLabel>
-                    </ChartMarker>
-                </ChartSeries>
-            }
-            @if (monthlyExpenses != null)
-            {
-                <ChartSeries TooltipMappingName="MappingName" DataSource="@monthlyExpenses.Totals" XName="MonthName" YName="TotalAmount" Name="Expense" Fill="darkred" ColumnSpacing="0.1" Type="ChartSeriesType.Column" BullFillColor="Red" Visible="showExpenses">
-                    <ChartMarker>
-                        <ChartDataLabel Visible="true" Position="LabelPosition.Outer">
-                            <Template>
-                                <div class="chart-value">
-                                    <b>@(Double.Parse(context.PointY.ToString()).ToString("C"))</b>
-                                </div>
-                            </Template>
-                        </ChartDataLabel>
-                    </ChartMarker>
-                </ChartSeries>
-            }
-        </ChartSeriesCollection>
-        <ChartLegendSettings Visible="true" EnableHighlight="true"></ChartLegendSettings>
-        <ChartTooltipSettings Enable="true" Shared="true">
-            <Template>
-                @{
-                    double balance = 0;
-                    double income = 0;
-                    double expense = 0;
-                    string month = "";
-                    var values = (List<ChartTooltipInfo>)context;
-                    if (values.Count > 0)
-                    {
-                        income = Double.Parse(string.IsNullOrEmpty(values[0].PointY.ToString()) ? "0" : values[0].PointY.ToString());
-                        expense = Double.Parse(string.IsNullOrEmpty(values[values.Count - 1].PointY.ToString()) ? "0" : values[values.Count - 1].PointY.ToString());
-                        balance = income - expense;
-                        month = values[0].PointX.ToString();
-                    }
+    @if (monthlyIncome.Totals.Any() || monthlyExpenses.Totals.Any())
+    {
+        <SfChart Title="Balances In Previous Months" Theme="@theme">
+            <ChartArea><ChartAreaBorder Width="0"></ChartAreaBorder></ChartArea>
+            <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category" IntervalType="IntervalType.Months" Interval="1">
+                <ChartAxisMajorGridLines Width="0"></ChartAxisMajorGridLines>
+                <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
+            </ChartPrimaryXAxis>
+            <ChartPrimaryYAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Double" Format="C">
+                <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
+                <ChartAxisLineStyle Width="0"></ChartAxisLineStyle>
+            </ChartPrimaryYAxis>
+            <ChartSeriesCollection>
+                @if (monthlyIncome != null)
+                {
+                    <ChartSeries TooltipMappingName="MappingName" DataSource="@monthlyIncome.Totals" XName="MonthName" YName="TotalAmount" Name="Income" Fill="darkgreen" ColumnSpacing="0.1" Type="ChartSeriesType.Column" BullFillColor="Blue" Visible="showIncome">
+                        <ChartMarker>
+                            <ChartDataLabel Visible="true" Position="LabelPosition.Outer">
+                                <Template>
+                                    <div class="chart-value">
+                                        <b>@(Double.Parse(context.PointY.ToString()).ToString("C"))</b>
+                                    </div>
+                                </Template>
+                            </ChartDataLabel>
+                        </ChartMarker>
+                    </ChartSeries>
                 }
-                <div class="rounded text-black" style="background-color:white">
-                    <div class="p-3">
-                        <div class="text-center">
-                            <b>@month</b>
-                        </div>
-                        <hr class="custom-hr" />
-                        <div class="mb-1" style="display:@(showIncome?"flex":"none")">
-                            <span class="dot" style="background-color:darkgreen;"></span>Income:<b>@(income.ToString("C"))</b>
-                        </div>
-                        <div class="mb-1" style="display:@(showExpenses?"flex":"none")">
-                            <span class="dot" style="background-color:darkred;"></span>Expense:<b>@(expense.ToString("C"))</b>
-                        </div>
-                        <div style="display:@(showIncome && showExpenses?"flex":"none")">
-                            <span class="dot" style="background-color:transparent;"></span>Balance:<b>@(balance.ToString("C"))</b>
+                @if (monthlyExpenses != null)
+                {
+                    <ChartSeries TooltipMappingName="MappingName" DataSource="@monthlyExpenses.Totals" XName="MonthName" YName="TotalAmount" Name="Expense" Fill="darkred" ColumnSpacing="0.1" Type="ChartSeriesType.Column" BullFillColor="Red" Visible="showExpenses">
+                        <ChartMarker>
+                            <ChartDataLabel Visible="true" Position="LabelPosition.Outer">
+                                <Template>
+                                    <div class="chart-value">
+                                        <b>@(Double.Parse(context.PointY.ToString()).ToString("C"))</b>
+                                    </div>
+                                </Template>
+                            </ChartDataLabel>
+                        </ChartMarker>
+                    </ChartSeries>
+                }
+            </ChartSeriesCollection>
+            <ChartLegendSettings Visible="true" EnableHighlight="true"></ChartLegendSettings>
+            <ChartTooltipSettings Enable="true" Shared="true">
+                <Template>
+                    @{
+                        double balance = 0.0;
+                        double income = 0.0;
+                        double expense = 0.0;
+                        string month = "";
+                        var values = (List<ChartTooltipInfo>)context;
+                        if (values.Count > 0)
+                        {
+                            var posibleIncome = values[0].PointY.ToString();
+                            income = string.IsNullOrWhiteSpace(posibleIncome) ? 0 : Double.Parse(posibleIncome);
+
+                            var posibleExpense = values[values.Count - 1].PointY.ToString();
+                            expense = string.IsNullOrWhiteSpace(posibleExpense) ? 0 : Double.Parse(posibleExpense);
+                            balance = income - expense;
+                            month = values[0].PointX.ToString() ?? "-";
+                        }
+                    }
+                    <div class="rounded text-black" style="background-color:white">
+                        <div class="p-3">
+                            <div class="text-center">
+                                <b>@month</b>
+                            </div>
+                            <hr class="custom-hr" />
+                            @if (showIncome)
+                            {
+                                <div class="mb-1">
+                                    <span class="dot" style="background-color:darkgreen;"></span>Income:<b>@(income.ToString("C"))</b>
+                                </div>
+                            }
+                            @if (showExpenses)
+                            {
+                                <div class="mb-1">
+                                    <span class="dot" style="background-color:darkred;"></span>Expense:<b>@(expense.ToString("C"))</b>
+                                </div>
+                            }
+                            @if (showIncome && showExpenses)
+                            {
+                                <div>
+                                    <span class="dot" style="background-color:transparent;"></span>Balance:<b>@(balance.ToString("C"))</b>
+                                </div>
+                            }
                         </div>
                     </div>
-                </div>
-            </Template>
-        </ChartTooltipSettings>
-    </SfChart>
+                </Template>
+            </ChartTooltipSettings>
+        </SfChart>
+    }
 </div>
