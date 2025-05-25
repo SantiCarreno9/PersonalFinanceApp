@@ -1,5 +1,8 @@
 ﻿using BaseLibrary.Helper.GET;
+using BlazorWasmAuth.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using PersonalFinanceApp.Web.Components;
 using PersonalFinanceApp.Web.Models;
 using PersonalFinanceApp.Web.Services.Contracts;
@@ -17,6 +20,10 @@ namespace PersonalFinanceApp.Web.Pages
 
         [Inject]
         public ITransactionService TransactionService { get; set; }
+        [Inject]
+        public IAccountManagement AccountManagement { get; set; }
+        [Inject]
+        public NavigationManager NavigationManager { get; set; }
 
         protected SummaryChart? summaryChart { get; set; }
         protected MonthlyStats? monthlyStats { get; set; }
@@ -26,14 +33,26 @@ namespace PersonalFinanceApp.Web.Pages
 
         protected PeriodOption periodOption = PeriodOption.Monthly;
 
-        protected DateTime oldestTransactionDate = DateTime.MinValue;
+        protected DateTime oldestTransactionDate = DateTime.Today.ToLocalTime();
         protected DateTime newestTransactionDate = DateTime.Today.ToLocalTime();
         protected TransactionsTotal? expenseTotal;
         protected TransactionsTotal? incomeTotal;
-        protected decimal balance = 0;
+        protected decimal? balance;
+        protected decimal? income;
+        protected decimal? expense;
 
         protected override async Task OnInitializedAsync()
         {
+            await base.OnInitializedAsync();
+
+            var isAuthenticated = await AccountManagement.CheckAuthenticatedAsync();
+            if (!isAuthenticated)
+            {
+                NavigationManager.NavigateTo("/login");
+                return;
+            }
+
+            DateRange.StartDate = DateTime.Today;
             DateRange.EndDate = DateTime.Today;
             var oldestTransaction = await TransactionService.GetBoundTransactionByProperty(
                 new GetBoundTransaction
@@ -51,14 +70,8 @@ namespace PersonalFinanceApp.Web.Pages
                 oldestTransactionDate = oldestTransaction.Date;
             if (newestTransaction != null)
                 newestTransactionDate = newestTransaction.Date;
+
             await ChangePeriodOption(PeriodOption.Monthly);
-
-            await base.OnInitializedAsync();
-        }
-
-        protected override void OnAfterRender(bool firstRender)
-        {
-            base.OnAfterRender(firstRender);
         }
 
         protected async Task ChangePeriodOption(PeriodOption option)
@@ -85,6 +98,8 @@ namespace PersonalFinanceApp.Web.Pages
 
         protected async Task SelectMonth(ChangeEventArgs e)
         {
+            if (e.Value == null || string.IsNullOrEmpty(e.Value.ToString()))
+                return;
             if (DateTime.TryParse(e.Value.ToString(), out DateTime selectedDate))
                 SetDatesByMonth(selectedDate);
 
@@ -101,33 +116,38 @@ namespace PersonalFinanceApp.Web.Pages
 
         protected async Task UpdateData(DateRange? dateRange = null)
         {
-            if (dateRange!=null)
+            if (dateRange != null)
             {
                 DateRange.StartDate = dateRange.StartDate;
                 DateRange.EndDate = dateRange.EndDate;
             }
 
             balance = 0;
-            if (incomeTotal != null)
-                balance = await incomeTotal.Update(new TransactionsFiltersDTO
-                {
-                    StartDate = DateRange.StartDate,
-                    EndDate = DateRange.EndDate,
-                    TransactionTypeId = (int)TransactionTypes.Income
-                });
-            if (expenseTotal != null)
-                balance -= await expenseTotal.Update(new TransactionsFiltersDTO
-                {
-                    StartDate = DateRange.StartDate,
-                    EndDate = DateRange.EndDate,
-                    TransactionTypeId = (int)TransactionTypes.Expense
-                });
+
+            expense = await TransactionService.GetTotal(new TransactionsFiltersDTO
+            {
+                StartDate = DateRange.StartDate,
+                EndDate = DateRange.EndDate,
+                TransactionTypeId = (int)TransactionTypes.Expense
+            });
+
+            income = await TransactionService.GetTotal(new TransactionsFiltersDTO
+            {
+                StartDate = DateRange.StartDate,
+                EndDate = DateRange.EndDate,
+                TransactionTypeId = (int)TransactionTypes.Income
+            });
+
+            balance = income ?? 0;
+            balance -= expense ?? 0;
 
             if (summaryChart != null)
                 await summaryChart.UpdateData(DateRange);
 
             if (monthlyStats != null)
                 await monthlyStats.UpdateData(DateRange);
+
+            //StateHasChanged();
         }
 
     }

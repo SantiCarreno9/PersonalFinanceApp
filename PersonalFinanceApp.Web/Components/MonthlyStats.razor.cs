@@ -33,17 +33,28 @@ namespace PersonalFinanceApp.Web.Components
         private MonthlyTotalResponse? monthlyExpenses;
         private MonthlyTotalResponse? monthlyIncome;
 
+        private bool isLoading = false;
+
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
-            expenseCategories = Categories.Values
-                    .Where(c => (c.TransactionTypeId != null && c.TransactionTypeId.Value == (byte)TransactionTypes.Expense));
-            incomeCategories = Categories.Values
-                    .Where(c => (c.TransactionTypeId != null && c.TransactionTypeId.Value == (byte)TransactionTypes.Income));
+        }
+
+        protected override async Task OnParametersSetAsync()
+        {
+            await base.OnParametersSetAsync();
+            if (Categories != null && Categories.Values.Count > 0)
+            {
+                expenseCategories = Categories.Values
+                       .Where(c => (c.TransactionTypeId != null && c.TransactionTypeId.Value == (byte)TransactionTypes.Expense));
+                incomeCategories = Categories.Values
+                        .Where(c => (c.TransactionTypeId != null && c.TransactionTypeId.Value == (byte)TransactionTypes.Income));
+            }
         }
 
         public async Task UpdateData(DateRange? dateRange = null)
         {
+            isLoading = true;
             if (dateRange != null)
                 Dates = dateRange;
             if (showExpenses)
@@ -53,9 +64,7 @@ namespace PersonalFinanceApp.Web.Components
                     TransactionTypeId = (int)TransactionTypes.Expense,
                     EndDate = Dates.EndDate,
                     CategoriesIds = expenseCategoriesSelect?.Value
-                }, numberOfMonths);
-                //if (monthlyExpenses != null)
-                //    monthlyExpenses.Totals = monthlyExpenses.Totals.SkipLast(1);
+                }, numberOfMonths);                
             }
 
             if (showIncome)
@@ -65,10 +74,10 @@ namespace PersonalFinanceApp.Web.Components
                     TransactionTypeId = (int)TransactionTypes.Income,
                     EndDate = Dates.EndDate,
                     CategoriesIds = incomeCategoriesSelect?.Value
-                }, numberOfMonths);
-                //if (monthlyIncome != null)
-                //    monthlyIncome.Totals = monthlyIncome.Totals.SkipLast(1);   
+                }, numberOfMonths);                
             }
+
+            isLoading = false;
         }
 
         private async Task Reset()
