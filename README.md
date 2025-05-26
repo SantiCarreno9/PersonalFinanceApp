@@ -1,4 +1,4 @@
-Personal Finance App
+# Personal Finance App
 
 A web application that helps users manage their personal finances by tracking income, expenses, and transaction categories. Built with .NET Web API, Entity Framework, and Blazor WebAssembly, and deployed using Azure and GitHub Actions for continuous integration and delivery.
 
@@ -46,3 +46,5 @@ Deployment:
 - Azure Static Web Apps
 
 - GitHub Actions CI/CD
+
+You can try it [here](https://witty-bush-0b7b2100f.5.azurestaticapps.net)
