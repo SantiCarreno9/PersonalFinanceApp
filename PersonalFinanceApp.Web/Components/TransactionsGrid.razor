@@ -13,7 +13,7 @@
                 <input class="form-check-input items-toggle" type="checkbox" @onchange="(value)=>OnTransactionSelected(context.Id,(bool)value.Value!)" />
             </div>
         </ChildContent>
-    </TemplateColumn>
+    </TemplateColumn>    
     <TemplateColumn Title="Location" Sortable="true">
         <ChildContent>
             <div @onclick="()=>OnTransactionClicked?.Invoke(context.Id)">

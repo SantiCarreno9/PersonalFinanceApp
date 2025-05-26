@@ -30,6 +30,7 @@ namespace PersonalFinanceApp.Web.Components
         protected TransactionTypes transactionType = TransactionTypes.Expense;
 
         protected bool isEditingExistingTransaction = false;
+        protected bool isLoading = false;
 
         protected override async Task OnInitializedAsync()
         {
@@ -71,20 +72,24 @@ namespace PersonalFinanceApp.Web.Components
             if (TransactionForm == null)
                 return;
 
+            isLoading = true;
             if (isEditingExistingTransaction)
             {
                 await TransactionService.UpdateTransaction(TransactionForm);
+                isLoading = false;
                 OnSuccessfullyUpdated?.Invoke(TransactionForm);
             }                
             else
             {
                 await TransactionService.CreateTransaction(TransactionForm);
+                isLoading = false;
                 OnSuccessfullySubmitted?.Invoke(TransactionForm);
             }                                        
         }
 
         public void Cancel()
         {
+            isLoading = false;
             OnCancel?.Invoke();
         }
 
