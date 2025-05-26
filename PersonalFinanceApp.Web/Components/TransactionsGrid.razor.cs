@@ -28,27 +28,25 @@ namespace PersonalFinanceApp.Web.Components
 
         private HashSet<long> selectedTransactions = new HashSet<long>();
 
-        private bool _shouldRender = true;
+        private bool _shouldRender = true;        
 
         protected override async Task OnInitializedAsync()
         {
-            await base.OnInitializedAsync();            
+            await base.OnInitializedAsync();
             TransactionItemsProvider = async req =>
             {
                 RequestHelper.SortColumn = req.SortByColumn?.Title;
                 RequestHelper.SortOrder = (req.SortByAscending ? "asc" : "desc");
                 RequestHelper.Page = (req.StartIndex / req.Count!.Value) + 1;
-                RequestHelper.PageSize = req.Count!.Value;
-
-                var simpleTransactions = await TransactionService.GetTransactions(RequestHelper);
+                RequestHelper.PageSize = req.Count!.Value;                
+                var simpleTransactions = await TransactionService.GetTransactions(RequestHelper);                
                 if ((simpleTransactions?.TotalCount != 0) != anyResultsFound)
                 {
                     anyResultsFound = !anyResultsFound;
                     StateHasChanged();
                 }
                 selectedTransactions.Clear();
-                _shouldRender = false;
-
+                _shouldRender = false;                
                 return GridItemsProviderResult.From(
                     items: simpleTransactions.Items,
                     totalItemCount: simpleTransactions.TotalCount);
@@ -87,8 +85,8 @@ namespace PersonalFinanceApp.Web.Components
 
         public async Task Update(bool goToFirstPage = true)
         {
-            _shouldRender = true;            
-            await state.SetCurrentPageIndexAsync(goToFirstPage ? 0 : state.CurrentPageIndex);            
+            _shouldRender = true;
+            await state.SetCurrentPageIndexAsync(goToFirstPage ? 0 : state.CurrentPageIndex);
         }
 
         protected override bool ShouldRender()

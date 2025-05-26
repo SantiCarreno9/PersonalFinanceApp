@@ -4,6 +4,16 @@
 @using Syncfusion.Blazor.DropDowns
 @using Syncfusion.Blazor.Navigations
 
+@if (isLoading)
+{
+    <div class="d-flex justify-content-center m-5 align-items-center">
+        <div class="spinner-border" role="status" style="width: 5rem; height: 5rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    return;
+}
+
 <EditForm Model="TransactionForm" OnValidSubmit="Submit">
     <DataAnnotationsValidator />
     <ValidationSummary />
