@@ -22,6 +22,8 @@ namespace PersonalFinanceApp.Web.Pages
         protected TransactionsGrid? TransactionsGrid { get; set; }
 
         protected TransactionsTotal? transactionsTotal;
+        protected bool showDeleteDialog = false;
+        protected int selectedTransactions = 0;
 
         protected override async Task OnInitializedAsync()
         {
@@ -80,16 +82,28 @@ namespace PersonalFinanceApp.Web.Pages
             StateHasChanged();
         }
 
-        public async Task DeleteTransactions()
+        protected async Task DeleteTransactions()
         {
-            var wasTransactionDeleted = await TransactionsGrid?.DeleteTransactions();
+            if (TransactionsGrid == null) return;
+
+            var wasTransactionDeleted = await TransactionsGrid.DeleteTransactions();
             if (wasTransactionDeleted)
+            {
                 await UpdateTotal();
+                selectedTransactions = 0;
+                showDeleteDialog = false;
+            }
         }
 
         protected void HideDialog()
         {
             shouldShowDialog = false;
+            StateHasChanged();
+        }
+
+        protected void OnTransactionSelected(int selectedTransactions)
+        {
+            this.selectedTransactions = selectedTransactions;
             StateHasChanged();
         }
     }

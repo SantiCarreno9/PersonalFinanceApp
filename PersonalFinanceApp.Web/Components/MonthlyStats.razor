@@ -2,15 +2,7 @@
 @using BaseLibrary.Entities
 @using Syncfusion.Blazor.DropDowns
 
-@if (isLoading || monthlyIncome is null || monthlyExpenses is null)
-{
-    <div class="d-flex justify-content-center m-5 align-items-center">
-        <div class="spinner-border" role="status" style="width: 5rem; height: 5rem;">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
-    return;
-}
+
 <div class="d-flex flex-column align-content-center justify-content-center">
     <div class="w-100 mb-2">
         <div class="d-flex w-100 justify-content-end">
@@ -21,11 +13,25 @@
         <div class="collapse" id="collapseFilter">
             <br>
             <div>
-                <label>
-                    <InputCheckbox DisplayName="Expenses" @bind-Value="showExpenses"></InputCheckbox>
-                    Expenses
-                </label>
-                <div class="form-floating mb-2" style="display:@(showExpenses?"flex":"none")">
+                <div>
+                    <label>
+                        Number of previous months:
+                    </label>
+                    <InputSelect class="btn btn-outline-secondary" @bind-Value="numberOfMonths">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </InputSelect>
+                </div>
+                <div class="form-check">
+                    <InputCheckbox class="form-check-input" DisplayName="Expenses" @bind-Value="showExpenses"></InputCheckbox>
+                    <label class="form-check-label">
+                        Expenses
+                    </label>
+                </div>
+                <div class="form-floating mb-2" style="display:@(showExpenses ? "flex" : "none")">
                     <SfMultiSelect TValue="int[]" AllowCustomValue="true" TItem="Category" Placeholder="e.g. Housing" Mode="@VisualMode.CheckBox"
                                    DataSource="@expenseCategories" ShowSelectAll="true" PopupHeight="350px"
                                    CssClass="form-control" ID="expenseCategoriesFilter" @ref="expenseCategoriesSelect">
@@ -35,11 +41,13 @@
                 </div>
             </div>
             <div>
-                <label>
-                    <InputCheckbox DisplayName="Income" @bind-Value="showIncome"></InputCheckbox>
-                    Income
-                </label>
-                <div class="form-floating mb-2" style="display:@(showIncome?"flex":"none")">
+                <div class="form-check">
+                    <InputCheckbox class="form-check-input" DisplayName="Income" @bind-Value="showIncome"></InputCheckbox>
+                    <label class="form-check-label">
+                        Income
+                    </label>
+                </div>
+                <div class="form-floating mb-2" style="display:@(showIncome ? "flex" : "none")">
                     <SfMultiSelect TValue="int[]" AllowCustomValue="true" TItem="Category" Placeholder="e.g. Employment" Mode="@VisualMode.CheckBox"
                                    DataSource="@incomeCategories" ShowSelectAll="true" PopupHeight="350px"
                                    CssClass="form-control" ID="incomeCategoriesFilter" @ref="incomeCategoriesSelect">
@@ -49,15 +57,51 @@
                 </div>
             </div>
             <div>
-                <button class="btn btn-outline-primary" @onclick="async()=>{await UpdateData();}">Apply</button>
+                <button class="btn btn-outline-primary" @onclick="async () => { await UpdateData(); }">Apply</button>
                 <button class="btn btn-outline-secondary" @onclick="Reset">Reset</button>
             </div>
         </div>
     </div>
-    @if (monthlyIncome.Totals.Any() || monthlyExpenses.Totals.Any())
+
+    @if (isLoading || monthlyIncome is null || monthlyExpenses is null)
     {
-        <SfChart Title="Balances In Previous Months" Theme="@theme">
-            <ChartArea><ChartAreaBorder Width="0"></ChartAreaBorder></ChartArea>
+        <div class="d-flex justify-content-center m-5 align-items-center">
+            <div class="spinner-border" role="status" style="width: 5rem; height: 5rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+    }
+    else if (monthlyIncome.Totals.Any() || monthlyExpenses.Totals.Any())
+    {
+        <div class="d-flex justify-content-center flex-column mb-3">
+            <div class="flex-fill text-center"><b>Balances In Previous Months</b></div>
+            <div>
+                <div class="rounded text-center" style="border-color:white;">
+                    <div class="p-3">
+                        <div class="text-center">
+                            <b>Average:</b>
+                        </div>
+                        @if (showIncome)
+                        {
+                            <div class="mb-1">
+                                <span class="dot" style="background-color:darkgreen;"></span>Income:<b>@(averageIncome.ToString("C"))</b>
+                            </div>
+                        }
+                        @if (showExpenses)
+                        {
+                            <div class="mb-1">
+                                <span class="dot" style="background-color:darkred;"></span>Expense:<b>@(averageExpenses.ToString("C"))</b>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <SfChart Theme="@theme">
+            <ChartArea>
+                <ChartAreaBorder Width="0"></ChartAreaBorder>
+            </ChartArea>
             <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category" IntervalType="IntervalType.Months" Interval="1">
                 <ChartAxisMajorGridLines Width="0"></ChartAxisMajorGridLines>
                 <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>

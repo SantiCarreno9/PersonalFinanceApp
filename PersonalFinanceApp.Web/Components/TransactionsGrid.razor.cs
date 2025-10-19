@@ -16,6 +16,8 @@ namespace PersonalFinanceApp.Web.Components
         public Action<long> OnTransactionClicked { get; set; }
         [Parameter]
         public Action OnTransactionsUpdate { get; set; }
+        [Parameter]
+        public Action<int> OnSelectedTransactionsChanged { get; set; }
 
         protected GridItemsProvider<TransactionDTO>? TransactionItemsProvider { get; set; }
 
@@ -27,7 +29,7 @@ namespace PersonalFinanceApp.Web.Components
         protected bool anyResultsFound = true;
 
         private HashSet<long> selectedTransactions = new HashSet<long>();
-
+        
         private bool _shouldRender = true;        
 
         protected override async Task OnInitializedAsync()
@@ -38,15 +40,15 @@ namespace PersonalFinanceApp.Web.Components
                 RequestHelper.SortColumn = req.SortByColumn?.Title;
                 RequestHelper.SortOrder = (req.SortByAscending ? "asc" : "desc");
                 RequestHelper.Page = (req.StartIndex / req.Count!.Value) + 1;
-                RequestHelper.PageSize = req.Count!.Value;                
-                var simpleTransactions = await TransactionService.GetTransactions(RequestHelper);                
+                RequestHelper.PageSize = req.Count!.Value;
+                var simpleTransactions = await TransactionService.GetTransactions(RequestHelper);
                 if ((simpleTransactions?.TotalCount != 0) != anyResultsFound)
                 {
                     anyResultsFound = !anyResultsFound;
                     StateHasChanged();
                 }
                 selectedTransactions.Clear();
-                _shouldRender = false;                
+                _shouldRender = false;
                 return GridItemsProviderResult.From(
                     items: simpleTransactions.Items,
                     totalItemCount: simpleTransactions.TotalCount);
@@ -66,8 +68,17 @@ namespace PersonalFinanceApp.Web.Components
 
         protected void OnTransactionSelected(long id, bool value)
         {
-            if (value) selectedTransactions.Add(id);
-            else selectedTransactions.Remove(id);
+            if (value)
+            {
+                if (!selectedTransactions.Contains(id))
+                    selectedTransactions.Add(id);
+            }
+            else
+            {
+                if (selectedTransactions.Contains(id))
+                    selectedTransactions.Remove(id);
+            }
+            OnSelectedTransactionsChanged?.Invoke(selectedTransactions.Count);
         }
 
         public async Task<bool> DeleteTransactions()

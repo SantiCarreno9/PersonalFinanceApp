@@ -20,6 +20,8 @@ namespace PersonalFinanceApp.Web.Components
 
         private int numberOfMonths = 5;
         private Theme theme = Theme.Bootstrap5Dark;
+        private decimal averageExpenses = 0;
+        private decimal averageIncome = 0;
 
         private IEnumerable<Category>? expenseCategories { get; set; }
         private IEnumerable<Category>? incomeCategories { get; set; }
@@ -64,7 +66,8 @@ namespace PersonalFinanceApp.Web.Components
                     TransactionTypeId = (int)TransactionTypes.Expense,
                     EndDate = Dates.EndDate,
                     CategoriesIds = expenseCategoriesSelect?.Value
-                }, numberOfMonths);                
+                }, numberOfMonths);
+                averageExpenses = monthlyExpenses != null ? monthlyExpenses.Totals.Average(x => x.TotalAmount) : 0;
             }
 
             if (showIncome)
@@ -74,7 +77,8 @@ namespace PersonalFinanceApp.Web.Components
                     TransactionTypeId = (int)TransactionTypes.Income,
                     EndDate = Dates.EndDate,
                     CategoriesIds = incomeCategoriesSelect?.Value
-                }, numberOfMonths);                
+                }, numberOfMonths);
+                averageIncome = monthlyIncome!= null ? monthlyIncome.Totals.Average(x => x.TotalAmount) : 0;
             }
 
             isLoading = false;

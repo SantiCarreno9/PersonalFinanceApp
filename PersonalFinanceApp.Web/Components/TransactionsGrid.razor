@@ -4,48 +4,48 @@
 <QuickGrid Class="table table-hover w-100 align-middle" ItemsProvider="@TransactionItemsProvider" Pagination="state" @ref=TransactionGrid>
     <TemplateColumn Class="p-0 m-0">
         <HeaderTemplate>
-            <div class="mb-1 mx-1 w-100 justify-content-center align-top">
-                <input class="form-check-input m-0" type="checkbox" id="allCheckbox" />
+            <div class="d-flex w-100 justify-content-center my-2 px-1">
+                <input class="form-check-input m-0" type="checkbox" id="allCheckbox" value="@selectedTransactions.Count>0" />
             </div>
         </HeaderTemplate>
         <ChildContent>
             <div class="d-flex w-100 justify-content-center my-2 px-1">
-                <input class="form-check-input items-toggle" type="checkbox" @onchange="(value)=>OnTransactionSelected(context.Id,(bool)value.Value!)" />
+                <input class="form-check-input items-toggle" type="checkbox" @onchange="(value) => OnTransactionSelected(context.Id, (bool)value.Value)" />
             </div>
         </ChildContent>
-    </TemplateColumn>    
+    </TemplateColumn>
     <TemplateColumn Title="Location" Sortable="true">
         <ChildContent>
-            <div @onclick="()=>OnTransactionClicked?.Invoke(context.Id)">
+            <div @onclick="() => OnTransactionClicked?.Invoke(context.Id)">
                 @context.Location
             </div>
         </ChildContent>
     </TemplateColumn>
     <TemplateColumn Title="Date" Sortable="true">
-        <div @onclick="()=>OnTransactionClicked?.Invoke(context.Id)">
+        <div @onclick="() => OnTransactionClicked?.Invoke(context.Id)">
             @context.Date.ToString("MMM dd, yyyy")
         </div>
     </TemplateColumn>
     <TemplateColumn Title="Payment Method" Sortable="true">
-        <div @onclick="()=>OnTransactionClicked?.Invoke(context.Id)">
+        <div @onclick="() => OnTransactionClicked?.Invoke(context.Id)">
             @GetPaymentMethod(@context.PaymentMethodId)
         </div>
     </TemplateColumn>
     <TemplateColumn Title="Category" Sortable="true">
-        <div @onclick="()=>OnTransactionClicked?.Invoke(context.Id)">
+        <div @onclick="() => OnTransactionClicked?.Invoke(context.Id)">
             @GetCategoryName(@context.CategoryId)
         </div>
     </TemplateColumn>
     @if (currentTransactionType == TransactionTypes.All)
     {
         <TemplateColumn Title="Type">
-            <div @onclick="()=>OnTransactionClicked?.Invoke(context.Id)">
+            <div @onclick="() => OnTransactionClicked?.Invoke(context.Id)">
                 @(context.TransactionTypeId == (byte)TransactionTypes.Expense ? "Expense" : "Income")
             </div>
         </TemplateColumn>
     }
     <TemplateColumn Title="Amount" Sortable="true">
-        <div @onclick="()=>OnTransactionClicked?.Invoke(context.Id)">
+        <div @onclick="() => OnTransactionClicked?.Invoke(context.Id)">
             @context.TotalAmount.ToString("C")
         </div>
     </TemplateColumn>
@@ -57,7 +57,6 @@
 <Paginator State="state"></Paginator>
 
 <script>
-    const deleteButton = document.getElementById('deleteButton');
 
     $(document).on('change', 'input[type="checkbox"]', function (e) {
         const checked = $(this).prop("checked");
@@ -73,7 +72,6 @@
                 $(checkboxes[i]).trigger('change');
             }
 
-            deleteButton.disabled = !checked;
             return;
         }
 
@@ -87,7 +85,6 @@
         const allchecked = (checkedCheckboxesCount === allCheckboxesCount);
         $('#allCheckbox').prop("checked", allchecked);
         $('#allCheckbox').prop("indeterminate", indeterminate);
-        deleteButton.disabled = !(indeterminate || allchecked);
     });
 
 </script>

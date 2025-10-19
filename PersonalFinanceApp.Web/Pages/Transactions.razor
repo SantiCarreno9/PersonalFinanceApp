@@ -28,21 +28,21 @@
             </div>
             <div class="collapse" id="collapseFilter">
                 <br>
-                <TransactionsFilter Type="currentTransactionType" RequestHelper="RequestHelper" Categories="Categories" PaymentMethods="PaymentMethods" TransactionService="TransactionService" OnSearch="async()=>{await OnFiltersUpdated();}"></TransactionsFilter>
+                <TransactionsFilter Type="currentTransactionType" RequestHelper="RequestHelper" Categories="Categories" PaymentMethods="PaymentMethods" TransactionService="TransactionService" OnSearch="async () => { await OnFiltersUpdated(); }"></TransactionsFilter>
             </div>
             <br />
             <ul class="nav nav-tabs">
                 <li class="nav-item">
-                    <a class="nav-link @(currentTransactionType==TransactionTypes.Expense?"active":"")" aria-current="page" href="#"
-                    @onclick:preventDefault @onclick="async()=>await OnTabSelected(TransactionTypes.Expense)">Expenses</a>
+                    <a class="nav-link @(currentTransactionType == TransactionTypes.Expense ? "active" : "")" aria-current="page" href="#"
+                       @onclick:preventDefault @onclick="async () => await OnTabSelected(TransactionTypes.Expense)">Expenses</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @(currentTransactionType==TransactionTypes.Income?"active":"")" aria-current="page" href="#"
-                    @onclick:preventDefault @onclick="async()=>await OnTabSelected(TransactionTypes.Income)">Income</a>
+                    <a class="nav-link @(currentTransactionType == TransactionTypes.Income ? "active" : "")" aria-current="page" href="#"
+                       @onclick:preventDefault @onclick="async () => await OnTabSelected(TransactionTypes.Income)">Income</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @(currentTransactionType==TransactionTypes.All?"active":"")" aria-current="page" href="#"
-                    @onclick:preventDefault @onclick="async()=>await OnTabSelected(TransactionTypes.All)">All</a>
+                    <a class="nav-link @(currentTransactionType == TransactionTypes.All ? "active" : "")" aria-current="page" href="#"
+                       @onclick:preventDefault @onclick="async () => await OnTabSelected(TransactionTypes.All)">All</a>
                 </li>
             </ul>
 
@@ -54,13 +54,13 @@
                             <TransactionsTotal Filters="RequestHelper" TransactionService="TransactionService" @ref="transactionsTotal"></TransactionsTotal>
                         </h5>
                     </div>
-                    <button id="deleteButton" @onclick="DeleteTransactions" class="btn btn-outline-light" disabled>
+                    <button id="deleteButton" @onclick="(value) => { showDeleteDialog = true; }" class="btn btn-outline-light" @attributes='(selectedTransactions > 0 ? null : new Dictionary<string, object>() { { "disabled", "" } })'>
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </div>
                 <div style="overflow-x:scroll;">
-                    <TransactionsGrid TransactionService="TransactionService" RequestHelper="RequestHelper" OnTransactionClicked="async(id)=>await DisplayTransaction(id)"
-                    OnTransactionsUpdate="async()=>await UpdateTotal()" @ref="TransactionsGrid"></TransactionsGrid>                                       
+                    <TransactionsGrid TransactionService="TransactionService" RequestHelper="RequestHelper" OnTransactionClicked="async (id) => await DisplayTransaction(id)"
+                                      OnTransactionsUpdate="async()=>await UpdateTotal()" OnSelectedTransactionsChanged="OnTransactionSelected" @ref="TransactionsGrid"></TransactionsGrid>
                 </div>
             </div>
 
@@ -76,6 +76,23 @@
                 </DialogTemplates>
                 <DialogEvents OnClose="HideDialog"></DialogEvents>
             </SfDialog>
+
+            <SfDialog Width="500px" EnableResize="false" ShowCloseIcon="false" IsModal @bind-Visible=showDeleteDialog>
+                <DialogTemplates>
+                    <Header>
+                        @(selectedTransactions > 1 ? "Delete Transaction" : "Delete Transactions")
+                    </Header>
+                    <Content>
+                        Do you want to delete @(selectedTransactions > 1 ? "these transactions?" : "this transaction?")
+                    </Content>
+                </DialogTemplates>
+                <DialogButtons>
+                    <DialogButton CssClass="e-danger" OnClick="DeleteTransactions" Content="Delete">
+                    </DialogButton>
+                    <DialogButton OnClick="(value) => { showDeleteDialog = false; }" Content="Cancel">
+                    </DialogButton>
+                </DialogButtons>
+            </SfDialog>            
         </Authorized>
     </AuthorizeView>
 </div>
