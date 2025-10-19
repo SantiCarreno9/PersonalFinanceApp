@@ -87,7 +87,7 @@ namespace PersonalFinanceApp.Web.Pages
         protected async void OnTransactionAdded(TransactionDTO transactionDTO)
         {
             HideDialog();
-            transactionsGrid?.Update();
+            transactionsGrid?.Update(false);
             transactionsGrid?.DeselectTransactions();
             selectedTransactionsCount = 0;
             StateHasChanged();
