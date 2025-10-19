@@ -20,6 +20,8 @@ namespace PersonalFinanceApp.Web.Components
         public Action<TransactionDTO>? OnSuccessfullyUpdated { get; set; }
         [Parameter]
         public Action? OnCancel { get; set; }
+        [Parameter]
+        public bool IsEditingExistingTransaction { get; set; }
 
         [SupplyParameterFromForm]
         public TransactionDTO? TransactionForm { get; set; }
@@ -29,7 +31,7 @@ namespace PersonalFinanceApp.Web.Components
         protected IEnumerable<Category>? categoriesByTransactionType { get; set; }
         protected TransactionTypes transactionType = TransactionTypes.Expense;
 
-        protected bool isEditingExistingTransaction = false;
+        
         protected bool isLoading = false;
 
         protected override async Task OnInitializedAsync()
@@ -54,14 +56,14 @@ namespace PersonalFinanceApp.Web.Components
                 TransactionForm.TotalAmount = Transaction.TotalAmount;
                 TransactionForm.Location = Transaction.Location;
                 TransactionForm.TransactionDetails = Transaction.TransactionDetails;
-                isEditingExistingTransaction = true;
+                //IsEditingExistingTransaction = true;
             }
             else
             {
                 TransactionForm = new();                
                 TransactionForm.Date = DateTime.Today.ToLocalTime();
                 TransactionForm.TransactionDetails = [new TransactionDetailDTO()];
-                isEditingExistingTransaction = false;                
+                //IsEditingExistingTransaction = false;                
             }
             OnTransactionTypeChanged(TransactionForm.TransactionTypeId);
             return base.OnParametersSetAsync();
@@ -73,7 +75,7 @@ namespace PersonalFinanceApp.Web.Components
                 return;
 
             isLoading = true;
-            if (isEditingExistingTransaction)
+            if (IsEditingExistingTransaction)
             {
                 await TransactionService.UpdateTransaction(TransactionForm);
                 isLoading = false;

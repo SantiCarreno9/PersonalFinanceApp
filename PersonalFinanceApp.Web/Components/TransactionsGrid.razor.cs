@@ -28,9 +28,9 @@ namespace PersonalFinanceApp.Web.Components
         protected QuickGrid<TransactionDTO>? TransactionGrid { get; set; }
         protected bool anyResultsFound = true;
 
-        private HashSet<long> selectedTransactions = new HashSet<long>();
-        
-        private bool _shouldRender = true;        
+        public HashSet<long> selectedTransactions { get; private set; } = new HashSet<long>();
+
+        private bool _shouldRender = true;
 
         protected override async Task OnInitializedAsync()
         {
@@ -98,6 +98,12 @@ namespace PersonalFinanceApp.Web.Components
         {
             _shouldRender = true;
             await state.SetCurrentPageIndexAsync(goToFirstPage ? 0 : state.CurrentPageIndex);
+        }
+
+        public void DeselectTransactions()
+        {
+            selectedTransactions.Clear();
+            StateHasChanged();
         }
 
         protected override bool ShouldRender()

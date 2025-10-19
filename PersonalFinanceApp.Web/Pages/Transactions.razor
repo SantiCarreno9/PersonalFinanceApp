@@ -54,13 +54,18 @@
                             <TransactionsTotal Filters="RequestHelper" TransactionService="TransactionService" @ref="transactionsTotal"></TransactionsTotal>
                         </h5>
                     </div>
-                    <button id="deleteButton" @onclick="(value) => { showDeleteDialog = true; }" class="btn btn-outline-light" @attributes='(selectedTransactions > 0 ? null : new Dictionary<string, object>() { { "disabled", "" } })'>
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
+                    <div>
+                        <button id="duplicateButton" @onclick="DuplicateTransactionBtn_Clicked" class="btn btn-outline-light" @attributes='(selectedTransactionsCount == 1 ? null : new Dictionary<string, object>() { { "disabled", "" } })'>
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                        <button id="deleteButton" @onclick="(value) => { showDeleteDialog = true; }" class="btn btn-outline-light" @attributes='(selectedTransactionsCount > 0 ? null : new Dictionary<string, object>() { { "disabled", "" } })'>
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
                 </div>
                 <div style="overflow-x:scroll;">
-                    <TransactionsGrid TransactionService="TransactionService" RequestHelper="RequestHelper" OnTransactionClicked="async (id) => await DisplayTransaction(id)"
-                                      OnTransactionsUpdate="async()=>await UpdateTotal()" OnSelectedTransactionsChanged="OnTransactionSelected" @ref="TransactionsGrid"></TransactionsGrid>
+                    <TransactionsGrid TransactionService="TransactionService" RequestHelper="RequestHelper" OnTransactionClicked="OnTransactionClicked"
+                                      OnTransactionsUpdate="async()=>await UpdateTotal()" OnSelectedTransactionsChanged="OnTransactionSelected" @ref="transactionsGrid"></TransactionsGrid>
                 </div>
             </div>
 
@@ -70,7 +75,7 @@
                         @(CurrentTransaction == null ? "Add Transaction" : "Edit Transaction")
                     </Header>
                     <Content>
-                        <TransactionEditor Transaction="@CurrentTransaction" OnSuccessfullySubmitted="OnTransactionAdded"
+                        <TransactionEditor Transaction="@CurrentTransaction" OnSuccessfullySubmitted="OnTransactionAdded" IsEditingExistingTransaction="isEditingExistingTransaction"
                                            OnSuccessfullyUpdated="OnTransactionUpdated" OnCancel="HideDialog"></TransactionEditor>
                     </Content>
                 </DialogTemplates>
@@ -80,10 +85,10 @@
             <SfDialog Width="500px" EnableResize="false" ShowCloseIcon="false" IsModal @bind-Visible=showDeleteDialog>
                 <DialogTemplates>
                     <Header>
-                        @(selectedTransactions > 1 ? "Delete Transaction" : "Delete Transactions")
+                        @(selectedTransactionsCount > 1 ? "Delete Transaction" : "Delete Transactions")
                     </Header>
                     <Content>
-                        Do you want to delete @(selectedTransactions > 1 ? "these transactions?" : "this transaction?")
+                        Do you want to delete @(selectedTransactionsCount > 1 ? "these transactions?" : "this transaction?")
                     </Content>
                 </DialogTemplates>
                 <DialogButtons>
@@ -92,7 +97,7 @@
                     <DialogButton OnClick="(value) => { showDeleteDialog = false; }" Content="Cancel">
                     </DialogButton>
                 </DialogButtons>
-            </SfDialog>            
+            </SfDialog>
         </Authorized>
     </AuthorizeView>
 </div>
