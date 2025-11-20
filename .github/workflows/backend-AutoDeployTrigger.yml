@@ -6,6 +6,8 @@ name: Build and deploy Backend
 on:
   workflow_dispatch:
   push:
+    branches:
+      - master
     paths:
       - 'PersonalFinanceApp.Api/**'
       - '.github/workflows/backend-AutoDeployTrigger.yml'
@@ -45,3 +47,4 @@ jobs:
           slot-name: 'Production'
           package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}      
+
