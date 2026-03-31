@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PersonalFinanceApp.Web;
+using PersonalFinanceApp.Web.Identity;
 using PersonalFinanceApp.Web.Services.Contracts;
 using PersonalFinanceApp.Web.Services.Implementations;
 using Syncfusion.Blazor;
@@ -26,7 +27,8 @@ builder.Services.AddMemoryCache();
 builder.Services.AddAuthorizationCore();
 
 // register the custom state provider
-builder.Services.AddScoped<AuthenticationStateProvider, CookieAuthenticationStateProvider>();
+//builder.Services.AddScoped<AuthenticationStateProvider, CookieAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
 
 // register the account management interface
 builder.Services.AddScoped(
