@@ -24,7 +24,7 @@ namespace PersonalFinanceApp.Web.Components
         private string sortOrder = "desc";
         private string sortProperty = "amount";
         private int page = 1;
-        private int pageSize = 10;
+        private int pageSize = 20;
         private TransactionTypes transactionType = TransactionTypes.Expense;
         private decimal amountToSubtract = 0;
         private decimal totalAmount = 0;

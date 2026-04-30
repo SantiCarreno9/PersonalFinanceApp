@@ -1,8 +1,6 @@
 ﻿using BaseLibrary.Helper.GET;
 using BlazorWasmAuth.Identity;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
 using PersonalFinanceApp.Web.Components;
 using PersonalFinanceApp.Web.Models;
 using PersonalFinanceApp.Web.Services.Contracts;

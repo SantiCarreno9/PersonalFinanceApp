@@ -27,8 +27,8 @@ builder.Services.AddMemoryCache();
 builder.Services.AddAuthorizationCore();
 
 // register the custom state provider
-//builder.Services.AddScoped<AuthenticationStateProvider, CookieAuthenticationStateProvider>();
-builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, CookieAuthenticationStateProvider>();
+//builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
 
 // register the account management interface
 builder.Services.AddScoped(

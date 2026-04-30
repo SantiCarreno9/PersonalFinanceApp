@@ -46,13 +46,13 @@ namespace PersonalFinanceApp.Api.Extensions
             var guestDbContext = sp.GetRequiredService<GuestDbContext>();
             await guestDbContext.Database.ExecuteSqlRawAsync("DELETE FROM Transactions");
             //await guestDbContext.Database.ExecuteSqlRawAsync("DELETE FROM sqlite_sequence WHERE name = 'Transactions'");
-
+            int year = DateTime.Now.Year;
             var dummyTransactions = new Transaction[]
                 {
-                    //2024-05-01 - DONE
+                    //year-1-05-01 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,05,01),
+                        Date= new DateTime(year,05,01),
                         Location="Home",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.Cash,
@@ -67,7 +67,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,05,01),
+                        Date= new DateTime(year,05,01),
                         Location="Home",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.Cash,
@@ -82,7 +82,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,03,01),
+                        Date= new DateTime(year,03,01),
                         Location="Home",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.Cash,
@@ -97,7 +97,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,02,01),
+                        Date= new DateTime(year,02,01),
                         Location="Home",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.Cash,
@@ -112,7 +112,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,01,01),
+                        Date= new DateTime(year,01,01),
                         Location="Home",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.Cash,
@@ -127,7 +127,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2024,12,01),
+                        Date= new DateTime(year-1,12,01),
                         Location="Home",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.Cash,
@@ -142,7 +142,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2024,11,01),
+                        Date= new DateTime(year-1,11,01),
                         Location="Home",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.Cash,
@@ -157,7 +157,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,03,01),
+                        Date= new DateTime(year,03,01),
                         Location="Comcel",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -173,7 +173,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,05,01),
+                        Date= new DateTime(year,05,01),
                         Location="Comcel",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -189,7 +189,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,04,01),
+                        Date= new DateTime(year,04,01),
                         Location="Dollar Flower",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.Cash,
@@ -203,10 +203,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-02 - DONE
+                    //year-05-02 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,03,02),
+                        Date= new DateTime(year,03,02),
                         Location="Dollar Store",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.DebitCard,
@@ -220,10 +220,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-04 - DONE
+                    //year-05-04 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,02,04),
+                        Date= new DateTime(year,02,04),
                         Location="Dollar Store",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -237,10 +237,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-06 - DONE
+                    //year-05-06 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,01,06),
+                        Date= new DateTime(year,01,06),
                         Location="Supercenter",
                         TotalAmount=40.45M,
                         TransactionTypeId = (int)TransactionTypes.Expense,
@@ -263,7 +263,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,05,06),
+                        Date= new DateTime(year,05,06),
                         Location="Meal Basics",
                         TotalAmount=14.36M,
                         TransactionTypeId = (int)TransactionTypes.Expense,
@@ -284,10 +284,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-07 - DONE
+                    //year-05-07 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,04,07),
+                        Date= new DateTime(year,04,07),
                         Location="Meal Basics",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -303,7 +303,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,03,07),
+                        Date= new DateTime(year,03,07),
                         Location="Your Laundromat",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.Cash,
@@ -318,7 +318,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,02,07),
+                        Date= new DateTime(year,02,07),
                         Location="Amazon",
                         TotalAmount=45.49M,
                         TransactionTypeId = (int)TransactionTypes.Expense,
@@ -339,10 +339,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-09 - DONE
+                    //year-05-09 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,01,09),
+                        Date= new DateTime(year,01,09),
                         Location="Your Food Market",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.DebitCard,
@@ -358,7 +358,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,05,09),
+                        Date= new DateTime(year,05,09),
                         Location="Dollar Store",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -374,7 +374,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,04,09),
+                        Date= new DateTime(year,04,09),
                         Location="Larkin-Gerlach",
                         TransactionTypeId = (int)TransactionTypes.Income,
                         PaymentMethodId = (int)PaymentMethods.Deposit,
@@ -387,10 +387,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-12 - DONE
+                    //year-05-12 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,03,12),
+                        Date= new DateTime(year,03,12),
                         Location="Dollar Store",
                         TotalAmount=12.11M,
                         TransactionTypeId = (int)TransactionTypes.Expense,
@@ -419,7 +419,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,02,12),
+                        Date= new DateTime(year,02,12),
                         Location="W&A",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -433,10 +433,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-14 - DONE
+                    //year-05-14 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,01,14),
+                        Date= new DateTime(year,01,14),
                         Location="House Must Haves",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.DebitCard,
@@ -452,7 +452,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,05,14),
+                        Date= new DateTime(year,05,14),
                         Location="Dollar Store",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.DebitCard,
@@ -468,7 +468,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,04,14),
+                        Date= new DateTime(year,04,14),
                         Location="Your Laundromat",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.Cash,
@@ -481,10 +481,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-15 - DONE
+                    //year-05-15 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,03,15),
+                        Date= new DateTime(year,03,15),
                         Location="Supercenter",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -500,7 +500,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,02,15),
+                        Date= new DateTime(year,02,15),
                         Location="CanadaBank",
                         TransactionTypeId = (int)TransactionTypes.Income,
                         PaymentMethodId = (int)PaymentMethods.Deposit,
@@ -514,10 +514,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-17 - DONE
+                    //year-05-17 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,01,17),
+                        Date= new DateTime(year,01,17),
                         Location="Dollar Store",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.DebitCard,
@@ -531,10 +531,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },                    
-                    //2025-05-18 - DONE
+                    //year-05-18 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,03,18),
+                        Date= new DateTime(year,03,18),
                         Location="Dollar Flower",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.DebitCard,
@@ -550,7 +550,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,02,18),
+                        Date= new DateTime(year,02,18),
                         Location="bb.q Chicken",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.DebitCard,
@@ -564,10 +564,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-19 - DONE
+                    //year-05-19 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,01,19),
+                        Date= new DateTime(year,01,19),
                         Location="Giant Puma",
                         TotalAmount=13.79M,
                         TransactionTypeId = (int)TransactionTypes.Expense,
@@ -590,7 +590,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,05,19),
+                        Date= new DateTime(year,05,19),
                         Location="Grocery Store",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -606,7 +606,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,04,19),
+                        Date= new DateTime(year,04,19),
                         Location="Dollar Store",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.DebitCard,
@@ -622,7 +622,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,03,19),
+                        Date= new DateTime(year,03,19),
                         Location="Your Laundromat",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.Cash,
@@ -635,10 +635,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-21 - DONE
+                    //year-05-21 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,02,21),
+                        Date= new DateTime(year,02,21),
                         Location="Meal Basics",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -654,7 +654,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,01,21),
+                        Date= new DateTime(year,01,21),
                         Location="Dollar Store",
                         TotalAmount=6.78M,
                         TransactionTypeId = (int)TransactionTypes.Expense,
@@ -677,7 +677,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,05,21),
+                        Date= new DateTime(year,05,21),
                         Location="Regalo",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.DebitCard,
@@ -691,10 +691,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-22 - DONE
+                    //year-05-22 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,04,22),
+                        Date= new DateTime(year,04,22),
                         Location="Meal Basics",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -708,10 +708,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-23 - DONE
+                    //year-05-23 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,03,23),
+                        Date= new DateTime(year,03,23),
                         Location="Dollar Store",
                         TotalAmount=9.32M,
                         TransactionTypeId = (int)TransactionTypes.Expense,
@@ -740,7 +740,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,02,23),
+                        Date= new DateTime(year,02,23),
                         Location="Regalo",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.DirectDebit,
@@ -756,7 +756,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,01,23),
+                        Date= new DateTime(year,01,23),
                         Location="Larkin-Gerlach",
                         TransactionTypeId = (int)TransactionTypes.Income,
                         PaymentMethodId = (int)PaymentMethods.Deposit,
@@ -771,7 +771,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,03,23),
+                        Date= new DateTime(year,03,23),
                         Location="Larkin-Gerlach",
                         TransactionTypeId = (int)TransactionTypes.Income,
                         PaymentMethodId = (int)PaymentMethods.Deposit,
@@ -786,7 +786,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2024,12,23),
+                        Date= new DateTime(year-1,12,23),
                         Location="Larkin-Gerlach",
                         TransactionTypeId = (int)TransactionTypes.Income,
                         PaymentMethodId = (int)PaymentMethods.Deposit,
@@ -801,7 +801,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2024,11,23),
+                        Date= new DateTime(year-1,11,23),
                         Location="Larkin-Gerlach",
                         TransactionTypeId = (int)TransactionTypes.Income,
                         PaymentMethodId = (int)PaymentMethods.Deposit,
@@ -814,10 +814,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-24 - DONE                    
+                    //year-05-24 - DONE                    
                     new Transaction
                     {
-                        Date= new DateTime(2025,05,24),
+                        Date= new DateTime(year,05,24),
                         Location="Regalo",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -833,7 +833,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,04,24),
+                        Date= new DateTime(year,04,24),
                         Location="Meal Basics",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -847,10 +847,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-25 - DONE
+                    //year-05-25 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,03,25),
+                        Date= new DateTime(year,03,25),
                         Location="Supercenter",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -866,7 +866,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,02,25),
+                        Date= new DateTime(year,02,25),
                         Location="The Transit",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -882,7 +882,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,01,25),
+                        Date= new DateTime(year,01,25),
                         Location="Nakamori",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -898,7 +898,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,05,25),
+                        Date= new DateTime(year,05,25),
                         Location="Regalo",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.DebitCard,
@@ -912,10 +912,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-26 - DONE
+                    //year-05-26 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,04,26),
+                        Date= new DateTime(year,04,26),
                         Location="Dollar Store",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.DebitCard,
@@ -931,7 +931,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,03,26),
+                        Date= new DateTime(year,03,26),
                         Location="Fusion Wrap",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -947,7 +947,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,02,26),
+                        Date= new DateTime(year,02,26),
                         Location="Beaver Tail",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -963,7 +963,7 @@ namespace PersonalFinanceApp.Api.Extensions
                     },
                     new Transaction
                     {
-                        Date= new DateTime(2025,01,26),
+                        Date= new DateTime(year,01,26),
                         Location="Downhill Hot Dogs",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.CreditCard,
@@ -977,10 +977,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-27 - DONE
+                    //year-05-27 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,05,27),
+                        Date= new DateTime(year,05,27),
                         Location="Dollar Store",
                         TotalAmount=6.27M,
                         TransactionTypeId = (int)TransactionTypes.Expense,
@@ -1001,10 +1001,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-28 - DONE
+                    //year-05-28 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,04,28),
+                        Date= new DateTime(year,04,28),
                         Location="Dollar Flower",
                         TransactionTypeId = (int)TransactionTypes.Expense,
                         PaymentMethodId = (int)PaymentMethods.DebitCard,
@@ -1018,10 +1018,10 @@ namespace PersonalFinanceApp.Api.Extensions
                             }
                         }
                     },
-                    //2025-05-30 - DONE
+                    //year-05-30 - DONE
                     new Transaction
                     {
-                        Date= new DateTime(2025,03,30),
+                        Date= new DateTime(year,03,30),
                         Location="Dollar Store",
                         TotalAmount=8.22M,
                         TransactionTypeId = (int)TransactionTypes.Expense,

@@ -319,14 +319,14 @@ namespace PersonalFinanceApp.Web.Identity
             catch (Exception ex)
             {
 
-                //if (ex is HttpRequestException)
-                //{
-                //    string refreshToken = await GetTokenInfo(_refreshTokenName);
-                //    if (refreshToken != null)
-                //    {
-                //        await RefreshLoginAsync(refreshToken);
-                //    }
-                //}
+                if (ex is HttpRequestException)
+                {
+                    string refreshToken = await GetTokenInfo(_refreshTokenName);
+                    if (refreshToken != null)
+                    {
+                        await RefreshLoginAsync(refreshToken);
+                    }
+                }
             }
 
             // return the state
