@@ -12,6 +12,7 @@ namespace PersonalFinanceApp.Web.Pages
         public enum PeriodOption
         {
             AllTime,
+            Yearly,
             Monthly,
             Custom
         }
@@ -38,6 +39,8 @@ namespace PersonalFinanceApp.Web.Pages
         protected decimal? balance;
         protected decimal? income;
         protected decimal? expense;
+        protected string selectedYear = "";
+        protected int[] years;
 
         protected override async Task OnInitializedAsync()
         {
@@ -68,6 +71,11 @@ namespace PersonalFinanceApp.Web.Pages
                 oldestTransactionDate = oldestTransaction.Date;
             if (newestTransaction != null)
                 newestTransactionDate = newestTransaction.Date;
+            years = new int[newestTransactionDate.Date.Year - oldestTransactionDate.Year + 1];
+            for (int i = 0; i < years.Length; i++)
+            {
+                years[i] = newestTransactionDate.Year - i;
+            }
 
             await ChangePeriodOption(PeriodOption.Monthly);
         }
@@ -83,6 +91,9 @@ namespace PersonalFinanceApp.Web.Pages
                     break;
                 case PeriodOption.Monthly:
                     SetDatesByMonth(DateRange.EndDate);
+                    break;
+                case PeriodOption.Yearly:
+                    SetDatesByYear(DateRange.EndDate.Year);
                     break;
                 case PeriodOption.Custom:
                     EditableDateRange.StartDate = DateRange.StartDate;
@@ -104,10 +115,26 @@ namespace PersonalFinanceApp.Web.Pages
             await UpdateData();
         }
 
+        protected async Task SelectYear(ChangeEventArgs e)
+        {
+            if (e.Value == null || string.IsNullOrEmpty(e.Value.ToString()))
+                return;
+            if (int.TryParse(e.Value.ToString(), out int year))
+                SetDatesByYear(year);
+
+            await UpdateData();
+        }
+
         protected void SetDatesByMonth(DateTime date)
         {
             DateRange.StartDate = new DateTime(date.Year, date.Month, 1);
             DateRange.EndDate = new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month));
+        }
+
+        protected void SetDatesByYear(int year)
+        {
+            DateRange.StartDate = new DateTime(year, 1, 1);
+            DateRange.EndDate = (year == DateTime.Now.Year) ? DateTime.Now : new DateTime(year, 12, 31);
         }
 
         protected string GetFormattedDate(DateTime date) => date.ToString("yyyy-MM-dd");

@@ -27,7 +27,7 @@ namespace PersonalFinanceApp.Web.Components
         private int pageSize = 20;
         private TransactionTypes transactionType = TransactionTypes.Expense;
         private decimal amountToSubtract = 0;
-        private decimal totalAmount = 0;
+        private decimal totalAmount = 0;        
 
         protected override void OnAfterRender(bool firstRender)
         {
