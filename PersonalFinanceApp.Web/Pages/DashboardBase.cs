@@ -133,7 +133,7 @@ namespace PersonalFinanceApp.Web.Pages
 
         protected void SetDatesByYear(int year)
         {
-            DateRange.StartDate = new DateTime(year, 1, 1);
+            DateRange.StartDate = (year == oldestTransactionDate.Year) ? oldestTransactionDate : new DateTime(year, 1, 1);
             DateRange.EndDate = (year == DateTime.Now.Year) ? DateTime.Now : new DateTime(year, 12, 31);
         }
 
