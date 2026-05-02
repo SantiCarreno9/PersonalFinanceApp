@@ -1,64 +1,53 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using PersonalFinanceApp.Api.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi;
+using PersonalFinanceApp.Api.Database;
 using PersonalFinanceApp.Api.Extensions;
+using PersonalFinanceApp.Api.Features.Users.Extensions;
 using PersonalFinanceApp.Api.Middleware;
-using PersonalFinanceApp.Api.Repositories.Contracts;
-using PersonalFinanceApp.Api.Repositories.Implementations;
-using Swashbuckle.AspNetCore.Filters;
+using Serilog;
+using SharedKernel.Application;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
+
+//builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddEndpoints();
+builder.Services.AddCommandQueryHandler().AddApplicationDecorators();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    options.CustomSchemaIds(id => id.FullName!.Replace('+', '-'));
+    var securityScheme = new OpenApiSecurityScheme
     {
+        Name = "JWT Authentication",
+        Description = "Enter your JWT token in this field",
         In = ParameterLocation.Header,
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
+        Type = SecuritySchemeType.Http,
+        Scheme = JwtBearerDefaults.AuthenticationScheme,
+        BearerFormat = "JWT"
+    };
+    options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, securityScheme);
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-{
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
-        new OpenApiSecurityScheme
-        {
-            Name = "Bearer",
-            In = ParameterLocation.Header,
-            Reference = new OpenApiReference
-            {
-                Id = "Bearer",
-                Type = ReferenceType.SecurityScheme
-            }
-        },
-        new List<string>()
-    }
-});
-    options.OperationFilter<SecurityRequirementsOperationFilter>();
+        [new OpenApiSecuritySchemeReference(JwtBearerDefaults.AuthenticationScheme, document)] = []
+    });
+    
 });
 
-//DI
-
-builder.Services.AddDbContext<AppDbContext>(option =>
-    option.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection") ??
-        throw new InvalidOperationException("Connection string not found")));
-
-builder.Services.AddDbContext<GuestDbContext>(option =>
-    option.UseSqlite(builder.Configuration.GetConnectionString("GuestSqliteConnection") ??
-        throw new InvalidOperationException("Connection string not found")));
-
-builder.Services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
-
-builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
-builder.Services.AddScoped<IMetadataRepository, MetadataRepository>();
+builder.Services.AddDatabaseConfiguration(builder.Configuration);
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.HttpOnly = true;
+});
+builder.Services.AddAuthorization().AddAuthenticationProvider(builder.Configuration);
 
 builder.Services.AddCors(
     options => options.AddPolicy(
@@ -69,18 +58,7 @@ builder.Services.AddCors(
             .AllowAnyHeader()
             .AllowCredentials()));
 
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.Cookie.SameSite = SameSiteMode.None;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.HttpOnly = true;
-});
-builder.Services.AddAuthorization();
-
-builder.Services.AddIdentityApiEndpoints<IdentityUser>()
-    .AddEntityFrameworkStores<AppDbContext>();
-
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
@@ -88,15 +66,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//using (var scope = app.Services.CreateScope())
-//{
-//    var services = scope.ServiceProvider;
+using (IServiceScope scope = app.Services.CreateScope())
+{
+    IServiceProvider services = scope.ServiceProvider;
 
-//    var context = services.GetRequiredService<AppDbContext>();
-//    DbInitializer.Initialize(context);
-//}
-
-app.MapIdentityApi<IdentityUser>();
+    ApplicationDbContext context = services.GetRequiredService<ApplicationDbContext>();
+    if (context != null)
+    {
+        //await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureCreatedAsync();
+    }    
+}
 
 app.UseHttpsRedirection();
 
@@ -105,21 +85,10 @@ app.UseCors("wasm");
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+//app.MapControllers();
 
-app.MapPost("/logout", async (SignInManager<IdentityUser> signInManager, [FromBody] object empty) =>
-{
-    if (empty is not null)
-    {
-        await signInManager.SignOutAsync();
-
-        return Results.Ok();
-    }
-
-    return Results.Unauthorized();
-}).RequireAuthorization();
-
-app.MapGuestEndpoint();
+app.MapEndpoints();
+//app.MapGuestEndpoint();
 app.UseExceptionHandler();
 
-app.Run();
+await app.RunAsync();

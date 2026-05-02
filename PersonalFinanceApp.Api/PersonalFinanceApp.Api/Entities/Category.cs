@@ -1,0 +1,38 @@
+﻿namespace PersonalFinanceApp.Api.Entities;
+
+public enum Category
+{
+    Multiple=0,
+    Housing = 1,
+    HouseholdItems,
+    Utilities,
+    Laundry,
+    Transportation,
+    Groceries,
+    DiningOut,
+    Clothing,
+    Education,
+    Entertainment,
+    Technology,
+    PersonalCare,
+    Healthcare,
+    Insurance,
+    Services,
+    Savings,
+    Investment,
+    DebtPayment,
+    Gifts,
+    Taxes,
+    Miscellaneous = 99,
+    Employment = 101,
+    PreviousSavings,
+    //Investment,
+    TaxReturns,
+    GovernmentBenefits,
+    //Gifts,
+    Loan,
+    Refund,
+    Retirement,
+    Rental,
+    //Miscellaneous = 199
+}

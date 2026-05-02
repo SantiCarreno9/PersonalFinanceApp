@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Project Path="BaseLibrary/BaseLibrary.csproj" />
+  <Project Path="PersonalFinanceApp.Api/PersonalFinanceApp.Api/PersonalFinanceApp.Api.csproj" />
+  <Project Path="PersonalFinanceApp.Web/PersonalFinanceApp.Web.csproj" />
+</Solution>

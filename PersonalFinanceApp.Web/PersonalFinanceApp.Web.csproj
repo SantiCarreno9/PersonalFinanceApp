@@ -1,12 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>		
-	</PropertyGroup>
-
 	<ItemGroup>
 		<Compile Remove="wwwroot\bootstrap-5.3.3-dist\**" />
 		<Content Remove="wwwroot\bootstrap-5.3.3-dist\**" />
@@ -19,17 +12,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="8.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.7" PrivateAssets="all" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
-		<PackageReference Include="Syncfusion.Blazor.Buttons" Version="26.2.8" />
-		<PackageReference Include="Syncfusion.Blazor.Calendars" Version="26.2.8" />
-		<PackageReference Include="Syncfusion.Blazor.Charts" Version="26.2.8" />
-		<PackageReference Include="Syncfusion.Blazor.Navigations" Version="26.2.8" />
-		<PackageReference Include="Syncfusion.Blazor.Popups" Version="26.2.8" />
-		<PackageReference Include="Syncfusion.Blazor.Themes" Version="26.2.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly"  />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Extensions.Http" />
+		<PackageReference Include="Syncfusion.Blazor.Buttons" />
+		<PackageReference Include="Syncfusion.Blazor.Calendars" />
+		<PackageReference Include="Syncfusion.Blazor.Charts" />
+		<PackageReference Include="Syncfusion.Blazor.Navigations" />
+		<PackageReference Include="Syncfusion.Blazor.Popups"/>
+		<PackageReference Include="Syncfusion.Blazor.Themes"/>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -56,7 +49,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <UpToDateCheckInput Remove="Pages\Logout.razor" />
+		<UpToDateCheckInput Remove="Pages\Logout.razor" />
 	</ItemGroup>
 
 </Project>
