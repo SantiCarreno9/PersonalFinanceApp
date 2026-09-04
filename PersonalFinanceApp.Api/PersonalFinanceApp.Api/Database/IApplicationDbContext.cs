@@ -10,5 +10,6 @@ public interface IApplicationDbContext
     DbSet<Account> Accounts { get; set; }
     DbSet<Transaction> Transactions { get; set; }
     DbSet<TransactionDetail> TransactionDetails { get; set; }
+    DbSet<Transfer> Transfers { get; set; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

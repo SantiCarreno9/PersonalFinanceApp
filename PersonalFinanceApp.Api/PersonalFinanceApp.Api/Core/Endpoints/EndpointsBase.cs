@@ -5,4 +5,5 @@ public static class EndpointsBase
     public const string UsersBasePath = "api/users";
     public const string AccountsBasePath = "api/accounts";
     public const string TransactionsBasePath = "api/transactions";
+    public const string TransfersBasePath = "api/transfers";
 }

@@ -14,6 +14,7 @@ public class GuestDbContext(
     public DbSet<User> Users { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Account> Accounts { get; set; }
+    public DbSet<Transfer> Transfers { get; set; }
 
     //public GuestDbContext(DbContextOptions<GuestDbContext> options) : base(options)
     //{
