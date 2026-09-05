@@ -367,3 +367,6 @@ FodyWeavers.xsd
 /PersonalFinanceApp.Api/PersonalFinanceApp.Api/personalfinanceapp.db-shm
 /PersonalFinanceApp.Api/PersonalFinanceApp.Api/personalfinanceapp.db-wal
 /PersonalFinanceApp.Api/PersonalFinanceApp.Api/appsettings.Development.json
+PersonalFinanceApp.Api/PersonalFinanceApp.Api/maindb*
+PersonalFinanceApp.Api/PersonalFinanceApp.Api/guestdb*
+PersonalFinanceApp.Api/PersonalFinanceApp.Api/guestpersonalfinanceapp*

@@ -118,8 +118,8 @@ namespace PersonalFinanceApp.Web.Components
         private void OnLegendClicked(AccumulationLegendClickEventArgs eventArgs)
         {
             if (eventArgs.Point.Visible)
-                amountToSubtract += (decimal)eventArgs.Point.Y.Value;
-            else amountToSubtract -= (decimal)eventArgs.Point.Y.Value;
+                amountToSubtract += (decimal)eventArgs.Point.Y;
+            else amountToSubtract -= (decimal)eventArgs.Point.Y;
         }
     }
 }

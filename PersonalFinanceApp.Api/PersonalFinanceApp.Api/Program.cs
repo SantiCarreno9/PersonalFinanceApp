@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using PersonalFinanceApp.Api.Data;
 using PersonalFinanceApp.Api.Extensions;
 using PersonalFinanceApp.Api.Middleware;
@@ -23,33 +23,22 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "Bearer"
     });
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-{
+    options.AddSecurityRequirement((document) => new OpenApiSecurityRequirement()
     {
-        new OpenApiSecurityScheme
-        {
-            Name = "Bearer",
-            In = ParameterLocation.Header,
-            Reference = new OpenApiReference
-            {
-                Id = "Bearer",
-                Type = ReferenceType.SecurityScheme
-            }
-        },
-        new List<string>()
-    }
-});
+        [new OpenApiSecuritySchemeReference("oauth2", document)] = []
+    });
+
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
 //DI
 
 builder.Services.AddDbContext<AppDbContext>(option =>
-    option.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection") ??
+    option.UseSqlite(builder.Configuration.GetConnectionString("MainDatabaseConnection") ??
         throw new InvalidOperationException("Connection string not found")));
 
 builder.Services.AddDbContext<GuestDbContext>(option =>
-    option.UseSqlite(builder.Configuration.GetConnectionString("GuestSqliteConnection") ??
+    option.UseSqlite(builder.Configuration.GetConnectionString("GuestDatabaseConnection") ??
         throw new InvalidOperationException("Connection string not found")));
 
 builder.Services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());

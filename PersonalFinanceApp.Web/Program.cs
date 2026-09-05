@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PersonalFinanceApp.Web;
-using PersonalFinanceApp.Web.Identity;
 using PersonalFinanceApp.Web.Services.Contracts;
 using PersonalFinanceApp.Web.Services.Implementations;
 using Syncfusion.Blazor;
