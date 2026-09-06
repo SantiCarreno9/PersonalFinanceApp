@@ -37,7 +37,7 @@ jobs:
         run: dotnet build ./PersonalFinanceApp.Api/PersonalFinanceApp.sln --configuration Release --no-restore
 
       - name: Publish
-        run: dotnet publish ./PersonalFinanceApp.Api/PersonalFinanceApp.sln --configuration Release --no-build -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
+        run: dotnet publish ./PersonalFinanceApp.Api/PersonalFinanceApp.sln --configuration Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
         
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
